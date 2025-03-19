@@ -53,12 +53,10 @@ export const products = [
     originalPrice: "$100",
     discountedPrice: "$80",
     rating: 4.1,
-    category: "Shoes", 
+    category: "Shoes",
     subCategory: "Shoes",
     subSubCategory: "joggers",
-    
   },
-  
   {
     id: 6,
     name: "Sweat Shirt",
@@ -68,9 +66,7 @@ export const products = [
     discountedPrice: "$70",
     rating: 4.3,
     category: "clothing"
-  },
-  
-  
+  }
 ];
 
 // Function to generate star ratings
@@ -88,15 +84,11 @@ const getStarRating = (rating: number) => {
   );
 };
 
-
 const ProductCard = ({ product }: { product: any }) => {
-  const [isWishlisted, setIsWishlisted] = useState(true);
-
-//wishlist functionality
-
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px] ">
+    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px] z-[10]">
       {/* Product Image */}
       <div className="relative">
         <img
@@ -107,7 +99,7 @@ const ProductCard = ({ product }: { product: any }) => {
       </div>
 
       {/* Product Details */}
-      <div className="mt-3 ">
+      <div className="mt-3 px-3">
         <div className="flex justify-between">
           {/* Product Name */}
           <Link
@@ -134,10 +126,8 @@ const ProductCard = ({ product }: { product: any }) => {
         {/* Size */}
         <p className="text-md text-gray-500">Size: {product.size ?? "N/A"}</p>
 
-        
         {/* Category */}
         <p className="text-md text-gray-500">Category: {product.category ?? "N/A"}</p>
-
 
         {/* Prices */}
         <p className="text-lg font-semibold text-teal-600">
@@ -150,7 +140,7 @@ const ProductCard = ({ product }: { product: any }) => {
 
 const ProductList = () => {
   return (
-    <div className="container mx-auto max-w-screen-2xl  py-6">
+    <div className="relative z-[20] container mx-auto max-w-screen-2xl py-6">
       <div className="px-2 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
         {products.map((product, index) => (
           <ProductCard key={index} product={product} />
@@ -161,4 +151,3 @@ const ProductList = () => {
 };
 
 export default ProductList;
-

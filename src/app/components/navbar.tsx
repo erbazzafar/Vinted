@@ -37,7 +37,7 @@ const Navbar = () => {
   }, [isOpen]);
 
   return (
-    <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative">
+    <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative overflow-visible">
       <div className="container mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -85,10 +85,10 @@ const Navbar = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg overflow-hidden"
+                  className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg overflow-visible z-[1000]"
                 >
                   {dropdownOptions.map((option, index) => (
-                    <Link key={index} href={option.path} className="block px-4 py-2 hover:bg-gray-100">
+                    <Link key={index} href={option.path} className="block px-4 py-2 hover:bg-gray-100 text-black">
                       {option.label}
                     </Link>
                   ))}
