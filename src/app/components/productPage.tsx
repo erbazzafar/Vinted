@@ -1,10 +1,14 @@
 "use client";
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProductCarousel from "./productCorousel";
 import SellerButton from "./routeSellerButton";
 import Image from "next/image";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 
 const product = {
   id: 1,
@@ -19,13 +23,18 @@ const product = {
     "Sleek, purified, and boasting an impeccably modern fit, this is a 2-button tailored coat that’s a must-have.",
   thumbnails: [
     "/pexels-boot.jpg",
-    "/pexels-boot.jpg",
     "/pexels-alljos-1261422.jpg",
+    "/pexels-boot.jpg",
+    "/pexels-anthony-derosa-39577-236915.jpg",
+    "/pexels-dom.jpg",
+    
+    "/pexels-martinpechy-2078268.jpg",
   ], 
 };
 
 const ProductPage = () => {
   const [mainImage, setMainImage] = useState(product.image);
+  const [showCarousel, setShowCarousel] = useState(false);
   const router = useRouter();
 
   const getStarRating = (rating: number) => {
@@ -58,21 +67,60 @@ const ProductPage = () => {
           {/* Left: Product Images */}
           <div className="flex gap-6">
             {/* Thumbnail Images */}
-            <div className="flex flex-col gap-4">
-              {product.thumbnails.map((thumb, index) => (
-                <Image
-                  key={index}
-                  src={thumb}
-                  alt={`Thumbnail ${index}`}
-                  width={80}
-                  height={50}
-                  className={`object-cover rounded-lg cursor-pointer border ${
-                    mainImage === thumb ? "border-teal-500" : "border-gray-300"
-                  }`}
-                  onClick={() => setMainImage(thumb)}
-                />
+            <div className="flex flex-col gap-4 relative">
+              {product.thumbnails.slice(0, 4).map((thumb, index) => (
+                <div key={index} className="relative">
+                  <Image
+                    src={thumb}
+                    alt={`Thumbnail ${index}`}
+                    width={80}
+                    height={80}
+                    className={`object-cover rounded-lg cursor-pointer border ${
+                      mainImage === thumb ? "border-teal-500" : "border-gray-300"
+                    }`}
+                    onClick={() => setMainImage(thumb)}
+                  />
+                  {/* Plus Icon on 4th Thumbnail */}
+                  {index === 3 && product.thumbnails.length > 4 && (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg cursor-pointer"
+                      onClick={() => setShowCarousel(true)}
+                    >
+                      <Plus size={24} className="text-white" />
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
+
+            {/* Carousel Modal */}
+            <Modal open={showCarousel} onClose={() => setShowCarousel(false)}>
+              <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-0 rounded-lg shadow-lg w-[95%] md:w-[65%] max-w-xl h-[600px] overflow-hidden">
+                <Carousel
+                  responsive={{
+                    all: { breakpoint: { max: 4000, min: 0 }, items: 1 },
+                  }}
+                  infinite
+                  autoPlay={false}
+                  keyBoardControl
+                  showDots
+                  arrows
+                >
+                  {product.thumbnails.map((image, index) => (
+                    <div key={index} className="w-full h-[600px] flex justify-center items-center">
+                      <Image
+                        src={image}
+                        alt={`Product ${index}`}
+                        width={950}
+                        height={600}
+                        className="w-full h-[600px] object-cover"
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              </Box>
+            </Modal>
+
 
             {/* Main Image */}
             <div className="w-full">
