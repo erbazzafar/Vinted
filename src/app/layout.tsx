@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/navbar";
+import { Particles } from "@/components/magicui/particles";
+import Footer from "./components/footer";
+import { Toaster } from "sonner"; // Import Sonner Toaster
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +29,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
+        <div className="absolute inset-0 -z-10">
+          <Particles />
+        </div>
+        <Toaster  
+            position="bottom-right" richColors /> {/* Ensures toast appears in bottom right */}
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
