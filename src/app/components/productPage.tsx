@@ -27,7 +27,6 @@ const product = {
     "/pexels-boot.jpg",
     "/pexels-anthony-derosa-39577-236915.jpg",
     "/pexels-dom.jpg",
-    
     "/pexels-martinpechy-2078268.jpg",
   ], 
 };
