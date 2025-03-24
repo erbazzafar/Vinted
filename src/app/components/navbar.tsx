@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Heart, Inbox, Menu, Search, X, ChevronDown, ChevronUp, Bell, MessageSquare, Package, Percent } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Cookies from "cookies-js"
+import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
 
 
@@ -14,24 +14,21 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-  const [token, setToken] = useState(Cookies.get("token"))
 
-  console.log("token befor logging out",token);
+  const token = Cookies.get("token")
+  console.log("token: ", token);
   
-  const handleLogOut = () => {
-    console.log("User Logged Out");
-    Cookies.expire("token");
-    setToken("");
-    console.log("token after logging out",token);
-    router.push("/"); // Redirect user after logout
-  };
+  const handleLogout = () => {
+    console.log("user Logged out");
+    Cookies.remove("token")
+  }
   // Profile Dropdown Options
   const dropdownOptions = [
     { label: "Profile", path: "/seller" },
     { label: "Settings", path: "/user-setting" },
     { label: "My Orders", path: "/orders" },
     { label: "Wallet", path: "/wallet" },
-    { label: "Log Out", path: "#", onclick: handleLogOut}
+    { label: "Logout", path: "#", onClick: handleLogout },
   ];
   
 
@@ -80,13 +77,13 @@ const Navbar = () => {
     },
   ];
 
-const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
 
-const [notifications, setNotifications] = useState(notificationsData)
+    const [notifications, setNotifications] = useState(notificationsData)
 
-const clearNotifications = () => {
-  setNotifications([]);
-};
+    const clearNotifications = () => {
+      setNotifications([]);
+    };
 
 
   // Close dropdowns when clicking outside
@@ -124,7 +121,7 @@ const clearNotifications = () => {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
-        {token === "" ? (
+        {!token  ? (
             <Link href="/signup" className="text-gray-900 dark:text-white hover:text-gray-900 transition">
               Sign Up | Login
             </Link>
@@ -217,12 +214,12 @@ const clearNotifications = () => {
                   exit={{ opacity: 0, y: -10 }}
                   className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-lg overflow-visible z-[1000]"
                 >
-                  {dropdownOptions.map((option, index) => (
+                  {dropdownOptions.map((option, index) =>
                     option.onClick ? (
                       <button
                         key={index}
-                        onClick={option.onClick}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-black"
+                        onClick={option.onClick} // ✅ Ensure it's called as a function reference
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-black cursor-pointer border-t-2"
                       >
                         {option.label}
                       </button>
@@ -235,7 +232,7 @@ const clearNotifications = () => {
                         {option.label}
                       </Link>
                     )
-                  ))}
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

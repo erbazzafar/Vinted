@@ -9,7 +9,7 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import Cookies from "cookies-js"
+import Cookies from "js-cookie"
 
 export default function SignupFormDemo() {
 
