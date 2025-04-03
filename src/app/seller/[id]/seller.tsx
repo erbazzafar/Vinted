@@ -1,29 +1,76 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Clock, Rss, CheckCircle } from "lucide-react";
-import TabsComponent from "./tabsSeller";
+import TabsComponent from "../../components/tabsSeller";
 import Image from "next/image";
-
+import Cookies from "js-cookie"
+import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
+import { toast } from "sonner";
 
 const SellerProfile = () => {
-  const [seller, setSeller] = useState({
-    username: "Erbaz",
-    reviews: 4,
-    rating: 4.34,
-    location: "Los Angeles, CA, United States",
-    lastSeen: "9 hours ago",
-    followers: 24,
-    following: 0,
-    frequentUploads: true,
-    verifiedGoogle: true,
-    verifiedEmail: true,
-    profileImage: "/pexels-kowalievska-1127000.jpg",
-    description:
-      "Welcome to my store! I'm Erbaz, a passionate and dedicated seller committed to providing high-quality products and a seamless shopping experience.",
-  });
+
+  const token = Cookies.get("token")
+
+  const router = useRouter()
+
+  const params = useParams()
+  console.log("Params: ", params);
+  
+  const {id: sellerId} = useParams()
+  console.log("seller id: ", sellerId);
+  
+  
+  const loggedInUserId = Cookies.get("userId")
+
+  const isOwnProfile = sellerId === loggedInUserId
+
+  const photoURl = Cookies.get("photourl")
+   const [seller, setSeller] = useState(null)
+  // {
+  //   id: 12345678,
+  //   username: "Erbaz",
+  //   reviews: 4,
+  //   rating: 4.34,
+  //   location: "Los Angeles, CA, United States",
+  //   lastSeen: "9 hours ago",
+  //   followers: 24,
+  //   following: 0,
+  //   frequentUploads: true,
+  //   verifiedGoogle: true,
+  //   verifiedEmail: true,
+  //   profileImage: photoURl,
+  //   description:
+  //     "Welcome to my store! I'm Erbaz, a passionate and dedicated seller committed to providing high-quality products and a seamless shopping experience.",
+  // });
+
+  useEffect(()=> {
+    const fetchData = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/viewUser/${sellerId}`,
+        {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      if (response.status !== 200){
+        toast.error("User Data Not found")
+        return
+      }
+      setSeller(response.data.data)
+      
+    } catch (error) {
+      console.log("Error Fetching the Profile");
+      
+    }
+  }
+  fetchData()
+  }, [sellerId])
+
 
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(seller.followers);
+  const [followersCount, setFollowersCount] = useState(0);
 
   const handleFollow = () => {
     setFollowersCount(isFollowing ? followersCount - 1 : followersCount + 1);
@@ -46,14 +93,15 @@ const SellerProfile = () => {
 
   return (
     <div>
+      {seller ? (
       <div className="mt-16 max-w-screen-2xl mx-auto">
         {/* Seller Profile Section */}
         <div className="flex items-start bg-white py-13 mb-10">
           {/* Seller Image (Aligned with "Brand" in Navbar) */}
           <div className="w-68 h-68 rounded-full overflow-hidden">
             <img
-              src={seller.profileImage}
-              alt={seller.username}
+              src={photoURl}
+              alt={seller?.username}
               className="w-full h-full object-cover"
             />
           </div>
@@ -65,16 +113,25 @@ const SellerProfile = () => {
               <h1 className="text-5xl font-bold">{seller.username}</h1>
 
               {/* Follow Button (Aligned with "Sell Now") */}
-              <button
-                className={`px-12 py-2 rounded-lg transition cursor-pointer ${
-                  isFollowing
-                    ? "bg-gray-600 hover:bg-gray-500"
-                    : "bg-gray-800 hover:bg-gray-600"
-                } text-white`}
-                onClick={handleFollow}
-              >
-                {isFollowing ? "Unfollow" : "Follow"}
-              </button>
+             { !isOwnProfile ? (
+                <button
+                  className={`px-12 py-2 rounded-lg transition cursor-pointer ${
+                    isFollowing
+                      ? "bg-gray-600 hover:bg-gray-500"
+                      : "bg-gray-800 hover:bg-gray-600"
+                  } text-white`}
+                  onClick={handleFollow}
+                >
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </button>
+                ) : (
+                  <button
+                    className="px-12 py-2 rounded-lg transition cursor-pointer bg-gray-600 hover:bg-gray-500 text-white"
+                    onClick={() => router.push('/user-setting')}>
+                      Edit Profile
+                  </button>
+                )
+              }
             </div>
 
             {/* Seller Rating and Reviews */}
@@ -145,6 +202,11 @@ const SellerProfile = () => {
           <TabsComponent />
         </div>
       </div>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-xl text-gray-500">Loading...</p>
+        </div>
+      ) }
     </div>
   );
 };

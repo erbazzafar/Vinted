@@ -1,9 +1,14 @@
 "use client"
-import { useState } from "react";
-import { Home, Settings, User, Shield, Bell, Camera, PlusCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import {Settings, User, Shield, Bell, Camera, PlusCircle } from "lucide-react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-
+import {DatePicker} from "@heroui/react"
+import { toast } from "sonner";
+import Cookies from "js-cookie";
+import axios from "axios"
+import { parseDate } from "@internationalized/date";
+import { useRouter } from "next/navigation";
 
 const pages = [
   { name: "Profile", icon: User },
@@ -15,25 +20,124 @@ const pages = [
 export default function Dashboard() {
   const [selectedPage, setSelectedPage] = useState(pages[0]);
   const [profile, setProfile] = useState({
-    photo: "", about: "", country: "", city: "", language: "English",  phoneNumber: "", email: "", fullName: "", gender: "", birthday: ""
+    image: null as string | File | null, about: "", country: "United States", city: "", language: "English",  phone: "", emailLink: false, fullName: "", gender: "",   birthDay: null as any 
   });
+  const router = useRouter()
 
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [phone, setPhoneNumber] = useState("");
 
-  
-  const handleProfileUpdate = () => {
-    alert("Profile updated successfully!");
+  console.log("User Id: ",Cookies.get("userId"));
+  const token = Cookies.get("token");
+  const id = Cookies.get("userId");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!id || !token){
+          console.log("user is not authenticated");
+          return
+        }
+
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/viewUser/${id}`,
+          {
+            headers:{
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        if (response.status !== 200){
+          console.log("server Error");
+          return
+        }
+
+        setProfile(response.data.data)
+        
+      } catch (error) {
+        toast.error("Error in Fetching the Data")
+      }
+    }
+    fetchData()
+  }, [id, token])
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfile((prevProfile) => ({ ...prevProfile, image: file }));
+    }
   };
 
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfile({ ...profile, photo: reader.result });
-      };
-      reader.readAsDataURL(file);
+  const handleProfileUpdate = async () => {
+    try {
+      if(!token || !id){
+        console.log("Id or Token not found");
+        return
+      }
+      const formData = new FormData()
+      
+      formData.append("about", profile.about)
+      formData.append("country", profile.country || "United States")
+      formData.append("city", profile.city)
+      console.log(formData.get("country"));
+      
+      formData.append("language", profile.language)
+      formData.append("phone", profile.phone)
+      // formData.append("emailLink", profile.emailLink? "true" : "false");
+      formData.append("fullName", profile.fullName)
+      formData.append("gender", profile.gender)
+      formData.append("birthDay", profile.birthDay ? new Date(profile.birthDay).toISOString().split("T")[0] : "");
+
+     if (profile.image) {
+        formData.append("image", profile.image); // Append file object, not Data URL
+      }
+
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${id}`,
+        formData,
+        {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
+        }
+        }
+      )
+      if (response.status !== 200){
+        toast.error("profile not updated")
+        return
+      }
+
+      toast.success(" Profile updated Successfully ")
+      
+    } catch (error) {
+      toast.error("Error updating the Profile")
+    }
+  };
+
+  const handleProfileDelete = async () => {
+    try {
+     
+      if(!token || !id){
+        console.log("No token | user not authenticated")
+        return
+      }
+      console.log(id)
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/delete/${id}`)
+      console.log("response: ", response);
+      
+
+      if(response.status === 200){
+        toast.success("User Deleted Successfully")
+        Cookies.remove("token")
+        Cookies.remove("userId")
+        router.push("/")
+      }
+      else {
+        toast.error("User is NOT deleted")
+      }
+      
+    } catch (error) {
+      toast.error("Error deleting the profile")
     }
   };
 
@@ -69,18 +173,25 @@ export default function Dashboard() {
               {/* Profile Picture */}
               <div className=" flex flex-col items-center">
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
-                  {profile.photo ? (
-                    <img src={profile.photo} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                      <Camera className="w-8 h-8 text-gray-500" />
-                    </div>
-                  )}
-                </div>
-                <input type="file" className="mt-2 hidden" id="photoUpload" onChange={handlePhotoChange} />
+                {profile.image ? (
+                  <img
+                    src={typeof profile.image === "string" ? profile.image : URL.createObjectURL(profile.image)}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                    <Camera className="w-8 h-8 text-gray-500" />
+                  </div>
+                )}
+              </div>
+
+              {/* File Input */}
+              <input type="file" className="mt-2 hidden" id="photoUpload" onChange={handlePhotoChange} />
                 <label htmlFor="photoUpload" className="mt-2 bg-gray-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-gray-700">
                   Upload Photo
-                </label>
+              </label>
+
               </div>
               {/* About Section */}
               <div>
@@ -92,42 +203,67 @@ export default function Dashboard() {
                   onChange={(e) => setProfile({ ...profile, about: e.target.value })}
                 />
               </div>
+                 <div className="grid grid-cols-2 gap-4">
+                  {/* Phone Number */}
+                  <div className="flex flex-col">
+                    <label className="block text-md font-medium">Phone Number</label>
+                    <button 
+                        className="bg-gray-100 px-7 py-2 rounded flex items-center justify-between w-full"
+                        onClick={() => setIsPhoneModalOpen(true)}>
+                      {profile.phone ? profile.phone : "Add Phone Number"} <PlusCircle className="w-7 h-7 "/>
+                    </button>
+                  </div>
 
-              {/* Phone Number */}
+                  {/* DatePicker */}
+                  <div className="flex flex-col">
+                    <label className="block text-md font-medium">Birth Date</label>
+                    <DatePicker 
+                      value={profile.birthDay ? parseDate(profile.birthDay) : null} // Ensure correct format
+                      onChange={(date) => setProfile({ ...profile, birthDay: date?.toString() || "" })} // Store as string
+                      className="w-full min-w-0 z-50"
+                      variant="underlined"
+                      aria-label="Select your birth date"
+                    />
+                  </div>
+                </div>
 
-              <label className=" block text-md font-medium">Phone Number</label>
-              <div className="flex items-center gap-2">
-                <button className="bg-gray-100 px-7 py-2 rounded flex items-center gap-2" onClick={() => setIsPhoneModalOpen(true)}>
-                  {profile.phoneNumber ? profile.phoneNumber : "Add Phone Number"} <PlusCircle className="w-7 h-7" />
-                </button>
-              </div>
+                {/* Email Link */}
+              {/* <div>
+                <label className="block text-md font-medium">Add another Email</label>
+                <input
+                  type="email"
+                  className="mt-2 w-full border p-2 rounded"
+                  placeholder="Enter your Email"
+                  value={profile.emailLink}
+                  onChange={(e) => setProfile({ ...profile, emailLink: e.target.value })}
+                />
+              </div> */}
 
+              {/*Phone Number Modal*/}
               <Modal open={isPhoneModalOpen} onClose={() => setIsPhoneModalOpen(false)}>
-              <Box
-                  className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                >
-                  <h2 className="text-lg font-semibold mb-4">Add Phone Number</h2>
-                  <input
-                    type="text"
-                    className="w-full border p-2 rounded mb-4"
-                    placeholder="Enter phone number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                  <button
-                    className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full"
-                    onClick={() => {
-                      setProfile({ ...profile, phoneNumber });
-                      setIsPhoneModalOpen(false);
-                      setPhoneNumber("");
-                    }}
-                  >
-                      Submit
-                  </button>
-                </Box>
-            </Modal>
-
-
+                  <Box
+                      className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    >
+                      <h2 className="text-lg font-semibold mb-4">Add Phone Number</h2>
+                      <input
+                        type="text"
+                        className="w-full border p-2 rounded mb-4"
+                        placeholder="Enter phone number"
+                        value={phone}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                      />
+                      <button
+                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full"
+                        onClick={() => {
+                          setProfile({ ...profile, phone });
+                          setIsPhoneModalOpen(false);
+                          setPhoneNumber("");
+                        }}
+                      >
+                          Submit
+                      </button>
+                    </Box>
+                </Modal>
 
               {/* Country Selection */}
               <div>
@@ -168,18 +304,43 @@ export default function Dashboard() {
                   <option>German</option>
                 </select>
               </div>
+              <div className="grid grid-cols-2 justify-center gap-x-8">
               {/* Update Profile Button */}
               <button
-                className="mt-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+                className="mt-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
                 onClick={handleProfileUpdate}
               >
                 Update Profile
               </button>
+              {/* Delete Profile Button */}
+              <button
+                className="mt-4 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                Delete Profile
+              </button>
+              </div>
             </div>
           ) : (
             selectedPage.content
           )}
         </div>
+
+              {/*Delet Modal*/}
+               <Modal open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                  <Box
+                      className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    >
+                      <h3 className="text-lg font-semibold mb-4">Are you sure you want to delete Your Profile </h3>
+                      <button
+                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full cursor-pointer"
+                        onClick={handleProfileDelete}
+                      >
+                          Delete Profile
+                      </button>
+                    </Box>
+                </Modal>
+
       </main>
     </div>
   );

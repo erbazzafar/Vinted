@@ -1,5 +1,6 @@
+import SellerProfile from '@/app/seller/[id]/seller'
 import React from 'react'
-import SellerProfile from '../components/seller'
+
 
 
 function Page() {

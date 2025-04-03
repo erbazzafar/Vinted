@@ -38,6 +38,7 @@ export default function LoginFormDemo() {
       console.log("Login Successful");
       console.log("Response", response)
       Cookies.set('token', response.data.token)
+      Cookies.set("userId", response.data.data._id)
       router.push("/")
 
     } catch (error) {

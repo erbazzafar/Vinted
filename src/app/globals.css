@@ -127,3 +127,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+.react-datepicker__day {
+  cursor: pointer !important;
+}
+.react-datepicker__day:hover {
+  background-color: #f3f4f6 !important; /* Light gray hover effect */
+}

@@ -1,21 +1,184 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { UploadCloud, X, ChevronDown, ChevronUp } from "lucide-react";
-import CategorySelector from "./categorySelectorInSell";
 import {motion, AnimatePresence} from "framer-motion"
 import { toast } from "sonner"
+import axios from "axios";
 
 const ProductCard = () => {
+
   const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("")
+
+  const [packageSize, setPackageSize] = useState<{name:string, description: string} []>([])
+  const [selectedPackageSize, setSelectedPackageSize] = useState("")
+  const [isPackageSizeOpen, setIsPackageSizeOpen] = useState(false)
+  
+  const [isUpload, setIsUpload] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [quality, setQuality] = useState<string[]>([])
   const [selectedQuality, setSelectedQuality] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [packageSize, setPackageSize] = useState("")
-  const [isPackageSizeOpen, setIsPackageSizeOpen] = useState(false)
-  const [description, setDescription] = useState("")
-  const [isUpload, setIsUpload] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [categories, setCategories] = useState<string[]>([])
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false)
+  const [parentId, setParentId] = useState("")
+  const [subCategories, setSubCategories] = useState<string[]>([])
+  const [selectedSubCategory, setSelectedSubCategory] = useState("")
+  const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false)
+
+  
+  const [brand, setBrand] = useState<string[]>([])
+  const [selectedBrand, setSelectedBrand] = useState("")
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+
+  {/*Brand Fetching API Call */}
+  useEffect(() => {
+    const fetchingBrand = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/brand/viewAll`
+        )
+        if(response.status !== 200) {
+          toast.error("Unable to fetch brands list right now")
+          return
+        }
+
+        console.log("Response from Brand: ", response);
+        const brandNames = await response.data.data.map((brand: {name: string }) => brand.name)
+        setBrand(brandNames)
+
+      } catch (error) {
+        console.log("Error Fetching the Brands");
+        return
+      }
+    }
+
+    fetchingBrand()
+  }, [])
+
+  {/*Package Size Fetching API Call */}
+  useEffect(() => {
+    const fetchingPackageSize = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/packageSize/viewAll`
+        )
+        if(response.status !== 200) {
+          toast.error("Unable to fetch package size list right now")
+          return
+        }
+
+        console.log("Response from Package Size: ", response);
+        const packageSizeNames = await response.data.data.map((pSize: {name: string }) => pSize.name)
+        setPackageSize(packageSizeNames)
+
+      } catch (error) {
+        console.log("Error Fetching the Package Sizes");
+        return
+      }
+    }
+
+    fetchingPackageSize()
+  }, [])
+
+  {/*Product Size Fetching API Call */}
+  useEffect(() => {
+    const fetchingProductSize = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/productSize/viewAll`
+        )
+        if(response.status !== 200) {
+          toast.error("Unable to fetch Sizes right now")
+          return
+        }
+
+        console.log("Response from Product Sizes: ", response);
+        setBrand(response.data.name)
+
+      } catch (error) {
+        console.log("Error Fetching the Sizes");
+        return
+      }
+    }
+
+    fetchingProductSize()
+  }, [])
+
+  {/*Category Fetching API Call*/}
+  useEffect(() => {
+    const fetchingCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll`,
+
+        )
+
+        if (response.status !== 200) {
+          console.log("Error 500 in fetching categories");
+          return
+        }
+
+        console.log("Response from Category : ", response);
+        const categoryNames = await response.data.data.map(
+          (category: { _id: string; name: string }) => ({
+            _id: category._id,
+            name: category.name,
+          })
+        )
+        setCategories(categoryNames)
+      
+      } catch (error) {
+        console.log("Error fetching the Categories");
+        return
+      }
+    }
+    fetchingCategories()
+  }, [])
+
+  const getParentId = (selectedCategory: { _id: string; name: string }) => {
+    setSelectedCategory(selectedCategory.name);
+    setParentId(selectedCategory._id);
+    setSubCategories([]); // Clear previous subcategories
+  };
+
+
+    useEffect(() => {
+      if(!parentId){
+        toast.info("Select a Category first")
+        return
+      }
+      const fetchingSubCategory = async () => {
+      try{
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${parentId}`
+        )
+
+        if (response.status !== 200){
+          toast.error("Error Fetching the Subcategories")
+          return
+        }
+
+        console.log("Response from Sub Category: ", response);
+        const subCategoryData = response.data.data.map(
+          (childCategory: { name: string }) => childCategory.name
+        );
+        setSubCategories(subCategoryData);
+        
+      } catch (error) {
+        console.log("Error in fetching SubCategory");
+        return
+      }
+    }
+
+    fetchingSubCategory()
+
+    }, [parentId])
 
   const qualities = {
     "New with tags": "A brand new unused item with tags attached or in the original packaging.",
@@ -31,15 +194,43 @@ const ProductCard = () => {
     "Large": "For items that'd fit in a Moving Box",
   }
 
-  const handlePackageSize = (pSize) => {
-    setPackageSize(pSize)
+  const handlePackageSize = (pSize: string) => {
+    setSelectedPackageSize(pSize)
     setIsPackageSizeOpen(false);
   }
 
-  const handleSelect = (quality) => {
+  const handleSelect = (quality: string) => {
     setSelectedQuality(quality);
     setIsOpen(false);
   }
+
+  const handleBrandSelect = (brand: string) => {
+    setSelectedBrand(brand);
+    setIsBrandOpen(false);
+  }
+
+  const handleCategorySelect = (category: { _id: string; name: string }) => {
+    setSelectedCategory(category.name);
+    setParentId(category._id);
+    setIsCategoryOpen(false); // Close dropdown after selection
+  };
+
+  const handleGoBack = () => {
+
+  }
+
+  // Handle Subcategory Selection
+const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCategoriesCount: number }) => {
+  setSelectedSubCategory(subCategory.name);
+
+  if (subCategory.subCategoriesCount > 0) {
+    // If this subcategory has further categories, update `parentId` and fetch again
+    setParentId(subCategory._id);
+  }
+
+  setIsSubCategoryOpen(false);
+};
+
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -66,10 +257,17 @@ const ProductCard = () => {
   };
 
   const handleUploadProduct = () => {
-    if (!title || !price || !images || !description || !packageSize) {
+    if (!title || !price || !images || !description || !brand ) {
       toast.error("Please fill all the fields.");
       return;
     }
+
+    if(price < 0){
+      toast.error("Price cannot be less than 0, Enter a New Price")
+      setPrice("")
+      return
+    }
+
     if (images.length < 1) {
       toast.error("Please upload minimum of 1 Product Picture."); 
       return
@@ -158,8 +356,54 @@ const ProductCard = () => {
           />
         </div>
 
-        {/* Product Quality */}
+         {/* Product Category */}
+         <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Category</label>
+            <div 
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedCategory || "Select Category"}
+              </span>
+              {isCategoryOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            <AnimatePresence>
+              {isCategoryOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="w-full p-2 border rounded-lg bg-white mt-2"
+                >
+                  {/* Back Button (if inside a subcategory) */}
+                  {parentId && (
+                    <motion.div
+                      className="cursor-pointer p-2 hover:bg-gray-100 font-medium"
+                      onClick={handleGoBack}
+                    >
+                      ← Back
+                    </motion.div>
+                  )}
 
+                  {/* Category List */}
+                  {categories.map((category) => (
+                    <motion.div
+                      key={category._id}
+                      className="cursor-pointer p-2 hover:bg-gray-100 flex justify-between items-center"
+                      onClick={() => handleCategorySelect(category)}
+                    >
+                      <strong>{category.name}</strong>
+                      {category.subCategoriesCount > 0 && <span>→</span>}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+
+        {/* Product Quality */}
         <div className="p-4">
         <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
         <div 
@@ -197,8 +441,44 @@ const ProductCard = () => {
         </AnimatePresence>
       </div>
 
-      {/* Package Size */}
+       {/* Brands Name */}
+       <div className="p-4">
+        <label className="block text-gray-600 font-medium mb-1">Brand</label>
+        <div 
+          className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+          onClick={() => setIsBrandOpen(!isBrandOpen)}
+        >
+          <span className="text-gray-700">
+            {selectedBrand || "Select Brand"}
+          </span>
+          {isBrandOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </div>
+        <AnimatePresence>
+          {isBrandOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full p-2 border rounded-lg bg-white mt-2"
+            >
+              {brand.map((brandName, index) => (
+                <motion.div
+                key={`${brandName}-${index}`}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="cursor-pointer p-2 hover:bg-gray-100"
+                  onClick={() => handleBrandSelect(brandName)}
+                >
+                  <strong>{brandName}</strong>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
+      {/* Package Size */}
       <div className="p-4">
         <label className="block text-gray-600 font-medium mb-1">Package Size</label>
         <div 
@@ -206,7 +486,7 @@ const ProductCard = () => {
           onClick={() => setIsPackageSizeOpen(!isPackageSizeOpen)}
         >
           <span className="text-gray-700">
-            {packageSize || "Select Size"}
+            {selectedPackageSize || "Select Size"}
           </span>
           {isPackageSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </div>
@@ -218,17 +498,17 @@ const ProductCard = () => {
               exit={{ opacity: 0, y: -10 }}
               className="w-full p-2 border rounded-lg bg-white mt-2"
             >
-              {Object.entries(packageSizes).map(([pSize, description]) => (
+              {packageSize.map((size) => (
                 <motion.div
-                  key={pSize}
+                  key={size.name}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   className="cursor-pointer p-2 hover:bg-gray-100"
-                  onClick={() => handlePackageSize(pSize)}
+                  onClick={() => handlePackageSize(size.name)}
                 >
-                  <strong>{pSize}</strong>
-                  <p className="text-sm text-gray-600">{description}</p>
+                  <strong>{size.name}</strong>
+                  <p className="text-sm text-gray-600">{size.description}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -236,17 +516,11 @@ const ProductCard = () => {
         </AnimatePresence>
       </div>
 
-        {/* Product Category */}
-        <div className="p-4 ">
-          <label className="block text-gray-600 font-medium mb-1">Product Category</label>
-          <CategorySelector />
-        </div>
-
         {/* Product Price */}
         <div className="p-4  rounded-lg ">
           <label className="block text-gray-600 font-medium mb-1">Product Price</label>
           <input
-            type="number"
+            type="text"
             placeholder="Enter product price"
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
             value={price}

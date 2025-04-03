@@ -7,24 +7,30 @@ import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
 
-
 const Navbar = () => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-
+  
+  const photoURL = Cookies.get("photourl")
+  const namepic = Cookies.get("name0")
   const token = Cookies.get("token")
   console.log("token: ", token);
+  const id = Cookies.get("userId")
   
   const handleLogout = () => {
     console.log("user Logged out");
+    Cookies.remove("photourl")
     Cookies.remove("token")
+    router.push('/')
   }
+
+
   // Profile Dropdown Options
   const dropdownOptions = [
-    { label: "Profile", path: "/seller" },
+    { label: "Profile", path: `/seller/${id}`},
     { label: "Settings", path: "/user-setting" },
     { label: "My Orders", path: "/orders" },
     { label: "Wallet", path: "/wallet" },
@@ -202,7 +208,10 @@ const Navbar = () => {
               className="p-3 rounded-lg flex items-center gap-2"
               onClick={() => setIsOpen(!isOpen)}
             >
-              <img src="pexels-alljos-1261422.jpg" className="w-10 h-10 rounded-full" alt="Profile" />
+              <img 
+                src={photoURL || namepic}
+                className="w-10 h-10 rounded-full" alt="Profile" />
+
               {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
 
@@ -220,7 +229,7 @@ const Navbar = () => {
                         key={index}
                         onClick={option.onClick} // ✅ Ensure it's called as a function reference
                         className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-black cursor-pointer border-t-2"
-                      >
+                         >
                         {option.label}
                       </button>
                     ) : (
