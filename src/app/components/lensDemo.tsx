@@ -166,12 +166,12 @@ const getStarRating = (rating: number) => {
 
           {/* Wishlist Button */}
           <button
-            className={`transition-colors ${
+            className={`cursor-pointer mr-3 transition-colors ${
               isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-300"
             }`}
             onClick={() => setIsWishlisted(!isWishlisted)}
           >
-            <Heart size={20} fill={isWishlisted ? "red" : "none"} />
+            <Heart size={22} fill={isWishlisted ? "red" : "none"} />
           </button>
         </div>
 

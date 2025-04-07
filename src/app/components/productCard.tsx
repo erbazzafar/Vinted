@@ -1,40 +1,52 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { UploadCloud, X, ChevronDown, ChevronUp } from "lucide-react";
+import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, PiSquare } from "lucide-react";
 import {motion, AnimatePresence} from "framer-motion"
 import { toast } from "sonner"
 import axios from "axios";
+import Cookies from "js-cookie";
+import CircularIndeterminate from "./loader";
+
+interface Category {
+  _id: string;
+  name: string;
+  subCategoryCount: number;
+}
+
 
 const ProductCard = () => {
 
-  const [images, setImages] = useState<string[]>([]);
+  const id = Cookies.get("userId")
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [images, setImages] = useState<File[]>([]); 
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("")
 
-  const [packageSize, setPackageSize] = useState<{name:string, description: string} []>([])
+  const [packageSize, setPackageSize] = useState<{name:string, description: string, _id: string} []>([])
   const [selectedPackageSize, setSelectedPackageSize] = useState("")
   const [isPackageSizeOpen, setIsPackageSizeOpen] = useState(false)
+  const [selectedPackageSizeId, setSelectedPackageSizeId] = useState("")
   
   const [isUpload, setIsUpload] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [quality, setQuality] = useState<string[]>([])
+  const [quality, setQuality] = useState<{ name: string, description: string }[]>([]);
   const [selectedQuality, setSelectedQuality] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedQualityId, setSelectedQualityId] = useState("")
 
-  const [categories, setCategories] = useState<string[]>([])
-  const [selectedCategory, setSelectedCategory] = useState("")
+  const [path, setPath] = useState<Category[]>([]);
+  const [currentOptions, setCurrentOptions] = useState<Category[]>([]);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false)
-  const [parentId, setParentId] = useState("")
-  const [subCategories, setSubCategories] = useState<string[]>([])
-  const [selectedSubCategory, setSelectedSubCategory] = useState("")
-  const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false)
+  const [categoryIdsPath, setCategoryIdsPath] = useState<string[]>([])
 
-  
-  const [brand, setBrand] = useState<string[]>([])
+  const [brand, setBrand] = useState<{ name: string, _id: string }[]>([])
   const [selectedBrand, setSelectedBrand] = useState("")
   const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [selectedBrandId, setSelectedBrandId] = useState("")
 
   {/*Brand Fetching API Call */}
   useEffect(() => {
@@ -49,8 +61,11 @@ const ProductCard = () => {
         }
 
         console.log("Response from Brand: ", response);
-        const brandNames = await response.data.data.map((brand: {name: string }) => brand.name)
-        setBrand(brandNames)
+        const brandData = response.data.data.map((brand: { name: string, _id: string }) => ({
+          name: brand.name,
+          _id: brand._id,
+        }));
+        setBrand(brandData)
 
       } catch (error) {
         console.log("Error Fetching the Brands");
@@ -74,8 +89,13 @@ const ProductCard = () => {
         }
 
         console.log("Response from Package Size: ", response);
-        const packageSizeNames = await response.data.data.map((pSize: {name: string }) => pSize.name)
-        setPackageSize(packageSizeNames)
+        const packageSizeList = response.data.data.map((item: { name: string; subTitle: string, _id: string }) => ({
+          name: item.name,
+          _id: item._id,
+          description: item.subTitle,
+        }));
+
+        setPackageSize(packageSizeList)
 
       } catch (error) {
         console.log("Error Fetching the Package Sizes");
@@ -86,203 +106,402 @@ const ProductCard = () => {
     fetchingPackageSize()
   }, [])
 
-  {/*Product Size Fetching API Call */}
-  useEffect(() => {
-    const fetchingProductSize = async () => {
+   {/*Product Quality Fetching API Call */}
+   useEffect(() => {
+    const fetchingProductQuality = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/productSize/viewAll`
-        )
-        if(response.status !== 200) {
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/condition/viewAll`
+        );
+        if (response.status !== 200) {
+          toast.error("Unable to fetch Product Quality list right now");
+          return;
+        }
+  
+        console.log("Response from Product Quality: ", response);
+  
+        // Now mapping name and subTitle as description
+        const productQualityList = response.data.data.map((item: { name: string; subTitle: string, _id: string }) => ({
+          name: item.name,
+          description: item.subTitle,
+          _id: item._id
+        }));
+  
+        setQuality(productQualityList);
+      } catch (error) {
+        console.log("Error Fetching the Product Quality");
+        toast.error("Something went wrong while fetching product quality");
+      }
+    };
+  
+    fetchingProductQuality();
+  }, []);
+
+  {/*Category Fetching API Call*/}
+  const fetchCategories = async (parentId = "") => {
+    setIsLoading(true);
+    try {
+      const url = parentId
+        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${parentId}`
+        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll`;
+
+      const response = await axios.get(url);
+
+      if (response.status !== 200) {
+        toast.error("Failed to fetch categories");
+        return;
+      }
+
+      const categoryList = response.data.data.map((category: any) => ({
+        _id: category._id,
+        name: category.name,
+        subCategoryCount: category.subCategoryCount || 0,
+      }));
+
+      setCurrentOptions(categoryList);
+    } catch (err) {
+      console.error("Error fetching categories", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCategorySelect = async (category: Category) => {
+    const newPath = [...path, category];
+    const newCategoryIdPath = [...categoryIdsPath, category._id]
+    setCategoryIdsPath(newCategoryIdPath)
+    setPath(newPath);
+    setIsLoading(true)
+    
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${category._id}`
+    );
+
+    if (response.status === 200 && response.data.data.length > 0) {
+      const nextLevel = response.data.data.map((child: any) => ({
+        _id: child._id,
+        name: child.name,
+        subCategoryCount: child.subCategoryCount || 0,
+      }));
+      setCurrentOptions(nextLevel);
+    } else {
+      // Final category selected
+      setCurrentOptions([]);
+      setIsCategoryOpen(false);
+      toast.success(`Selected Category: ${newPath.map((c) => c.name).join(" / ")}`);
+    }
+    setIsLoading(false);
+  };
+
+  const handleGoBack = () => {
+    const newPath = [...path];
+    const newCategoryIdPath = [...categoryIdsPath]
+    newCategoryIdPath.pop()
+    newPath.pop();
+    setPath(newPath);
+
+    if (newPath.length > 0) {
+      fetchCategories(newPath[newPath.length - 1]._id);
+    } else {
+      fetchCategories();
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  {/*Product Size Fetching API Call */}
+  const parentId = path[path.length - 1]?._id || ""
+  const [size, setSize] = useState<{name: string, description: string, _id: string }[]>([])
+  const [selectedSize, setSelectedSize] = useState("")
+  const [isSizeOpen, setIsSizeOpen] = useState(false)
+  const [selectedSizeId, setSelectedSizeId] = useState("")
+
+  useEffect (() => {
+    console.log("parentId: ", parentId);
+    const fetchSizes = async () => {
+      try {
+        if (!parentId){ 
+          console.log("Select Category first to fetch Sizes")  
+          return;} // Don't fetch if no parentId
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/size/viewAll?categoryId=${parentId}`,
+        );
+
+        console.log("Response from Sizes: ", response.status);
+        
+        
+        if (response.status !== 200) {
           toast.error("Unable to fetch Sizes right now")
           return
         }
 
-        console.log("Response from Product Sizes: ", response);
-        setBrand(response.data.name)
+        console.log("Response from Sizes: ", response);
+        const sizeList = response.data.data.map((productSize: { name: string, _id: string }) => ({
+          name: productSize.name, 
+          _id: productSize._id
+        }))
+        setSize(sizeList)
 
       } catch (error) {
-        console.log("Error Fetching the Sizes");
+        console.log("Error in Fetching the Sizes: ", error);
+        toast.error("Error in Fetching the Sizes")
         return
       }
     }
+    fetchSizes()
+  }, [parentId, currentOptions])
 
-    fetchingProductSize()
-  }, [])
-
-  {/*Category Fetching API Call*/}
-  useEffect(() => {
-    const fetchingCategories = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll`,
-
-        )
-
-        if (response.status !== 200) {
-          console.log("Error 500 in fetching categories");
-          return
-        }
-
-        console.log("Response from Category : ", response);
-        const categoryNames = await response.data.data.map(
-          (category: { _id: string; name: string }) => ({
-            _id: category._id,
-            name: category.name,
-          })
-        )
-        setCategories(categoryNames)
-      
-      } catch (error) {
-        console.log("Error fetching the Categories");
-        return
-      }
-    }
-    fetchingCategories()
-  }, [])
-
-  const getParentId = (selectedCategory: { _id: string; name: string }) => {
-    setSelectedCategory(selectedCategory.name);
-    setParentId(selectedCategory._id);
-    setSubCategories([]); // Clear previous subcategories
-  };
-
-
-    useEffect(() => {
-      if(!parentId){
-        toast.info("Select a Category first")
-        return
-      }
-      const fetchingSubCategory = async () => {
-      try{
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${parentId}`
-        )
-
-        if (response.status !== 200){
-          toast.error("Error Fetching the Subcategories")
-          return
-        }
-
-        console.log("Response from Sub Category: ", response);
-        const subCategoryData = response.data.data.map(
-          (childCategory: { name: string }) => childCategory.name
-        );
-        setSubCategories(subCategoryData);
-        
-      } catch (error) {
-        console.log("Error in fetching SubCategory");
-        return
-      }
-    }
-
-    fetchingSubCategory()
-
-    }, [parentId])
-
-  const qualities = {
-    "New with tags": "A brand new unused item with tags attached or in the original packaging.",
-    "New without Tags": "A brand new, unused item without tags or original packaging.",
-    "Very good": "A lightly used item that may have slight imperfections but still looks great. Include photos and a description of any flaws in your listing.",
-    "Good": "A used item that may show imperfections and signs of wear. Include photos and a description of flaws in your listing.",
-    "Satisfactory": "A frequently used item with imperfections and signs of wear. Include photos and a description of flaws in your listing."
-  };
-
-  const packageSizes = {
-    "Small": "For items that'd fit in a Large Envelope.",
-    "Medium": "For items that'd fit in a Shoe Box.",
-    "Large": "For items that'd fit in a Moving Box",
+  const handleSizeSelect = (productSize: {name: string, _id:string} ) => {
+    setSelectedSize(productSize.name);
+    setSelectedSizeId(productSize._id)
+    setIsSizeOpen(false);
   }
 
-  const handlePackageSize = (pSize: string) => {
-    setSelectedPackageSize(pSize)
+
+    {/* Material Selection Logic */}
+    const [material, setMaterial] = useState<{name: string, _id:string} []>([]);
+    const [selectedMaterial, setSelectedMaterial] = useState<{name: string, _id: string}[]>([]);
+    const [isMaterialOpen, setIsMaterialOpen] = useState(false);
+  
+    useEffect(() => {
+      const fetchMaterials = async () => {
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/material/viewAll`);
+          if (response.status !== 200) {
+            toast.error("Failed to fetch colors");
+            return;
+          }
+  
+          const materialList = response.data.data.map((item: { name: string, _id: string }) =>({
+            name: item.name,
+            _id: item._id,  
+          }))
+          setMaterial(materialList);
+        } catch (err) {
+          console.error("Error fetching colors", err);
+          toast.error("Error fetching colors");
+        }
+      };
+  
+      fetchMaterials();
+    }, []);
+  
+    const handleMaterialSelect = (material: { name: string; _id: string }) => {
+      if (selectedMaterial.some((m) => m._id === material._id)) {
+        // If the material is already selected, remove it
+        setSelectedMaterial((prev) => prev.filter((m) => m._id !== material._id));
+      } else {
+        // If the material isn't selected and you don't exceed the limit
+        if (selectedMaterial.length >= 3) {
+          toast.error("You can select only up to 3 materials");
+          return;
+        }
+        setSelectedMaterial((prev) => [...prev, material]);
+      }
+    };
+    
+    const handleRemoveMaterial = (material: {name: string, _id: string}) => {
+      setSelectedMaterial((prev) => prev.filter((m) => m._id !== material._id));
+    };
+
+    {/* Color Selection Logic */}
+    const [colors, setColors] = useState<{name: string, _id: string}[]>([]);
+    const [selectedColors, setSelectedColors] = useState<{name: string, _id: string}[]>([]);
+    const [isColorOpen, setIsColorOpen] = useState(false);
+  
+    useEffect(() => {
+      const fetchColors = async () => {
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/color/viewAll`);
+          if (response.status !== 200) {
+            toast.error("Failed to fetch colors");
+            return;
+          }
+  
+          const colorList = response.data.data.map((item: { name: string, _id: string }) => ({
+            name: item.name,
+            _id: item._id
+          }))
+          setColors(colorList);
+        } catch (err) {
+          console.error("Error fetching colors", err);
+          toast.error("Error fetching colors");
+        }
+      };
+  
+      fetchColors();
+    }, []);
+  
+    const handleColorSelect = (color: {name:string, _id: string}) => {
+      if (selectedColors.some((c) => c._id === color._id)){
+        setSelectedColors((prev) => prev.filter((c) => c._id !== color._id));
+      } else {
+        if (selectedColors.length >= 2) {
+          toast.error("You can select only up to 2 colors");
+          return;
+        }
+        setSelectedColors((prev) => [...prev, color]);
+      }
+    };
+  
+    const handleRemoveColor = (color: {name: string, _id:string}) => {
+      setSelectedColors((prev) => prev.filter((c) => c !== color));
+    };
+  
+  const handlePackageSize = (pSize: { name: string; description: string, _id:string }) => {
+    setSelectedPackageSize(pSize.name)
+    setSelectedPackageSizeId(pSize._id)
     setIsPackageSizeOpen(false);
   }
 
-  const handleSelect = (quality: string) => {
-    setSelectedQuality(quality);
+  console.log("Selected Package Size: ", selectedPackageSizeId);
+  
+
+  const handleQualitySelect = (quality: { name: string; description: string, _id: string }) => {
+    setSelectedQuality(quality.name);
+    setSelectedQualityId(quality._id)
     setIsOpen(false);
   }
 
-  const handleBrandSelect = (brand: string) => {
-    setSelectedBrand(brand);
+  const handleBrandSelect = (brand: { name: string, _id: string }) => {
+    setSelectedBrand(brand.name);
+    setSelectedBrandId(brand._id)
     setIsBrandOpen(false);
   }
 
-  const handleCategorySelect = (category: { _id: string; name: string }) => {
-    setSelectedCategory(category.name);
-    setParentId(category._id);
-    setIsCategoryOpen(false); // Close dropdown after selection
-  };
-
-  const handleGoBack = () => {
-
-  }
-
-  // Handle Subcategory Selection
-const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCategoriesCount: number }) => {
-  setSelectedSubCategory(subCategory.name);
-
-  if (subCategory.subCategoriesCount > 0) {
-    // If this subcategory has further categories, update `parentId` and fetch again
-    setParentId(subCategory._id);
-  }
-
-  setIsSubCategoryOpen(false);
-};
-
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
     if (files) {
-      const newImages = [...images];
+      const newImages = [...images]; // Clone the current image state array
       for (let i = 0; i < files.length; i++) {
         if (newImages.length < 15) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            newImages.push(reader.result as string);
-            setImages([...newImages]);
-          };
-          reader.readAsDataURL(files[i]);
+          newImages.push(files[i]); // Push each selected file to the array
         } else {
           toast.error("You can upload up to 15 images only.");
           break;
         }
       }
+      setImages(newImages); // Update the state with the new array of images
     }
   };
 
   const handleRemoveImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+    const updatedImages = images.filter((_, i) => i !== index); // Remove the image at the given index
+    setImages(updatedImages); // Update the state with the new images array
   };
 
-  const handleUploadProduct = () => {
-    if (!title || !price || !images || !description || !brand ) {
-      toast.error("Please fill all the fields.");
-      return;
-    }
+  const handleUploadProduct = async () => {
+    try {
+      if (!title || !price || !description || !brand ) {
+        toast.error("Please fill all the fields.");
+        return;
+      }
+      //@ts-ignore
+      if(price < 0){
+        toast.error("Price cannot be less than 0, Enter a New Price")
+        setPrice("")
+        return
+      }
+  
+      if (images.length < 1) {
+        toast.error("Please upload minimum of 1 Product Picture."); 
+        return
+      }
+      
+      if (images.length > 15) {
+        toast.error("You can upload a maximum of 15 images.");
+        return;
+      }
 
-    if(price < 0){
-      toast.error("Price cannot be less than 0, Enter a New Price")
-      setPrice("")
+      if (!selectedPackageSizeId) {
+        toast.error("Please select a package size.");
+        return;
+      }
+
+          // 🟢 Convert Data to FormData
+        const formData = new FormData();
+        formData.append("name", title);
+        formData.append("price", price);
+        formData.append("description", description)
+        formData.append("brandId", selectedBrandId);
+        formData.append("packageSizeId", selectedPackageSizeId);
+        formData.append("conditionId", selectedQualityId);
+        formData.append("sizeId", selectedSizeId);
+        formData.append("userId", id  || "")
+
+        // 🔹 Append array values
+        formData.append("categoryId", parentId); // Send the category ID path as a JSON string
+        selectedColors.map((color) => {
+          formData.append("colorId", color._id); // Append each selected color ID
+        })
+
+        // formData.append("colorId", selectedColors.map((color) => color._id));
+        //@ts-ignore
+        selectedMaterial.map((mat) => {
+          formData.append("materialId", mat._id)
+        })
+        // formData.append("materialId", selectedMaterial.map((mat) => mat._id));
+
+
+        // 🔹 Append images as files
+        images.forEach((image) => {
+          formData.append("image", image); // Make sure `image` is a File object
+        });
+
+        // 🟢 Make PUT request with FormData
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/create`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${Cookies.get("token")}`,
+            },
+          }
+        );
+
+      if (response.status !== 200) {
+        toast.error("Error uploading product, please try again later.");
+        return;
+      }
+
+      setIsUpload(true);
+      setTimeout(() => {
+        setIsUpload(false);
+        setImages([]);
+        setTitle("");
+        setSelectedQuality("");
+        setSelectedBrand("");
+        setSelectedPackageSize("");
+        setPath([]);
+        setIsOpen(false);
+        setIsBrandOpen(false);
+        setQuality([]);
+        setSelectedQuality("");
+        setSelectedBrand("");
+        setPackageSize([]);
+        setPrice("");
+        setDescription("");
+        setSelectedColors([]);
+        setSelectedMaterial([]);
+        setIsMaterialOpen(false);
+        setIsColorOpen(false);
+        setIsUpload(false);
+        setIsPackageSizeOpen(false);
+
+        toast.success("Product uploaded successfully!");
+      }, 1000);
+
+      
+    } catch (error) {
+      toast.error("Error uploading product, please try again later.");
+      console.log("Error uploading product: ", error);
       return
     }
-
-    if (images.length < 1) {
-      toast.error("Please upload minimum of 1 Product Picture."); 
-      return
-    }
-    setIsUpload(true);
-    setTimeout(() => {
-      setIsUpload(false);
-      setImages([]);
-      setTitle("");
-      setSelectedQuality("");
-      setPackageSize("")
-      setPrice("");
-      setDescription("")
-      toast.success("Product uploaded successfully!");
-    }, 1000);
+    
   };
 
   return (
@@ -295,18 +514,18 @@ const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCa
         <div className="grid grid-cols-3 md:grid-cols-5 gap-4 w-full">
           {images.map((img, index) => (
             <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden shadow-md">
-              <img
-                src={img}
-                alt="Product"
-                className="w-full h-full object-cover rounded-lg"
-              />
-              <button
-                className="absolute top-1 right-1 bg-gray-100 text-black rounded-full p-1 shadow-md hover:bg-gray-200 transition duration-200 cursor-pointer"
-                onClick={() => handleRemoveImage(index)}
-              >
-                <X size={16} />
-              </button>
-            </div>
+            <img
+              src={URL.createObjectURL(img)} // Create an object URL for preview
+              alt="Product"
+              className="w-full h-full object-cover rounded-lg"
+            />
+            <button
+              className="absolute top-1 right-1 bg-gray-100 text-black rounded-full p-1 shadow-md hover:bg-gray-200 transition duration-200 cursor-pointer"
+              onClick={() => handleRemoveImage(index)}
+            >
+              <X size={16} />
+            </button>
+          </div>
           ))}
 
           {/* Upload New Image */}
@@ -359,15 +578,16 @@ const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCa
          {/* Product Category */}
          <div className="p-4">
             <label className="block text-gray-600 font-medium mb-1">Category</label>
-            <div 
-              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
             >
               <span className="text-gray-700">
-                {selectedCategory || "Select Category"}
+                {path.length ? path.map((p) => p.name).join(" / ") : "Select Category"}
               </span>
               {isCategoryOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </div>
+
             <AnimatePresence>
               {isCategoryOpen && (
                 <motion.div
@@ -376,70 +596,193 @@ const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCa
                   exit={{ opacity: 0, y: -10 }}
                   className="w-full p-2 border rounded-lg bg-white mt-2"
                 >
-                  {/* Back Button (if inside a subcategory) */}
-                  {parentId && (
+                  {path.length > 0 && (
                     <motion.div
-                      className="cursor-pointer p-2 hover:bg-gray-100 font-medium"
+                      className="cursor-pointer p-2 hover:bg-gray-100 font-medium flex items-center gap-1"
                       onClick={handleGoBack}
                     >
-                      ← Back
+                      <ArrowLeft size={20} />
+                      <span>Back</span>
                     </motion.div>
                   )}
 
-                  {/* Category List */}
-                  {categories.map((category) => (
+                {isLoading ? (
+                        <p className="text-gray-500 text-center"> Loading ... </p>
+                      ) : (
+                        currentOptions.map((category) => (
+                          <motion.div
+                            key={category._id}
+                            className="cursor-pointer p-2 hover:bg-gray-100 flex justify-between items-center"
+                            onClick={() => handleCategorySelect(category)}
+                          >
+                            <strong>{category.name}</strong>
+                            {category.subCategoryCount > 0 && <ArrowRight size={18} />}
+                          </motion.div>
+                        ))
+                      )}
+                    </motion.div>
+                  )}
+            </AnimatePresence>
+          </div>
+
+          {/* Color Selection */}
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Product Colors</label>
+
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
+              onClick={() => setIsColorOpen(!isColorOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedColors.length ? selectedColors.map((color) => color.name).join(", ") : "Select up to 2 colors"}
+              </span>
+              {isColorOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+
+            <AnimatePresence>
+              {isColorOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
+                >
+                  {colors.map((color) => (
                     <motion.div
-                      key={category._id}
-                      className="cursor-pointer p-2 hover:bg-gray-100 flex justify-between items-center"
-                      onClick={() => handleCategorySelect(category)}
+                      key={color._id}
+                      className={`p-2 hover:bg-gray-100 flex justify-between items-center ${
+                        selectedColors.some((c) => c._id === color._id)
+                          ? "text-blue-600 font-semibold"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => handleColorSelect(color)}
                     >
-                      <strong>{category.name}</strong>
-                      {category.subCategoriesCount > 0 && <span>→</span>}
+                      {color.name}
+                      {selectedColors.some((c) => c._id === color._id) && <span className="text-xs">✓</span>}
                     </motion.div>
                   ))}
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Show selected color tags */}
+            {selectedColors.length > 0 && (
+              <div className="flex gap-2 mt-3 flex-wrap">
+                {selectedColors.map((color) => (
+                  <div
+                    key={color._id}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
+                  >
+                    {color.name}
+                    <X
+                      size={14}
+                      className="cursor-pointer"
+                      onClick={() => handleRemoveColor(color)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
+          {/* Material Selection */}
+            <div className="p-4">
+              <label className="block text-gray-600 font-medium mb-1">Product Material</label>
+
+              <div
+                className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
+                onClick={() => setIsMaterialOpen(!isMaterialOpen)}
+              >
+                <span className="text-gray-700">
+                  {selectedMaterial.length
+                    ? selectedMaterial.map((m) => m.name).join(", ")
+                    : "Select up to 3 Materials"}
+                </span>
+                {isMaterialOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </div>
+
+              <AnimatePresence>
+                {isMaterialOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
+                  >
+                    {material.map((m) => (
+                      <motion.div
+                        key={m._id}
+                        className={`p-2 hover:bg-gray-100 flex justify-between items-center ${
+                          selectedMaterial.some((sm) => sm._id === m._id)
+                            ? "text-blue-600 font-semibold"
+                            : "cursor-pointer"
+                        }`}
+                        onClick={() => handleMaterialSelect(m)}
+                      >
+                        {m.name}
+                        {selectedMaterial.some((sm) => sm._id === m._id) && <span className="text-xs">✓</span>}
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Show selected Material tags */}
+              {selectedMaterial.length > 0 && (
+                <div className="flex gap-2 mt-3 flex-wrap">
+                  {selectedMaterial.map((m) => (
+                    <div
+                      key={m._id}
+                      className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
+                    >
+                      {m.name}
+                      <X
+                        size={14}
+                        className="cursor-pointer"
+                        onClick={() => handleRemoveMaterial(m)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
         {/* Product Quality */}
         <div className="p-4">
-        <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
-        <div 
-          className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <span className="text-gray-700">
-            {selectedQuality || "Select Quality"}
-          </span>
-          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
+
+          <div
+            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <span className="text-gray-700">
+              {selectedQuality || "Select Quality"}
+            </span>
+            {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="w-full p-2 border rounded-lg bg-white mt-2"
+              >
+                {quality.map((q:any) => (
+                  <motion.div
+                    key={q.name}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={() => handleQualitySelect(q)}
+                  >
+                    <strong>{q.name}</strong>
+                    <p className="text-sm text-gray-600">{q.description}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="w-full p-2 border rounded-lg bg-white mt-2"
-            >
-              {Object.entries(qualities).map(([quality, description]) => (
-                <motion.div
-                  key={quality}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="cursor-pointer p-2 hover:bg-gray-100"
-                  onClick={() => handleSelect(quality)}
-                >
-                  <strong>{quality}</strong>
-                  <p className="text-sm text-gray-600">{description}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
 
        {/* Brands Name */}
        <div className="p-4">
@@ -470,7 +813,7 @@ const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCa
                   className="cursor-pointer p-2 hover:bg-gray-100"
                   onClick={() => handleBrandSelect(brandName)}
                 >
-                  <strong>{brandName}</strong>
+                  <strong>{brandName.name}</strong>
                 </motion.div>
               ))}
             </motion.div>
@@ -478,43 +821,80 @@ const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCa
         </AnimatePresence>
       </div>
 
-      {/* Package Size */}
+      {/* Product size list */}
       <div className="p-4">
-        <label className="block text-gray-600 font-medium mb-1">Package Size</label>
+        <label className="block text-gray-600 font-medium mb-1">Product Size</label>
         <div 
           className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-          onClick={() => setIsPackageSizeOpen(!isPackageSizeOpen)}
+          onClick={() => setIsSizeOpen(!isSizeOpen)}
         >
           <span className="text-gray-700">
-            {selectedPackageSize || "Select Size"}
+            {selectedSize || "Select Product Size"}
           </span>
-          {isPackageSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          {isSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </div>
         <AnimatePresence>
-          {isPackageSizeOpen && (
+          {isSizeOpen && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               className="w-full p-2 border rounded-lg bg-white mt-2"
             >
-              {packageSize.map((size) => (
+              {size.map((productSize, index) => (
                 <motion.div
-                  key={size.name}
+                key={`${productSize.name}-${index}`}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   className="cursor-pointer p-2 hover:bg-gray-100"
-                  onClick={() => handlePackageSize(size.name)}
+                  onClick={() => handleSizeSelect(productSize)}
                 >
-                  <strong>{size.name}</strong>
-                  <p className="text-sm text-gray-600">{size.description}</p>
+                  <strong>{productSize.name}</strong>
                 </motion.div>
               ))}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+        {/* Package Size */}
+        <div className="p-4">
+          <label className="block text-gray-600 font-medium mb-1">Package Size</label>
+          <div 
+            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+            onClick={() => setIsPackageSizeOpen(!isPackageSizeOpen)}
+          >
+            <span className="text-gray-700">
+              {selectedPackageSize || "Select Size"}
+            </span>
+            {isPackageSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          <AnimatePresence>
+            {isPackageSizeOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="w-full p-2 border rounded-lg bg-white mt-2"
+              >
+                {packageSize.map((size) => (
+                  <motion.div
+                    key={size._id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={() => handlePackageSize(size)}
+                  >
+                    <strong>{size.name}</strong>
+                    <p className="text-sm text-gray-600">{size.description}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Product Price */}
         <div className="p-4  rounded-lg ">
@@ -537,7 +917,7 @@ const handleSubCategorySelect = (subCategory: { _id: string; name: string; subCa
         {isUpload ? "Uploading..." : "Upload Product"}
       </button>
     </div>
-  );
-};
+    );
+  };
 
-export default ProductCard;
+  export default ProductCard;
