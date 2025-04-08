@@ -1,5 +1,5 @@
+import ProductPage from '@/app/product/productPage'
 import React from 'react'
-import ProductPage from '../components/productPage'
 
 
 function Page() {

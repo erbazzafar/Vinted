@@ -27,23 +27,7 @@ const SellerProfile = () => {
 
   const photoURl = Cookies.get("photourl")
    const [seller, setSeller] = useState(null)
-  // {
-  //   id: 12345678,
-  //   username: "Erbaz",
-  //   reviews: 4,
-  //   rating: 4.34,
-  //   location: "Los Angeles, CA, United States",
-  //   lastSeen: "9 hours ago",
-  //   followers: 24,
-  //   following: 0,
-  //   frequentUploads: true,
-  //   verifiedGoogle: true,
-  //   verifiedEmail: true,
-  //   profileImage: photoURl,
-  //   description:
-  //     "Welcome to my store! I'm Erbaz, a passionate and dedicated seller committed to providing high-quality products and a seamless shopping experience.",
-  // });
-
+  
   useEffect(()=> {
     const fetchData = async () => {
     try {
@@ -67,7 +51,6 @@ const SellerProfile = () => {
   }
   fetchData()
   }, [sellerId])
-
 
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
@@ -155,7 +138,7 @@ const SellerProfile = () => {
             <div className="text-gray-700 text-lg mt-2">
               <div className="flex items-center space-x-3">
                 <MapPin size={20} />
-                <span>{seller.location}</span>
+                <span>{seller.country}</span>
               </div>
               <div className="flex items-center space-x-3 mt-1">
                 <Clock size={20} />
@@ -199,7 +182,7 @@ const SellerProfile = () => {
 
         {/* Updated Tabs Section */}
         <div className="w-full">
-          <TabsComponent />
+          <TabsComponent sellerId={sellerId} />
         </div>
       </div>
       ) : (
