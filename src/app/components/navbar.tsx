@@ -112,11 +112,11 @@ const Navbar = () => {
       <div className="container mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
-          Brand
+          AffareDaro
         </Link>
 
         {/* Search Bar (Hidden on Mobile) */}
-        <div className="relative w-[45%] xl:w-[55%] hidden md:block">
+        <div className="relative w-[42%] xl:w-[52%] hidden md:block">
           <input
             type="text"
             className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full py-2 pl-10 border border-gray-400 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
@@ -133,9 +133,9 @@ const Navbar = () => {
             </Link>
           ) : (
             <>
-              <Link href="/inbox">
-                <Inbox size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
-              </Link>
+            <Link href={`/inbox/${id}`}>
+              <Inbox size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+            </Link>
               <Link href="/wishlist">
                 <Heart size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
               </Link>

@@ -5,7 +5,7 @@ import {motion, AnimatePresence} from "framer-motion"
 import { toast } from "sonner"
 import axios from "axios";
 import Cookies from "js-cookie";
-import CircularIndeterminate from "./loader";
+import { useRouter } from "next/navigation";
 
 interface Category {
   _id: string;
@@ -16,7 +16,9 @@ interface Category {
 
 const ProductCard = () => {
 
+  const token = Cookies.get("token")
   const id = Cookies.get("userId")
+  const route = useRouter()
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -476,6 +478,8 @@ const ProductCard = () => {
         setSelectedQuality("");
         setSelectedBrand("");
         setSelectedPackageSize("");
+        setSelectedSize("")
+        setIsSizeOpen(false)
         setPath([]);
         setIsOpen(false);
         setIsBrandOpen(false);
@@ -505,241 +509,180 @@ const ProductCard = () => {
   };
 
   return (
-    <div className="relative max-w-4xl mx-auto shadow-lg rounded-lg bg-white p-6 mb-15">
-      {/* Image Upload */}
-      <div className="relative w-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded-lg p-5 ">
-        <p className="text-gray-600 text-sm mb-3 font-medium">Upload Product Images LIMIT: 15</p>
-        
-        {/* Dynamic Grid Layout */}
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-4 w-full">
-          {images.map((img, index) => (
-            <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden shadow-md">
-            <img
-              src={URL.createObjectURL(img)} // Create an object URL for preview
-              alt="Product"
-              className="w-full h-full object-cover rounded-lg"
-            />
-            <button
-              className="absolute top-1 right-1 bg-gray-100 text-black rounded-full p-1 shadow-md hover:bg-gray-200 transition duration-200 cursor-pointer"
-              onClick={() => handleRemoveImage(index)}
-            >
-              <X size={16} />
-            </button>
-          </div>
-          ))}
-
-          {/* Upload New Image */}
-          {images.length < 15 && (
-            <div
-              className="w-full h-24 flex flex-col items-center justify-center border border-gray-300 rounded-lg cursor-pointer bg-white shadow-md hover:bg-gray-200 transition duration-300 relative"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <UploadCloud size={32} className="text-gray-500" />
-              <p className="text-gray-500 text-xs mt-1">+ {15 - images.length}</p>
+    
+      <div className="relative max-w-4xl mx-auto shadow-lg rounded-lg bg-white p-6 mb-15">
+        {/* Image Upload */}
+        <div className="relative w-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded-lg p-5 ">
+          <p className="text-gray-600 text-sm mb-3 font-medium">Upload Product Images LIMIT: 15</p>
+          
+          {/* Dynamic Grid Layout */}
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-4 w-full">
+            {images.map((img, index) => (
+              <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden shadow-md">
+              <img
+                src={URL.createObjectURL(img)} // Create an object URL for preview
+                alt="Product"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <button
+                className="absolute top-1 right-1 bg-gray-100 text-black rounded-full p-1 shadow-md hover:bg-gray-200 transition duration-200 cursor-pointer"
+                onClick={() => handleRemoveImage(index)}
+              >
+                <X size={16} />
+              </button>
             </div>
-          )}
-        </div>
+            ))}
 
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-        />
-      </div>
-
-      {/* Product Details */}
-      <div className="mt-8 space-y-4">
-        {/* Product Title */}
-        <div className="p-4 ">
-          <label className="block text-gray-600 font-medium mb-1">Product Title</label>
-          <input
-            type="text"
-            placeholder="Enter product title"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-         {/* Product Description */}
-         <div className="p-4 ">
-          <label className="block text-gray-600 font-medium mb-1">Product Description</label>
-          <textarea
-            placeholder="Enter product Description"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-         {/* Product Category */}
-         <div className="p-4">
-            <label className="block text-gray-600 font-medium mb-1">Category</label>
-            <div
-              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-            >
-              <span className="text-gray-700">
-                {path.length ? path.map((p) => p.name).join(" / ") : "Select Category"}
-              </span>
-              {isCategoryOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </div>
-
-            <AnimatePresence>
-              {isCategoryOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="w-full p-2 border rounded-lg bg-white mt-2"
-                >
-                  {path.length > 0 && (
-                    <motion.div
-                      className="cursor-pointer p-2 hover:bg-gray-100 font-medium flex items-center gap-1"
-                      onClick={handleGoBack}
-                    >
-                      <ArrowLeft size={20} />
-                      <span>Back</span>
-                    </motion.div>
-                  )}
-
-                {isLoading ? (
-                        <p className="text-gray-500 text-center"> Loading ... </p>
-                      ) : (
-                        currentOptions.map((category) => (
-                          <motion.div
-                            key={category._id}
-                            className="cursor-pointer p-2 hover:bg-gray-100 flex justify-between items-center"
-                            onClick={() => handleCategorySelect(category)}
-                          >
-                            <strong>{category.name}</strong>
-                            {category.subCategoryCount > 0 && <ArrowRight size={18} />}
-                          </motion.div>
-                        ))
-                      )}
-                    </motion.div>
-                  )}
-            </AnimatePresence>
-          </div>
-
-          {/* Color Selection */}
-          <div className="p-4">
-            <label className="block text-gray-600 font-medium mb-1">Product Colors</label>
-
-            <div
-              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
-              onClick={() => setIsColorOpen(!isColorOpen)}
-            >
-              <span className="text-gray-700">
-                {selectedColors.length ? selectedColors.map((color) => color.name).join(", ") : "Select up to 2 colors"}
-              </span>
-              {isColorOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </div>
-
-            <AnimatePresence>
-              {isColorOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
-                >
-                  {colors.map((color) => (
-                    <motion.div
-                      key={color._id}
-                      className={`p-2 hover:bg-gray-100 flex justify-between items-center ${
-                        selectedColors.some((c) => c._id === color._id)
-                          ? "text-blue-600 font-semibold"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => handleColorSelect(color)}
-                    >
-                      {color.name}
-                      {selectedColors.some((c) => c._id === color._id) && <span className="text-xs">✓</span>}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Show selected color tags */}
-            {selectedColors.length > 0 && (
-              <div className="flex gap-2 mt-3 flex-wrap">
-                {selectedColors.map((color) => (
-                  <div
-                    key={color._id}
-                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
-                  >
-                    {color.name}
-                    <X
-                      size={14}
-                      className="cursor-pointer"
-                      onClick={() => handleRemoveColor(color)}
-                    />
-                  </div>
-                ))}
+            {/* Upload New Image */}
+            {images.length < 15 && (
+              <div
+                className="w-full h-24 flex flex-col items-center justify-center border border-gray-300 rounded-lg cursor-pointer bg-white shadow-md hover:bg-gray-200 transition duration-300 relative"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <UploadCloud size={32} className="text-gray-500" />
+                <p className="text-gray-500 text-xs mt-1">+ {15 - images.length}</p>
               </div>
             )}
           </div>
 
-          {/* Material Selection */}
-            <div className="p-4">
-              <label className="block text-gray-600 font-medium mb-1">Product Material</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+          />
+        </div>
 
+        {/* Product Details */}
+        <div className="mt-8 space-y-4">
+          {/* Product Title */}
+          <div className="p-4 ">
+            <label className="block text-gray-600 font-medium mb-1">Product Title</label>
+            <input
+              type="text"
+              placeholder="Enter product title"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          {/* Product Description */}
+          <div className="p-4 ">
+            <label className="block text-gray-600 font-medium mb-1">Product Description</label>
+            <textarea
+              placeholder="Enter product Description"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          {/* Product Category */}
+          <div className="p-4">
+              <label className="block text-gray-600 font-medium mb-1">Category</label>
               <div
                 className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
-                onClick={() => setIsMaterialOpen(!isMaterialOpen)}
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
               >
                 <span className="text-gray-700">
-                  {selectedMaterial.length
-                    ? selectedMaterial.map((m) => m.name).join(", ")
-                    : "Select up to 3 Materials"}
+                  {path.length ? path.map((p) => p.name).join(" / ") : "Select Category"}
                 </span>
-                {isMaterialOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                {isCategoryOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </div>
 
               <AnimatePresence>
-                {isMaterialOpen && (
+                {isCategoryOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="w-full p-2 border rounded-lg bg-white mt-2"
+                  >
+                    {path.length > 0 && (
+                      <motion.div
+                        className="cursor-pointer p-2 hover:bg-gray-100 font-medium flex items-center gap-1"
+                        onClick={handleGoBack}
+                      >
+                        <ArrowLeft size={20} />
+                        <span>Back</span>
+                      </motion.div>
+                    )}
+
+                  {isLoading ? (
+                          <p className="text-gray-500 text-center"> Loading ... </p>
+                        ) : (
+                          currentOptions.map((category) => (
+                            <motion.div
+                              key={category._id}
+                              className="cursor-pointer p-2 hover:bg-gray-100 flex justify-between items-center"
+                              onClick={() => handleCategorySelect(category)}
+                            >
+                              <strong>{category.name}</strong>
+                              {category.subCategoryCount > 0 && <ArrowRight size={18} />}
+                            </motion.div>
+                          ))
+                        )}
+                      </motion.div>
+                    )}
+              </AnimatePresence>
+            </div>
+
+            {/* Color Selection */}
+            <div className="p-4">
+              <label className="block text-gray-600 font-medium mb-1">Product Colors</label>
+
+              <div
+                className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
+                onClick={() => setIsColorOpen(!isColorOpen)}
+              >
+                <span className="text-gray-700">
+                  {selectedColors.length ? selectedColors.map((color) => color.name).join(", ") : "Select up to 2 colors"}
+                </span>
+                {isColorOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </div>
+
+              <AnimatePresence>
+                {isColorOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
                   >
-                    {material.map((m) => (
+                    {colors.map((color) => (
                       <motion.div
-                        key={m._id}
+                        key={color._id}
                         className={`p-2 hover:bg-gray-100 flex justify-between items-center ${
-                          selectedMaterial.some((sm) => sm._id === m._id)
+                          selectedColors.some((c) => c._id === color._id)
                             ? "text-blue-600 font-semibold"
                             : "cursor-pointer"
                         }`}
-                        onClick={() => handleMaterialSelect(m)}
+                        onClick={() => handleColorSelect(color)}
                       >
-                        {m.name}
-                        {selectedMaterial.some((sm) => sm._id === m._id) && <span className="text-xs">✓</span>}
+                        {color.name}
+                        {selectedColors.some((c) => c._id === color._id) && <span className="text-xs">✓</span>}
                       </motion.div>
                     ))}
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Show selected Material tags */}
-              {selectedMaterial.length > 0 && (
+              {/* Show selected color tags */}
+              {selectedColors.length > 0 && (
                 <div className="flex gap-2 mt-3 flex-wrap">
-                  {selectedMaterial.map((m) => (
+                  {selectedColors.map((color) => (
                     <div
-                      key={m._id}
+                      key={color._id}
                       className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
                     >
-                      {m.name}
+                      {color.name}
                       <X
                         size={14}
                         className="cursor-pointer"
-                        onClick={() => handleRemoveMaterial(m)}
+                        onClick={() => handleRemoveColor(color)}
                       />
                     </div>
                   ))}
@@ -747,148 +690,135 @@ const ProductCard = () => {
               )}
             </div>
 
-        {/* Product Quality */}
-        <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
+            {/* Material Selection */}
+              <div className="p-4">
+                <label className="block text-gray-600 font-medium mb-1">Product Material</label>
 
-          <div
-            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <span className="text-gray-700">
-              {selectedQuality || "Select Quality"}
-            </span>
-            {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                <div
+                  className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
+                  onClick={() => setIsMaterialOpen(!isMaterialOpen)}
+                >
+                  <span className="text-gray-700">
+                    {selectedMaterial.length
+                      ? selectedMaterial.map((m) => m.name).join(", ")
+                      : "Select up to 3 Materials"}
+                  </span>
+                  {isMaterialOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </div>
+
+                <AnimatePresence>
+                  {isMaterialOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
+                    >
+                      {material.map((m) => (
+                        <motion.div
+                          key={m._id}
+                          className={`p-2 hover:bg-gray-100 flex justify-between items-center ${
+                            selectedMaterial.some((sm) => sm._id === m._id)
+                              ? "text-blue-600 font-semibold"
+                              : "cursor-pointer"
+                          }`}
+                          onClick={() => handleMaterialSelect(m)}
+                        >
+                          {m.name}
+                          {selectedMaterial.some((sm) => sm._id === m._id) && <span className="text-xs">✓</span>}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Show selected Material tags */}
+                {selectedMaterial.length > 0 && (
+                  <div className="flex gap-2 mt-3 flex-wrap">
+                    {selectedMaterial.map((m) => (
+                      <div
+                        key={m._id}
+                        className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
+                      >
+                        {m.name}
+                        <X
+                          size={14}
+                          className="cursor-pointer"
+                          onClick={() => handleRemoveMaterial(m)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+          {/* Product Quality */}
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
+
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedQuality || "Select Quality"}
+              </span>
+              {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="w-full p-2 border rounded-lg bg-white mt-2"
+                >
+                  {quality.map((q:any) => (
+                    <motion.div
+                      key={q.name}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => handleQualitySelect(q)}
+                    >
+                      <strong>{q.name}</strong>
+                      <p className="text-sm text-gray-600">{q.description}</p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="w-full p-2 border rounded-lg bg-white mt-2"
-              >
-                {quality.map((q:any) => (
-                  <motion.div
-                    key={q.name}
-                    className="cursor-pointer p-2 hover:bg-gray-100"
-                    onClick={() => handleQualitySelect(q)}
-                  >
-                    <strong>{q.name}</strong>
-                    <p className="text-sm text-gray-600">{q.description}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-       {/* Brands Name */}
-       <div className="p-4">
-        <label className="block text-gray-600 font-medium mb-1">Brand</label>
-        <div 
-          className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-          onClick={() => setIsBrandOpen(!isBrandOpen)}
-        >
-          <span className="text-gray-700">
-            {selectedBrand || "Select Brand"}
-          </span>
-          {isBrandOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </div>
-        <AnimatePresence>
-          {isBrandOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="w-full p-2 border rounded-lg bg-white mt-2"
-            >
-              {brand.map((brandName, index) => (
-                <motion.div
-                key={`${brandName}-${index}`}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="cursor-pointer p-2 hover:bg-gray-100"
-                  onClick={() => handleBrandSelect(brandName)}
-                >
-                  <strong>{brandName.name}</strong>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Product size list */}
-      <div className="p-4">
-        <label className="block text-gray-600 font-medium mb-1">Product Size</label>
-        <div 
-          className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-          onClick={() => setIsSizeOpen(!isSizeOpen)}
-        >
-          <span className="text-gray-700">
-            {selectedSize || "Select Product Size"}
-          </span>
-          {isSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </div>
-        <AnimatePresence>
-          {isSizeOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="w-full p-2 border rounded-lg bg-white mt-2"
-            >
-              {size.map((productSize, index) => (
-                <motion.div
-                key={`${productSize.name}-${index}`}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="cursor-pointer p-2 hover:bg-gray-100"
-                  onClick={() => handleSizeSelect(productSize)}
-                >
-                  <strong>{productSize.name}</strong>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-        {/* Package Size */}
+        {/* Brands Name */}
         <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Package Size</label>
+          <label className="block text-gray-600 font-medium mb-1">Brand</label>
           <div 
             className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsPackageSizeOpen(!isPackageSizeOpen)}
+            onClick={() => setIsBrandOpen(!isBrandOpen)}
           >
             <span className="text-gray-700">
-              {selectedPackageSize || "Select Size"}
+              {selectedBrand || "Select Brand"}
             </span>
-            {isPackageSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            {isBrandOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
           <AnimatePresence>
-            {isPackageSizeOpen && (
+            {isBrandOpen && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className="w-full p-2 border rounded-lg bg-white mt-2"
               >
-                {packageSize.map((size) => (
+                {brand.map((brandName, index) => (
                   <motion.div
-                    key={size._id}
+                  key={`${brandName}-${index}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                     className="cursor-pointer p-2 hover:bg-gray-100"
-                    onClick={() => handlePackageSize(size)}
+                    onClick={() => handleBrandSelect(brandName)}
                   >
-                    <strong>{size.name}</strong>
-                    <p className="text-sm text-gray-600">{size.description}</p>
+                    <strong>{brandName.name}</strong>
                   </motion.div>
                 ))}
               </motion.div>
@@ -896,27 +826,102 @@ const ProductCard = () => {
           </AnimatePresence>
         </div>
 
-        {/* Product Price */}
-        <div className="p-4  rounded-lg ">
-          <label className="block text-gray-600 font-medium mb-1">Product Price</label>
-          <input
-            type="text"
-            placeholder="Enter product price"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+        {/* Product size list */}
+        <div className="p-4">
+          <label className="block text-gray-600 font-medium mb-1">Product Size</label>
+          <div 
+            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+            onClick={() => setIsSizeOpen(!isSizeOpen)}
+          >
+            <span className="text-gray-700">
+              {selectedSize || "Select Product Size"}
+            </span>
+            {isSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          <AnimatePresence>
+            {isSizeOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="w-full p-2 border rounded-lg bg-white mt-2"
+              >
+                {size.map((productSize, index) => (
+                  <motion.div
+                  key={`${productSize.name}-${index}`}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={() => handleSizeSelect(productSize)}
+                  >
+                    <strong>{productSize.name}</strong>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
 
-      {/* Upload Button */}
-      <button
-        onClick={handleUploadProduct}
-        className="text-xl mt-6 w-full bg-gray-800 text-white py-3 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 cursor-pointer"
-      >
-        {isUpload ? "Uploading..." : "Upload Product"}
-      </button>
-    </div>
+          {/* Package Size */}
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Package Size</label>
+            <div 
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+              onClick={() => setIsPackageSizeOpen(!isPackageSizeOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedPackageSize || "Select Size"}
+              </span>
+              {isPackageSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            <AnimatePresence>
+              {isPackageSizeOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="w-full p-2 border rounded-lg bg-white mt-2"
+                >
+                  {packageSize.map((size) => (
+                    <motion.div
+                      key={size._id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => handlePackageSize(size)}
+                    >
+                      <strong>{size.name}</strong>
+                      <p className="text-sm text-gray-600">{size.description}</p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Product Price */}
+          <div className="p-4  rounded-lg ">
+            <label className="block text-gray-600 font-medium mb-1">Product Price</label>
+            <input
+              type="text"
+              placeholder="Enter product price"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Upload Button */}
+        <button
+          onClick={handleUploadProduct}
+          className="text-xl mt-6 w-full bg-gray-800 text-white py-3 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 cursor-pointer"
+        >
+          {isUpload ? "Uploading..." : "Upload Product"}
+        </button>
+      </div>
     );
   };
 
