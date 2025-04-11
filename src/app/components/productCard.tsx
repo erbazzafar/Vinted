@@ -599,7 +599,8 @@ const ProductCard = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="w-full p-2 border rounded-lg bg-white mt-2"
+                    className={`w-full p-2 border rounded-lg bg-white mt-2 ${currentOptions.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
+
                   >
                     {path.length > 0 && (
                       <motion.div
@@ -650,7 +651,7 @@ const ProductCard = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
+                    className={`w-full p-2 border rounded-lg bg-white mt-2 ${colors.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
                   >
                     {colors.map((color) => (
                       <motion.div
@@ -712,7 +713,7 @@ const ProductCard = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="w-full p-2 border rounded-lg bg-white mt-2 max-h-60 overflow-y-auto"
+                      className={`w-full p-2 border rounded-lg bg-white mt-2 ${material.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
                     >
                       {material.map((m) => (
                         <motion.div
@@ -807,7 +808,7 @@ const ProductCard = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="w-full p-2 border rounded-lg bg-white mt-2"
+                className={`w-full p-2 border rounded-lg bg-white mt-2 ${brand.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
               >
                 {brand.map((brandName, index) => (
                   <motion.div
