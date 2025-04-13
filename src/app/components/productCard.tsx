@@ -23,12 +23,12 @@ const ProductCard = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [images, setImages] = useState<File[]>([]); 
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("")
+  const [title, setTitle] = useState<any>("");
+  const [price, setPrice] = useState<any>("");
+  const [description, setDescription] = useState<any>("")
 
   const [packageSize, setPackageSize] = useState<{name:string, description: string, _id: string} []>([])
-  const [selectedPackageSize, setSelectedPackageSize] = useState("")
+  const [selectedPackageSize, setSelectedPackageSize] = useState<any>("")
   const [isPackageSizeOpen, setIsPackageSizeOpen] = useState(false)
   const [selectedPackageSizeId, setSelectedPackageSizeId] = useState("")
   

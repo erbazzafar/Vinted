@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import {Settings, User, Shield, Bell, Camera, PlusCircle } from "lucide-react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import {DatePicker} from "@heroui/react"
+import { DatePicker} from "@heroui/react"
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import axios from "axios"
-import { parseDate } from "@internationalized/date";
+import { parseDate, CalendarDate } from "@internationalized/date";
 import { useRouter } from "next/navigation";
 
 const pages = [
@@ -20,7 +20,7 @@ const pages = [
 export default function Dashboard() {
   const [selectedPage, setSelectedPage] = useState(pages[0]);
   const [profile, setProfile] = useState({
-    image: null as string | File | null, about: "", country: "United States", city: "", language: "English",  phone: "", emailLink: false, fullName: "", gender: "",   birthDay: null as any 
+    image: null as string | File | null, about: "", country: "United States", city: "", language: "English",  phone: "", emailLink: false, fullName: "", gender: "",   birthDay: null as string | null, 
   });
   const router = useRouter()
 
@@ -87,7 +87,7 @@ export default function Dashboard() {
       // formData.append("emailLink", profile.emailLink? "true" : "false");
       formData.append("fullName", profile.fullName)
       formData.append("gender", profile.gender)
-      formData.append("birthDay", profile.birthDay ? new Date(profile.birthDay).toISOString().split("T")[0] : "");
+      formData.append("birthDay", profile.birthDay || "");
 
      if (profile.image) {
         formData.append("image", profile.image); // Append file object, not Data URL
@@ -216,11 +216,21 @@ export default function Dashboard() {
 
                   {/* DatePicker */}
                   <div className="flex flex-col">
-                    <label className="block text-md font-medium">Birth Date</label>
-                    <DatePicker 
-                      value={profile.birthDay ? parseDate(profile.birthDay) : null} // Ensure correct format
-                      onChange={(date) => setProfile({ ...profile, birthDay: date?.toString() || "" })} // Store as string
-                      className="w-full min-w-0 z-50"
+                    <label className=" ml-2 block text-md font-medium">Birth Date</label>
+                    <DatePicker
+                      value={
+                        profile.birthDay && /^\d{4}-\d{2}-\d{2}$/.test(profile.birthDay) // ISO 8601 check
+                          ? parseDate(profile.birthDay)
+                          : null
+                      }
+                      onChange={(date: CalendarDate | null) => {
+                        const formatted = date
+                          ? `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`
+                          : null;
+
+                        setProfile({ ...profile, birthDay: formatted });
+                      }}
+                      className="w-full min-w-0 z-50 bg-gray-100 cursor-pointer "
                       variant="underlined"
                       aria-label="Select your birth date"
                     />
@@ -264,6 +274,20 @@ export default function Dashboard() {
                       </button>
                     </Box>
                 </Modal>
+
+                {/* Gender Selection */}
+              <div>
+                <label className="block text-md font-medium">Gender</label>
+                <select
+                  className="mt-2 w-full border p-2 rounded"
+                  value={profile.gender}
+                  onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                >
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Keep it secret</option>
+                </select>
+              </div>
 
               {/* Country Selection */}
               <div>

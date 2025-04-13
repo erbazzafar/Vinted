@@ -15,9 +15,10 @@ const SellerButton = ({ seller, sellerId } : any) => {
         <Image
           src={seller.profileImage}
           alt={seller.username}
-          height={45}
+          height={70}
           width={45}
-          className="rounded-full object-cover"
+          className="rounded-full object-cover h-[50px]"
+          unoptimized
         />
         <div>
           <p className="text-gray-900 text-lg font-semibold">{seller.username}</p>

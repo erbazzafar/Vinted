@@ -9,17 +9,17 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 
 const Chatbox = () => {
-  const [messages, setMessages] = useState([]);
-  const [offerPrice, setOfferPrice] = useState("");
-  const [message, setMessage] = useState("");
-  const [chat, setChat] = useState([]);
+  const [messages, setMessages] = useState<any>([]);
+  const [offerPrice, setOfferPrice] = useState<any>("");
+  const [message, setMessage] = useState<any>("");
+  const [chat, setChat] = useState<any>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const loggedInUser: any = Cookies.get("userId");
-  const router = useRouter();
   const [image, setImage] = useState<any>({});
   const [showOffer, setShowOffer] = useState(false)
   const photoURL = Cookies.get("photourl")
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const router = useRouter();
 
 useEffect(() => {
   // Scroll to the bottom of the chat box
@@ -88,6 +88,7 @@ useEffect(() => {
       formData.append("image", image);
     }
     if(offerPrice !== ""){
+      formData.append("bidStatus", "pending");
       formData.append("bidPrice", offerPrice);
     }
    try {
@@ -105,14 +106,71 @@ useEffect(() => {
    }
   };
 
-  // Filter messages for the selected product
-  const filteredMessages = selectedChat
-  ? messages.filter(
-      (msg) =>
-        msg.productId?._id === selectedChat?.productId?.[0]?._id &&
-        (msg.userId === selectedChat.userId || msg.adminUser === selectedChat.adminUser)
-    )
-  : [];
+  const handleOfferAccept = async (id: any) => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/update/${id}`,
+        { bidStatus: "Accepted" },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      if (response.status !== 200){
+        toast.error("Error while accepting the offer")
+        return
+      }
+      console.log("offer accept response", response);
+      getChatFunc(selectedChat)
+      
+    } catch (error) {
+      console.log("Error accepting offer: ", error);
+      toast.error("Error accepting the offer. Please try again later.");
+      return
+    }
+    
+  }
+
+  const handleOfferReject = async (id: any) => {
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/update/${id}`,
+        { bidStatus: "Decline" },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      if (response.status !== 200){
+        toast.error("Error while Rejecting the offer")
+        return
+      }
+      console.log("offer Reject response", response);
+      getChatFunc(selectedChat)
+    } catch (error) {
+      console.log("error in rejecting the offer");
+      toast.error("Error!! try again later")
+      return
+    }
+  }
+
+  const handleBuyNow = async (id: any) => {
+    const product = selectedChat?.productId?.[0];
+    const userBid = product?.bid?.find((b: any) => b.userId === selectedChat?.userId?._id);
+
+    const price = userBid ? userBid.price : product?.price;
+    const inclPrice = userBid ? userBid.inclPrice : product?.inclPrice;
+
+    console.log("price:", price);
+    console.log("Included Price:", inclPrice);
+
+    router.push(`/checkout?productId=${product?._id}`);
+    
+
+  }
+
 
   return  (
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-15">
@@ -181,12 +239,32 @@ useEffect(() => {
               <h3 className="text-lg font-semibold text-gray-800">
                 {selectedChat?.productId?.[0]?.name}
               </h3>
-              <p className="text-gray-600 text-sm">
-                {selectedChat?.productId?.[0]?.price}
-              </p>
-              <p className="text-teal-800 text-sm">
-                {selectedChat?.productId?.[0]?.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
-              </p>
+              {(() => {
+                const product = selectedChat?.productId?.[0];
+                const userBid = product?.bid?.find((bidProduct: any) => bidProduct.userId === selectedChat?.userId?._id);
+                console.log("bid price: ", userBid?.price);
+                
+
+                return userBid ? (
+                  <>
+                    <p className="text-gray-600 text-sm">
+                      ${userBid.price}
+                    </p>
+                    <p className="text-teal-700 text-sm">
+                      ${userBid.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-600 text-sm">
+                      ${product?.price}
+                    </p>
+                    <p className="text-teal-800 text-sm">
+                      ${product?.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           </div>
           <button
@@ -201,19 +279,19 @@ useEffect(() => {
         <div 
           className="mt-4 space-y-3 max-h-96 overflow-y-auto p-2 ">
           {messages.length > 0 ? (
-            messages.map((msg, index) => {
+            messages.map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
               const senderImage = isSentByCurrentUser ? photoURL : selectedChat?.photoURL;
 
               return (
                 <div key={index} className={`flex items-start gap-3 ${isSentByCurrentUser ? 'flex-row-reverse' : ''}`}>
                   <Image
-                    className="w-10 h-10 object-cover rounded-full"
                     src={senderImage}
                     alt={isSentByCurrentUser ? "You" : "Other"}
                     width={10}
                     height={10}
                     unoptimized
+                    className="w-10 h-10 object-cover rounded-full"
                   />
                   <div className={`p-3 rounded-lg border max-w-[75%] ${msg.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "bg-gray-200"}`}>
                     {msg.message && <p className="mb-1">{msg.message}</p>}
@@ -228,29 +306,42 @@ useEffect(() => {
                     )}
                     {msg.bidPrice && (
                       <div className="mt-2 flex flex-col gap-2">
-                        <p className="text-teal-600 font-semibold">Offer: {msg.bidPrice}</p>
-                        {!isSentByCurrentUser && (
-                          <>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => {
-                                  router.push(`/check-out/${selectedChat?._id}`);
-                                  console.log("Offer Accepted");
-                                }}
-                                className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => {
-                                  console.log("Offer Rejected");
-                                }}
-                                className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          </>
+                        <p className="text-teal-600 font-semibold">Offer: ${msg.bidPrice}</p>
+
+                        {/* Bid Status: Accepted */}
+                        {msg.bidStatus === "Accepted" ? (
+                          // Only show Buy Now if current user is the original offer sender (buyer)
+                          msg.userId === loggedInUser  ? (
+                            <button 
+                              onClick={() => handleBuyNow(msg._id)}
+                              className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer">
+                              Buy Now
+                            </button>
+                          ) : (
+                            <p className="text-sm text-green-500">You accepted the offer</p> // for seller
+                          )
+                        ) : msg.bidStatus === "Decline" ? (
+                          // Show Rejected status to everyone
+                          <p className="text-red-500 font-medium">Offer is Declined</p>
+                        ) : isSentByCurrentUser ? (
+                          // Pending view for buyer
+                          <p className="text-sm text-gray-500 text-right">{msg.bidStatus || "Pending"}</p>
+                        ) : (
+                          // Show Accept/Reject buttons to seller
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleOfferAccept(msg._id)}
+                              className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleOfferReject(msg._id)}
+                              className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+                            >
+                              Decline
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}

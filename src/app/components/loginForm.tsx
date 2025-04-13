@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function LoginFormDemo() {
   const [email, setEmail] = useState("")
@@ -17,7 +18,7 @@ export default function LoginFormDemo() {
 
     try {
       if(!email || !password){
-        console.log("Please Enter all the fields!!");
+        toast.error("Please Enter all the fields!!");
         return
       }
       const response = await axios.post(
@@ -36,7 +37,6 @@ export default function LoginFormDemo() {
       }
 
       console.log("Login Successful");
-      console.log("Response", response)
       Cookies.set('token', response.data.token)
       Cookies.set("userId", response.data.data._id)
       router.push("/")
@@ -48,9 +48,9 @@ export default function LoginFormDemo() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto flex flex-col items-center rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+    <div className="w-full max-w-6xl mx-auto flex flex-col items-center rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Login to Our Vinted Store
+        Login to Affari Doro
       </h2>
 
       <form className="my-8 w-full" onSubmit={handleSubmit}>
@@ -66,7 +66,7 @@ export default function LoginFormDemo() {
           <Input 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            id="password" placeholder="••••••••" type="password" />
+            id="password" placeholder="•••••••" type="password" />
         </LabelInputContainer>
 
         

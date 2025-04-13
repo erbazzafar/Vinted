@@ -15,7 +15,7 @@ import ProductCarousel from "../components/productCorousel";
 
 const ProductPage = () => {
   const [showCarousel, setShowCarousel] = useState(false);
-  const [gettingProduct, setGettingProduct] = useState("")
+  const [gettingProduct, setGettingProduct] = useState<any>("")
   const router = useRouter();
 
   const token = Cookies.get("token")
@@ -92,7 +92,7 @@ const ProductPage = () => {
           <div className="flex gap-6">
             {/* Thumbnail Images */}
             <div className="flex flex-col gap-4 relative">
-              {gettingProduct?.image?.slice(0,4)?.map((image, index) => (
+              {gettingProduct?.image?.slice(0,4)?.map((image: any, index: any) => (
                 <div key={index} className="relative">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
@@ -129,7 +129,7 @@ const ProductPage = () => {
                   showDots
                   arrows
                 >
-                  {gettingProduct?.image?.map((image, index) => (
+                  {gettingProduct?.image?.map((image: any, index: any) => (
                     <div key={index} className="w-full h-[600px] flex justify-center items-center">
                       <Image
                         src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
@@ -187,12 +187,12 @@ const ProductPage = () => {
 
             <label className="text-md font-medium text-gray-600">Price:</label>
             <p className="text-lg font-semibold text-teal-600">
-              {gettingProduct?.price}
+              ${gettingProduct?.price}
             </p>
 
             <label className="text-md font-medium text-gray-600">Price:</label>
             <p className="text-2xl font-semibold text-teal-600">
-              {gettingProduct?.inclPrice}
+              ${gettingProduct?.inclPrice}
               <span className="text-xs text-teal-600"> (incl. of tax)  </span> 
             </p>
 

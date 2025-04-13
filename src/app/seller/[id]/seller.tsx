@@ -26,7 +26,7 @@ const SellerProfile = () => {
   const isOwnProfile = sellerId === loggedInUserId
 
   const photoURl = Cookies.get("photourl")
-   const [seller, setSeller] = useState(null)
+   const [seller, setSeller] = useState<any>(null)
   
   useEffect(()=> {
     const fetchData = async () => {
@@ -82,10 +82,13 @@ const SellerProfile = () => {
         <div className="flex items-start bg-white py-13 mb-10">
           {/* Seller Image (Aligned with "Brand" in Navbar) */}
           <div className="w-68 h-68 rounded-full overflow-hidden">
-            <img
-              src={photoURl}
+            <Image
+              src={`https://affari-doro-backend.shubhexchange.com/${seller.image}`}
               alt={seller?.username}
               className="w-full h-full object-cover"
+              width={68}
+              height={68}
+              unoptimized
             />
           </div>
 
@@ -141,10 +144,6 @@ const SellerProfile = () => {
                 <span>{seller.country}</span>
               </div>
               <div className="flex items-center space-x-3 mt-1">
-                <Clock size={20} />
-                <span>Last seen {seller.lastSeen}</span>
-              </div>
-              <div className="flex items-center space-x-3 mt-1">
                 <Rss size={20} />
                 <span>
                   <span className="text-blue-600 cursor-pointer">
@@ -170,11 +169,11 @@ const SellerProfile = () => {
                 </div>
               )}
             </div>
-
+            
             {/* Seller Description */}
             <div className="mt-5">
               <p className="text-lg text-gray-800 leading-relaxed">
-                {seller.description}
+                {seller.about}
               </p>
             </div>
           </div>

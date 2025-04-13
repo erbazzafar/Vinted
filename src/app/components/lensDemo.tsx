@@ -59,12 +59,12 @@ const ProductCard = ({ product }: { product: any }) => {
 
 
         <p className="text-md text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="text-md text-gray-500">Category: {product.category ?? "N/A"}</p>
+        <p className="text-md text-gray-500">Category: {product.categoryId?.name ?? "N/A"}</p>
         <p className="text-lg font-semibold text-teal-600">
-          {product.price}{" "}
+          ${product.price}{" "}
         </p>
         <p className="text-lg font-semibold text-teal-600">
-          {product.inclPrice}{" "}
+          ${product.inclPrice}{" "}
           <span className="text-xs text-gray-400">incl.</span>
         </p>
       </div>
