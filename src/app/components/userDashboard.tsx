@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import axios from "axios"
 import { parseDate, CalendarDate } from "@internationalized/date";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const pages = [
   { name: "Profile", icon: User },
@@ -174,11 +175,20 @@ export default function Dashboard() {
               <div className=" flex flex-col items-center">
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
                 {profile.image ? (
-                  <img
-                    src={typeof profile.image === "string" ? profile.image : URL.createObjectURL(profile.image)}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  <Image
+                  src={
+                    typeof profile.image === "string"
+                      ? profile.image.startsWith("http") 
+                        ? profile.image
+                        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${profile.image}`
+                      : URL.createObjectURL(profile.image)
+                  }
+                  alt="Profile"
+                  width={128}
+                  height={128}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-200">
                     <Camera className="w-8 h-8 text-gray-500" />

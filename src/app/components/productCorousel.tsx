@@ -64,7 +64,7 @@ const ProductCard = ({ product }: { product: any }) => {
 
         <div className="ml-2 flex items-center gap-1 mt-1">{getStarRating(product?.rating)}</div>
         <p className="ml-2 text-md text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="ml-2 text-md text-gray-500">Category: {product?.category ?? "N/A"}</p>
+        <p className="ml-2 text-md text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length-1]?.name ?? "N/A"}</p>
         <p className="ml-2 text-md font-semibold text-teal-600">
           ${product?.price}
         </p>

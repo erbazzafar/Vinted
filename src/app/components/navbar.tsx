@@ -6,6 +6,8 @@ import { Heart, Inbox, Menu, Search, X, ChevronDown, ChevronUp, Bell, MessageSqu
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import axios from "axios";
 
 const Navbar = () => {
   const router = useRouter()
@@ -85,6 +87,8 @@ const Navbar = () => {
 
     const [isNotifOpen, setIsNotifOpen] = useState(false);
 
+    // const [userImage, setUserImage] = useState<string | null>(null)
+
     const [notifications, setNotifications] = useState(notificationsData)
 
     const clearNotifications = () => {
@@ -103,6 +107,25 @@ const Navbar = () => {
       }
     };
 
+    // useEffect(() => {
+    //   const gettingUserImage = async () => {
+    //     try {
+    //       const response = await axios.get(
+    //         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/viewUser/${id}`
+    //       )
+    //       if (response.status !== 200) {
+    //         console.log("Error fetching user image");
+    //         return;
+    //       }
+    //       setUserImage(response.data.data)
+    //     } catch (error) {
+    //       console.log("Error getting user image", error);
+    //       return
+    //     }
+    //   }
+    //   gettingUserImage()
+    // }, [])
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -112,7 +135,7 @@ const Navbar = () => {
       <div className="container mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
-          AffareDaro
+          AffariDoro
         </Link>
 
         {/* Search Bar (Hidden on Mobile) */}
@@ -208,9 +231,13 @@ const Navbar = () => {
               className="p-3 rounded-lg flex items-center gap-2"
               onClick={() => setIsOpen(!isOpen)}
             >
-              <img 
-                src={photoURL || namepic}
-                className="w-10 h-10 rounded-full" alt="Profile" />
+              <Image 
+                src={photoURL ? photoURL : "default.png"}
+                alt ={"profile"}
+                width={10}  
+                height={10}
+                unoptimized
+                className="w-10 h-10 rounded-full" />
 
               {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>

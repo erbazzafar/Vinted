@@ -19,6 +19,8 @@ const ProductPage = () => {
   const router = useRouter();
 
   const token = Cookies.get("token")
+  const loggedInUser = Cookies.get("userId")
+
 
   const {id: productId} = useParams()
   console.log("product id: ", productId)
@@ -75,10 +77,19 @@ const ProductPage = () => {
   };
 
   const handleContact = () => {
-    router.push("/check-out");
+    if(!token) {
+      toast.error("Please login to buy the product")
+      return
+    }
+    localStorage.setItem("productsInfo", JSON.stringify(gettingProduct));
+    router.push(`/checkout?productId=${productId}&userId=${loggedInUser}&adminUser=${gettingProduct?.userId?._id}`);
   };
 
   const handleChat = () => {
+    if(!token) {
+      toast.error("Please login to chat with the seller")
+      return
+    }
     localStorage.setItem("product", JSON.stringify(gettingProduct));
     router.push(`/inbox/${gettingProduct?._id}`);
   };
@@ -182,8 +193,15 @@ const ProductPage = () => {
             {/* Color Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Color:</label>
-              <span className=" text-gray-600">   {gettingProduct?.hasColors || "None"}</span>
+              <span className=" text-gray-600">   {gettingProduct?.colorId?.[0].name || "None"}</span>
             </div>
+
+            {/* Category Selector */}
+            <div>
+              <label className="text-md font-medium text-gray-600">Category:</label>
+              <span className=" text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length-1]?.name || "None"}</span>
+            </div>
+
 
             <label className="text-md font-medium text-gray-600">Price:</label>
             <p className="text-lg font-semibold text-teal-600">

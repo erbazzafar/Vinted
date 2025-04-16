@@ -47,7 +47,6 @@ const TabsComponent = ({ sellerId }: any) => {
         }
 
         console.log("Product Fetched ", response.data.data);
-        toast.success("Products Fetched Successfully");
         setProduct(response.data.data);
       } catch (error) {
         toast.error("Error Fetching the Products");

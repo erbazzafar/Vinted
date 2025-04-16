@@ -82,22 +82,22 @@ const initialOrders = [
 ];
 
 export default function MyOrders() {
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState<any>(initialOrders);
   const [activeTab, setActiveTab] = useState("Ongoing");
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [trackOpen, setTrackOpen] = useState(false)
 
   // Filter orders based on selected tab
-  const filteredOrders = orders.filter((order) => order.status === activeTab);
+  const filteredOrders = orders.filter((order: any) => order.status === activeTab);
 
   // Open modal & set the selected order
-  const handleOpen = (order) => {
+  const handleOpen = (order: any) => {
     setSelectedOrder(order);
     setCancelOpen(true);
   };
 
-  const handleTrack = (order) => {
+  const handleTrack = (order: any) => {
     setSelectedOrder({ ...order }); // Ensure the correct order object is set
     setTrackOpen(true);
   };
@@ -112,8 +112,8 @@ export default function MyOrders() {
   // Handle order cancellation
   const handleCancelOrder = () => {
     if (selectedOrder) {
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
+      setOrders((prevOrders: any) =>
+        prevOrders.map((order: any) =>
           order.id === selectedOrder.id && order.status === "Ongoing"
             ? { ...order, status: "Cancelled", estimatedDelivery: "Refund in process" }
             : order
@@ -128,7 +128,7 @@ export default function MyOrders() {
     setSelectedOrder(null);
   };
 
-  const getOrderStatus = (order) => {
+  const getOrderStatus = (order: any) => {
     if (order?.checkedout === true && order?.shipping === true && order?.readyToDeliver === true && order?.delivered === true){
       return "Order Delivered"
     }
@@ -167,7 +167,7 @@ export default function MyOrders() {
       {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
+          filteredOrders.map((order: any) => (
             <div
               key={order.id}
               className="flex items-center justify-between p-4 border rounded-lg shadow-md bg-white"
@@ -178,7 +178,8 @@ export default function MyOrders() {
                   <h2 className="text-lg font-semibold">{order.title}</h2>
                   <p className="m-2 text-gray-600">{order.price} <span className={`ml-5 px-5 py-1 text-sm rounded-lg ${order.status === "Cancelled" ? "bg-gray-800 text-gray-200" : "bg-gray-800 text-gray-200"}`}>
                     {order.status === "Cancelled" ? "Refunded" : "Paid"}
-                    </span></p>
+                    </span>
+                  </p>
                 </div>
               </div>
 

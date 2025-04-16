@@ -16,6 +16,7 @@ const Chatbox = () => {
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const loggedInUser: any = Cookies.get("userId");
   const [image, setImage] = useState<any>({});
+  const [newChat, setNewChat] = useState<any>('')
   const [showOffer, setShowOffer] = useState(false)
   const photoURL = Cookies.get("photourl")
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -74,6 +75,21 @@ useEffect(() => {
     }
   }, [chat]);
 
+  useEffect(() => {
+    const newProduct = localStorage.getItem("product")
+    if (newProduct) {
+      try {
+        const parsedData = JSON.parse(newProduct)
+        console.log("parsed data from chat:", parsedData);
+
+      } catch (error) {
+        console.log("Error in Contacting seller through Chat");
+        toast.error("Error in Contacting seller through Chat");
+        return
+      }
+    }
+  }, [])
+
   const handleMessageSend = async () => {
     const formData = new FormData();
     formData.append("productId", selectedChat?.productId?.[0]?._id)
@@ -106,7 +122,7 @@ useEffect(() => {
    }
   };
 
-  const handleOfferAccept = async (id: any) => {
+  const handleOfferAccept = async (id: any, bidPrice: Number) => {
     try {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/update/${id}`,
@@ -117,13 +133,22 @@ useEffect(() => {
           },
         }
       )
+      
       if (response.status !== 200){
         toast.error("Error while accepting the offer")
         return
       }
       console.log("offer accept response", response);
       getChatFunc(selectedChat)
-      
+      const responseforBID = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/updateBid?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&price=${bidPrice}`
+      )
+      if (responseforBID.status !== 200){
+        toast.error("Error while updating the bid")
+        return
+      }
+      console.log("response for bid update", responseforBID);
+      toast.success("Offer Accepted Successfully")
     } catch (error) {
       console.log("Error accepting offer: ", error);
       toast.error("Error accepting the offer. Please try again later.");
@@ -157,18 +182,10 @@ useEffect(() => {
   }
 
   const handleBuyNow = async (id: any) => {
-    const product = selectedChat?.productId?.[0];
-    const userBid = product?.bid?.find((b: any) => b.userId === selectedChat?.userId?._id);
 
-    const price = userBid ? userBid.price : product?.price;
-    const inclPrice = userBid ? userBid.inclPrice : product?.inclPrice;
-
-    console.log("price:", price);
-    console.log("Included Price:", inclPrice);
-
-    router.push(`/checkout?productId=${product?._id}`);
-    
-
+    localStorage.setItem("productsInfo", JSON.stringify(selectedChat?.productId?.[0]))
+    router.push(`/checkout?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&adminUser=${selectedChat?.adminUser?._id}`);
+  
   }
 
 
@@ -229,15 +246,15 @@ useEffect(() => {
           <div className="flex items-center gap-3">
             <Image
               className="w-16 h-16 object-cover rounded-lg"
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedChat?.productId?.[0]?.image?.[0] || "/default.jpg"}`}
-              alt={selectedChat?.productId?.[0]?.name || "Product"}
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
+              alt={selectedChat?.productId?.[0]?.name }
               width={16}
               height={64}
               unoptimized
             />
             <div>
               <h3 className="text-lg font-semibold text-gray-800">
-                {selectedChat?.productId?.[0]?.name}
+                {newChat? newChat?.name : selectedChat?.productId?.[0]?.name}
               </h3>
               {(() => {
                 const product = selectedChat?.productId?.[0];
@@ -330,7 +347,7 @@ useEffect(() => {
                           // Show Accept/Reject buttons to seller
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleOfferAccept(msg._id)}
+                              onClick={() => handleOfferAccept(msg._id, msg.bidPrice)}
                               className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
                             >
                               Accept

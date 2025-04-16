@@ -20,8 +20,9 @@ const SellerProfile = () => {
   const {id: sellerId} = useParams()
   console.log("seller id: ", sellerId);
   
-  
   const loggedInUserId = Cookies.get("userId")
+  console.log("Logged In User ID: ", loggedInUserId);
+  
 
   const isOwnProfile = sellerId === loggedInUserId
 
@@ -55,15 +56,52 @@ const SellerProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
 
-  const handleFollow = () => {
-    setFollowersCount(isFollowing ? followersCount - 1 : followersCount + 1);
-    setIsFollowing(!isFollowing);
+  const handleFollow = async () => {
+    try {
+      if (!token || !loggedInUserId) {
+        toast.error("Please log in to follow users.");
+        return;
+      }
+
+      const payload = {
+        id: sellerId,
+        userId: loggedInUserId
+      };
+  
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/toggleFollow`, 
+        {
+          payload
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status !== 200) {
+        toast.error("Something went wrong while following/unfollowing.");
+        return;
+      }
+  
+      setFollowersCount(prev => isFollowing ? prev - 1 : prev + 1);
+      setIsFollowing(!isFollowing);
+      toast.success(isFollowing ? "Unfollowed successfully" : "Followed successfully");
+  
+    } catch (error) {
+      console.error("Error following/unfollowing user:", error);
+      toast.error("Error occurred while updating follow status.");
+    }
   };
 
   const getStarRating = (rating: number) => {
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 !== 0;
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+    console.log("Seller Data", seller);
+    
 
     return (
       <span className="text-yellow-500 text-2xl">
@@ -83,7 +121,7 @@ const SellerProfile = () => {
           {/* Seller Image (Aligned with "Brand" in Navbar) */}
           <div className="w-68 h-68 rounded-full overflow-hidden">
             <Image
-              src={`https://affari-doro-backend.shubhexchange.com/${seller.image}`}
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${seller.image}`}
               alt={seller?.username}
               className="w-full h-full object-cover"
               width={68}
@@ -149,7 +187,7 @@ const SellerProfile = () => {
                   <span className="text-blue-600 cursor-pointer">
                     {followersCount} followers
                   </span>
-                  , {seller.following} following
+                  , {Array.isArray(seller.following) ? seller.following.length : 0} following
                 </span>
               </div>
             </div>
@@ -172,9 +210,9 @@ const SellerProfile = () => {
             
             {/* Seller Description */}
             <div className="mt-5">
-              <p className="text-lg text-gray-800 leading-relaxed">
-                {seller.about}
-              </p>
+            {seller.about && typeof seller.about === "string" && (
+              <p>{seller.about}</p>
+            )}
             </div>
           </div>
         </div>
