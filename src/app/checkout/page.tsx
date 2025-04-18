@@ -1,11 +1,14 @@
-import React from 'react'
-import CheckOut from '../components/checkOut'
+"use client";
+
+import React, { Suspense } from "react";
+import CheckOut from "../components/checkOut";
 
 function Page() {
-
-    return (
-       <CheckOut/>
-    )
+  return (
+    <Suspense fallback={<div>Loading checkout...</div>}>
+      <CheckOut />
+    </Suspense>
+  );
 }
 
-export default Page
+export default Page;

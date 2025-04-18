@@ -1,11 +1,9 @@
 
 import { toast } from 'sonner';
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, CheckCircle, Lock } from 'lucide-react';
-import { Form, FormField, FormItem, FormControl } from '@/components/ui/form'; // Adjust the import path as necessary
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import { setupPaymentMethod, processCardSetup } from "./subscriptionService";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -16,8 +14,6 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [clientSecret, setClientSecret] = useState(null);
-    const [setupIntentId, setSetupIntentId] = useState(null);
     const stripe = useStripe();
     const elements = useElements();
     const router = useRouter();

@@ -196,14 +196,16 @@ const CheckoutPage = () => {
         <div className=" grid-cols-2 p-6 rounded-xl shadow-sm">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
           <div className="flex flex-col mb-4">
-        <Image
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo?.image?.[0]}`}
-            alt={productInfo?.name || "Product Image"}
-            width={200}
-            height={70}
-            unoptimized
-            className="w-118 h-70 object-cover rounded-md m-3"
-        />
+          {productInfo?.image?.[0] && (
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo.image[0]}`}
+              alt={productInfo?.name || "Product Image"}
+              width={200}
+              height={70}
+              unoptimized
+              className="w-118 h-70 object-cover rounded-md m-3"
+            />
+          )}
         <div className="mt-4 ">
             <h3 className="text-lg font-semibold">{productInfo?.name}</h3>
             <p className="text-teal-600 text-lg font-semibold mt-2">
