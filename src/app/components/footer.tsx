@@ -1,4 +1,5 @@
 import { Facebook, Linkedin, Instagram } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
@@ -58,10 +59,20 @@ const Footer = () => {
           {/* App Store Links */}
           <div className="flex items-right space-x-2">
             <Link href="https://www.apple.com/app-store/" target="_blank">
-              <img src="/iplay.png" alt="App Store" className="h-9 w-32" />
+              <Image 
+                src="/iplay.png" 
+                alt="App Store"
+                width={32}
+                height={9} 
+                className="h-9 w-32" />
             </Link>
             <Link href="https://play.google.com/store" target="_blank">
-              <img src="/iplay.png" alt="Google Play" className="h-9 w-32" />
+              <Image 
+                src="/iplay.png" 
+                alt="Google Play"
+                width={32}
+                height={9} 
+                className="h-9 w-32" />
             </Link>
           </div>
         </div>

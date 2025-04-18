@@ -1,8 +1,6 @@
-import { Modal } from "antd";
-import { useForm } from 'react-hook-form';
+
 import { toast } from 'sonner';
 import { useEffect, useState } from "react";
-import { Input } from '@/components/ui/input';
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, CheckCircle, Lock } from 'lucide-react';
 import { Form, FormField, FormItem, FormControl } from '@/components/ui/form'; // Adjust the import path as necessary
@@ -10,6 +8,7 @@ import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useElem
 import { setupPaymentMethod, processCardSetup } from "./subscriptionService";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 const stripePromise = loadStripe('pk_test_51RBcQQE27Rk7i1fToNUajjO8Sxgd1kVVqPTl1xxtxCR9ay4juutWl5GWd76EqbK4qdhg6HFhuebp695kvjONkoy900I1jlgMfN');
 
@@ -21,6 +20,7 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
     const [setupIntentId, setSetupIntentId] = useState(null);
     const stripe = useStripe();
     const elements = useElements();
+    const router = useRouter();
 
     const handleSubmitCard = async () => {
         if (!stripe || !elements) {
@@ -48,26 +48,16 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
             }
 
             console.log('Payment method created:', paymentMethod);
-            // const response = await axios.get(
-            //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/cards`,
-            //     {
-            //       headers: { 
-            //         Authorization: `Bearer ${Cookies.get('token')}`,
-            //       }
-            //     }
-            //   );
-            //   console.log('Response from card:', response.data);
+
             const fn_createOrder = async () => {
                 try {
-                    console.log('Form data:', formData);
-                    formData.append('cardId', paymentMethod?.id);
+                    formData.cardId = paymentMethod?.id;
                     const response = await axios.post(
                         `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/create`,
                         formData,
                         {
                             headers: {
                                 Authorization: `Bearer ${Cookies.get('token')}`,
-                                'Content-Type': 'multipart/form-data',
                             },
                         }
                     );
@@ -78,24 +68,8 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
             }
             fn_createOrder();
             onSuccess();
-            // Call your backend API to attach the PaymentMethod to the customer
-            // const response = await axios.post(
-            //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/add-card`,
-            //     { paymentMethodId: paymentMethod.id },
-            //     {
-            //         headers: {
-            //             Authorization: `Bearer ${Cookies.get('token')}`,
-            //         },
-            //     }
-            // );
-
-            // if (response.status !== 200) {
-            //     throw new Error(response.data.message || "Failed to attach the card.");
-            // }
-
-            // toast.success("Card added successfully!");
-            // onSuccess();
-
+            toast.success("Payment successful!");
+            router.push(`/orders/${Cookies.get("userId")}`);
 
         } catch (error: any) {
             console.error("Payment error:", error);

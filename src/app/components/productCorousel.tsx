@@ -6,6 +6,8 @@ import "react-multi-carousel/lib/styles.css";
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import Cookies from "js-cookie";
+import Image from "next/image";
 
 // Responsive settings for the carousel
 const responsive = {
@@ -34,12 +36,57 @@ const getStarRating = (rating: number) => {
 const ProductCard = ({ product }: { product: any }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
+  const handleWishList = async () => {
+    if (!product._id) return;
+  
+    // Optimistic UI update: set the new like state before API call
+    setIsWishlisted(prevState => !prevState);
+  
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/toggleLike`,
+        { productId: product._id, userId: Cookies.get("userId") },
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+  
+      if (response.status !== 200) {
+        toast.error("Error adding to wishlist");
+        return;
+      }
+  
+      // If successful, show success message and update the state accordingly
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error adding to wishlist");
+      console.error("Error adding to wishlist", error);
+    }
+  };
+
+  useEffect(() => {
+    const userId = Cookies.get("userId");
+    if (userId && Array.isArray(product.like)) {
+      // Ensure the `like` field is populated and valid
+      const filteredLikes = product.like.filter((id: string | null) => id);
+      if (filteredLikes.includes(userId)) {
+        setIsWishlisted(true);
+      } else {
+        setIsWishlisted(false);
+      }
+    }
+  }, [product]);
+
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden w-full max-w-[300px] mx-auto">
       <div className="relative">
-        <img
+        <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
           alt={product?.name}
+          height={250}
+          width={300}
           className="w-full h-[250px] object-cover rounded-lg"
         />
       </div>
@@ -56,7 +103,7 @@ const ProductCard = ({ product }: { product: any }) => {
             className={`mr-3 transition-colors ${
               isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
             }`}
-            onClick={() => setIsWishlisted(!isWishlisted)}
+            onClick={() => handleWishList()}
           >
             <Heart size={20} fill={isWishlisted ? "red" : "none"} />
           </button>

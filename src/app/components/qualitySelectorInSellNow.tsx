@@ -14,7 +14,7 @@ export default function QualitySelector() {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSelect = (quality) => {
+  const handleSelect = (quality: any) => {
     setSelectedQuality(quality);
     setIsOpen(false);
   };

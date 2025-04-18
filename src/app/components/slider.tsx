@@ -9,9 +9,11 @@ export function ImagesSliderDemo() {
       {/* Full-width slider container matching the navbar */}
       <div className="container mx-auto max-w-screen-2xl">
         <div className="w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl">
-          <img 
+          <Image 
             src="/st.jpg" 
             alt="Slider Image"
+            width={1920}
+            height={1080}
             className="w-full h-full object-cover rounded-lg"
           />
         </div>

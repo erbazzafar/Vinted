@@ -2,27 +2,15 @@
 import Link from "next/link";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import { User, Laptop, Shirt, Dumbbell, Book, Gamepad2, Sparkles, Car, HeartPulse, Smartphone, Shapes, Footprints, Watch, UtensilsCrossed, Headphones } from "lucide-react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Image from "next/image";
+import { toast } from "sonner";
 
-// Categories Data
-export const categoriesList = [
-  { name: "Men", icon: User },
-  { name: "Clothing", icon: Shirt },
-  { name: "Kitchen", icon: UtensilsCrossed },
-  { name: "Sports", icon: Dumbbell },
-  { name: "Books", icon: Book },
-  { name: "Toys", icon: Gamepad2 },
-  { name: "Beauty", icon: Sparkles },
-  { name: "Automotive", icon: Car },
-  { name: "Health", icon: HeartPulse },
-  { name: "Gadgets", icon: Headphones },
-  { name: "Laptops", icon: Laptop },
-  { name: "Smartphones", icon: Smartphone },
-  { name: "Gaming", icon: Gamepad2 },
-  { name: "Watches", icon: Watch },
-  { name: "Shoes", icon: Footprints },
-  { name: "Drones", icon: Shapes }, // 16th category (will not show on desktop)
-];
+interface Category {
+  name: string
+  image: string
+}
 
 // Max categories displayed on desktop
 const maxDesktopCategories = 14;
@@ -34,12 +22,42 @@ const responsive = {
 };
 
 const Categories: React.FC = () => {
+
+  const [categories, setCategories] = useState<Category []>([])
+
+  useEffect ( () => {
+    const fetchingCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll`
+        )
+        
+        if (response.status !== 200) {
+          toast.error ('Error fetching the categories')
+          return
+        }
+        
+        console.log("Response from fetching categories:", response)
+        setCategories(response.data.data)
+
+      } catch (error) {
+        console.log("Error fetching categories:", error);
+        toast.error ('Error fetching the categories')
+        return
+      }
+    }
+    fetchingCategories()
+  }, [])
+
   return (
     <div className="bg-white py-4 rounded-b-lg max-w-screen-2xl mx-auto">
       {/* Desktop View: Show up to 15 categories in a single row (no carousel, no arrows) */}
       <div className="hidden lg:flex justify-center gap-6">
-        {categoriesList.slice(0, maxDesktopCategories).map((category, index) => {
-          const Icon = category.icon;
+        {categories.slice(0, maxDesktopCategories).map((category, index) => {
+          const imageSrc = category.image
+            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${category.image}`
+            : `/istockphoto-1222357475-612x612.jpg`;
+
           return (
             <Link
               key={index}
@@ -47,7 +65,13 @@ const Categories: React.FC = () => {
               className="flex flex-col items-center space-y-2 text-gray-700 hover:text-gray-900 transition"
             >
               <div className="w-22 h-22 flex items-center justify-center bg-[#EAEAEA] rounded-full">
-                <Icon className="w-8 h-8 text-black" />
+                <Image
+                  src={imageSrc}
+                  alt={category.name}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain"
+                />
               </div>
               <span className="text-sm font-medium">{category.name}</span>
             </Link>
@@ -67,8 +91,11 @@ const Categories: React.FC = () => {
           containerClass="carousel-container overflow-hidden"
           itemClass="p-2"
         >
-          {categoriesList.map((category, index) => {
-            const Icon = category.icon;
+          {categories.map((category, index) => {
+            const imageSrc = category.image
+            ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${category.image}`
+            : `/istockphoto-1222357475-612x612.jpg`;
+
             return (
               <Link
                 key={index}
@@ -76,7 +103,13 @@ const Categories: React.FC = () => {
                 className="flex flex-col items-center space-y-2 text-gray-700 hover:text-gray-900 transition"
               >
                 <div className="w-22 h-22 flex items-center justify-center bg-[#EAEAEA] rounded-full">
-                  <Icon className="w-8 h-8 text-black" />
+                <Image
+                  src={imageSrc}
+                  alt={category.name}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 text-black"
+                />
                 </div>
                 <span className="text-sm font-medium">{category.name}</span>
               </Link>

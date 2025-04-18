@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
@@ -75,20 +75,44 @@ useEffect(() => {
     }
   }, [chat]);
 
-  useEffect(() => {
-    const newProduct = localStorage.getItem("product")
-    if (newProduct) {
-      try {
-        const parsedData = JSON.parse(newProduct)
-        console.log("parsed data from chat:", parsedData);
+  // const getItemFromLocalStorage = () => {
+  //   const newProduct = localStorage.getItem("product")
+  //   if (!newProduct){
+  //     return
+  //   }
+  //   if (newProduct) {
+  //     try {
+  //       const parsedData = JSON.parse(newProduct)
+  //       setNewChat(parsedData)
 
-      } catch (error) {
-        console.log("Error in Contacting seller through Chat");
-        toast.error("Error in Contacting seller through Chat");
-        return
-      }
-    }
-  }, [])
+  //       const matchingChat = chat.find((c: any) => {
+  //         c.product?.[0]?._id === parsedData?._id && (c.userId?._id === loggedInUser || c.adminUser?._id === loggedInUser)
+  //       })
+
+  //       if (matchingChat) {
+  //         selectedChat(matchingChat)
+  //         getChatFunc(matchingChat)
+  //       } else {
+  //         const tempNewChat = {
+  //           productId : [parsedData],
+  //           userId: {
+  //             _id : parsedData?.userId?._id
+  //           },
+  //         }
+
+  //         const updateChatList = [tempNewChat, ...chat]
+  //       } 
+  //     } catch (error) {
+  //       console.log("Error in Contacting seller through Chat");
+  //       toast.error("Error in Contacting seller through Chat");
+  //       return
+  //     }
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   getItemFromLocalStorage()
+  // }, [])
 
   const handleMessageSend = async () => {
     const formData = new FormData();
@@ -257,7 +281,7 @@ useEffect(() => {
                 {newChat? newChat?.name : selectedChat?.productId?.[0]?.name}
               </h3>
               {(() => {
-                const product = selectedChat?.productId?.[0];
+                const product = selectedChat?.productId?.[0]
                 const userBid = product?.bid?.find((bidProduct: any) => bidProduct.userId === selectedChat?.userId?._id);
                 console.log("bid price: ", userBid?.price);
                 
@@ -425,8 +449,6 @@ useEffect(() => {
         </Modal>
       </div>
       </div>
-
-          
   );
 };
 

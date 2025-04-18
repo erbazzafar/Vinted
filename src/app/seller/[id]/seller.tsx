@@ -62,17 +62,15 @@ const SellerProfile = () => {
         toast.error("Please log in to follow users.");
         return;
       }
-
+  
       const payload = {
         id: sellerId,
         userId: loggedInUserId
       };
   
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/toggleFollow`, 
-        {
-          payload
-        },
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/toggleFollow`,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -85,8 +83,12 @@ const SellerProfile = () => {
         return;
       }
   
-      setFollowersCount(prev => isFollowing ? prev - 1 : prev + 1);
-      setIsFollowing(!isFollowing);
+      // Toggle follow state
+      setIsFollowing((prev) => !prev);
+  
+      // Update followers count manually
+      setFollowersCount((prevCount) => isFollowing ? prevCount - 1 : prevCount + 1);
+  
       toast.success(isFollowing ? "Unfollowed successfully" : "Followed successfully");
   
     } catch (error) {

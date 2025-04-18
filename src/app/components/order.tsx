@@ -1,9 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Package, Truck, Users, Archive } from "lucide-react";
+import Cookies from "js-cookie";
+import { toast } from "sonner";
+import axios from "axios";
+import Image from "next/image";
+
+interface Order {
+  id: string;
+  productId: string;
+  orderStatus: string;
+  total: number;
+}
 
 const modalStyle = {
   position: "absolute",
@@ -17,87 +28,58 @@ const modalStyle = {
   borderRadius: 2,
 };
 
-const initialOrders = [
-  {
-    id: "1",
-    title: "Pistol Table Lamp",
-    image: "/pexels-alimadad-1268511.jpg",
-    price: "$120",
-    status: "Ongoing",
-    checkedout: true,
-    shipping: true,
-    readyToDeliver: false,
-    delivered: false,
-    estimatedDelivery: "March 25, 2025",
-  },
-  {
-    id: "2",
-    title: "Men Shoes",
-    image: "/pexels-boot.jpg",
-    price: "$80",
-    status: "Completed",
-    checkedout: false,
-    shipping: false,
-    readyToDeliver: false,
-    delivered: false,
-    estimatedDelivery: "March 15, 2025",
-  },
-  {
-    id: "3",
-    title: "Mini Palm Tree",
-    image: "/images/plant.jpg",
-    price: "$35",
-    status: "Cancelled",
-    checkedout: false,
-    shipping: false,
-    readyToDeliver: false,
-    delivered: false,
-    estimatedDelivery: "Refund in process",
-  },
-  {
-    id: "4",
-    title: "Gaming Mouse",
-    image: "/pexels-kinkate-205926.jpg",
-    price: "$50",
-    status: "Ongoing",
-    checkedout: false,
-    shipping: false,
-    readyToDeliver: false,
-    delivered: false,
-    estimatedDelivery: "March 30, 2025",
-  },
-  {
-    id: "5",
-    title: "Wireless Keyboard",
-    image: "/pexels-garrettmorrow-682933.jpg",
-    price: "$90",
-    status: "Ongoing",
-    checkedout: true,
-    shipping: true,
-    readyToDeliver: true,
-    delivered: true,
-    estimatedDelivery: "April 2, 2025",
-  },
-  
-];
-
 export default function MyOrders() {
-  const [orders, setOrders] = useState<any>(initialOrders);
   const [activeTab, setActiveTab] = useState("Ongoing");
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [trackOpen, setTrackOpen] = useState(false)
+  const [userOrders, setUserOrders] = useState<Order []>([])
+  const token = Cookies.get("token")
+  const loggedInUserId = Cookies.get("userId")
+
+  useEffect(() => {
+    const getUserOrders = async () => {
+      if (!token){
+        return;
+      }
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/getAll?fromUserId=${loggedInUserId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+          }
+        )
+
+        if (response.status !== 200) {
+          toast.error("Failed to fetch orders. Please try again later.");
+          return;
+        }
+
+        console.log("Fetched Orders:", response);
+        setUserOrders(response.data.data)
+        
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        toast.error("Failed to fetch orders. Please try again later.");
+        return
+      }
+    }
+    getUserOrders()
+  }, [token, loggedInUserId])
 
   // Filter orders based on selected tab
-  const filteredOrders = orders.filter((order: any) => order.status === activeTab);
+  // const filteredOrders = userOrders.filter((order: any) => order.orderStatus === activeTab);
 
   // Open modal & set the selected order
-  const handleOpen = (order: any) => {
+  const handleOpen = (order: Order) => {
     setSelectedOrder(order);
     setCancelOpen(true);
   };
 
-  const handleTrack = (order: any) => {
+  const handleTrack = (order: Order) => {
     setSelectedOrder({ ...order }); // Ensure the correct order object is set
     setTrackOpen(true);
   };
@@ -112,7 +94,7 @@ export default function MyOrders() {
   // Handle order cancellation
   const handleCancelOrder = () => {
     if (selectedOrder) {
-      setOrders((prevOrders: any) =>
+      setUserOrders((prevOrders: any) =>
         prevOrders.map((order: any) =>
           order.id === selectedOrder.id && order.status === "Ongoing"
             ? { ...order, status: "Cancelled", estimatedDelivery: "Refund in process" }
@@ -129,23 +111,16 @@ export default function MyOrders() {
   };
 
   const getOrderStatus = (order: any) => {
-    if (order?.checkedout === true && order?.shipping === true && order?.readyToDeliver === true && order?.delivered === true){
-      return "Order Delivered"
+    if (order?.orderStatus === "pending"){
+      return "Pending"
     }
-    if (order?.checkedout === true && order?.shipping === true && order?.readyToDeliver === true && order?.delivered === false){
-      return "Ready to be Delivered"
+    if (order?.orderStatus === "Completed"){
+      return "Delivered"
     }
-    if (order?.checkedout === true && order?.shipping === true && order?.readyToDeliver === false && order?.delivered === false){
-      return "Shipping"
-    }
-    if (order?.checkedout === true && order?.shipping === false && order?.readyToDeliver === false && order?.delivered === false){
-      return " CheckedOut"
-    }
-    if (order?.checkedout === false && order?.shipping === false && order?.readyToDeliver === false && order?.delivered === false){
-      return "Under Process"
+    if (order?.orderStatus === "Cancelled"){
+      return "Cancelled"
     }
   }
-
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -166,18 +141,25 @@ export default function MyOrders() {
 
       {/* Orders List */}
       <div className="space-y-4">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order: any) => (
+        {userOrders.length > 0 ? ( 
+          userOrders.map((order: any) => (
             <div
               key={order.id}
               className="flex items-center justify-between p-4 border rounded-lg shadow-md bg-white"
             >
               <div className="flex items-center space-x-4">
-                <img src={order.image} alt={order.title} className="w-32 h-32 rounded-md object-cover" />
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order?.productId?.[0]?.image?.[0]}`} 
+                  alt={order?.productId?.[0]?.name}
+                  width={32}
+                  height={32} 
+                  className="w-32 h-32 rounded-md object-cover" />
                 <div>
-                  <h2 className="text-lg font-semibold">{order.title}</h2>
-                  <p className="m-2 text-gray-600">{order.price} <span className={`ml-5 px-5 py-1 text-sm rounded-lg ${order.status === "Cancelled" ? "bg-gray-800 text-gray-200" : "bg-gray-800 text-gray-200"}`}>
-                    {order.status === "Cancelled" ? "Refunded" : "Paid"}
+                  <h2 className="text-lg font-semibold ml-4">{order?.productId?.[0]?.name}</h2>
+                  <p className="m-2 text-gray-600 ml-4">${order?.total}
+                    <span 
+                      className=" ml-5 rounded-lg bg-black text-white px-3 py-2 text-sm font-semibold">
+                      {order.orderStatus}
                     </span>
                   </p>
                 </div>
@@ -248,8 +230,8 @@ export default function MyOrders() {
         <div className="flex items-center justify-center mt-6">
           {/* Step 1 - Checked Out */}
           <div className="flex flex-col items-center">
-            <Package className={`w-10 h-10 ${selectedOrder?.checkedout ? "text-black" : "text-gray-400"}`} />
-            <span className="text-sm text-gray-600 mt-1">Checked Out</span>
+            <Package className={`w-10 h-10 ${selectedOrder?.pending ? "text-black" : "text-gray-400"}`} />
+            <span className="text-sm text-gray-600 mt-1">Pending</span>
           </div>
 
           {/* Dotted Line */}
@@ -283,12 +265,7 @@ export default function MyOrders() {
 
         {/* Tracking Status */}
         <Typography sx={{ mt: 2 }} className="text-center font-bold">
-          Your order, <span className="text-gray-600">{selectedOrder?.title}</span>, is currently <span className="text-black">{getOrderStatus(selectedOrder)}</span>.
-        </Typography>
-        
-        {/* Estimated Delivery */}
-        <Typography sx={{ mt: 2 }} className="text-center text-gray-500">
-          Estimated Delivery: <span className="font-semibold">{selectedOrder?.estimatedDelivery}</span>
+          Your order, <span className="text-gray-600">{selectedOrder?.productId?.[0]?.name}</span>, is currently <span className="text-black">{getOrderStatus(selectedOrder)}</span>.
         </Typography>
 
         {/* Close Button */}

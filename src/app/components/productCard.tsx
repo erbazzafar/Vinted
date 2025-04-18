@@ -1,11 +1,11 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, PiSquare } from "lucide-react";
+import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft } from "lucide-react";
 import {motion, AnimatePresence} from "framer-motion"
 import { toast } from "sonner"
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Category {
   _id: string;
@@ -16,9 +16,7 @@ interface Category {
 
 const ProductCard = () => {
 
-  const token = Cookies.get("token")
   const id = Cookies.get("userId")
-  const route = useRouter()
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -519,9 +517,11 @@ const ProductCard = () => {
           <div className="grid grid-cols-3 md:grid-cols-5 gap-4 w-full">
             {images.map((img, index) => (
               <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden shadow-md">
-              <img
+              <Image
                 src={URL.createObjectURL(img)} // Create an object URL for preview
                 alt="Product"
+                height={24}
+                width={24}
                 className="w-full h-full object-cover rounded-lg"
               />
               <button

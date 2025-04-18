@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import Image from "next/image";
 
 // Function to generate star ratings
 const getStarRating = (rating: number) => {
@@ -91,9 +92,11 @@ const TabsComponent = ({ sellerId }: any) => {
                 className="bg-white shadow-md rounded-xl overflow-hidden p-3 relative w-full max-w-[300px] mx-auto"
               >
                 <div className="relative">
-                  <img
+                  <Image
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`} // Assuming the first image in the array
                     alt={product.name}
+                    height={300}
+                    width={300}
                     className="w-full h-[300px] object-cover rounded-lg"
                   />
                 </div>

@@ -57,7 +57,7 @@ export default function SignupFormDemo() {
 
       router.push("/")
     } catch (error) {
-      console.log("SignUp failed");
+      console.log("SignUp failed", error);
     }
   };
 
@@ -95,7 +95,7 @@ export default function SignupFormDemo() {
       router.push('/')
 
     } catch (error) {
-      console.log("Error Signing In with Google");
+      console.log("Error Signing In with Google", error);
       
     }
   };

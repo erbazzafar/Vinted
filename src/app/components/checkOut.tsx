@@ -6,11 +6,7 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import axios from 'axios';
-import Cookies from 'js-cookie'
-import { useRouter } from 'next/navigation';
 import AddNewCardModal from './stripeCardAddition';
-
 
 const CheckoutPage = () => {
   const [userDetails, setUserDetails] = useState({
@@ -23,20 +19,14 @@ const CheckoutPage = () => {
     phone: '',
     price: '',
     inclPrice: '', 
-    card: '',
   })
-
-  const router = useRouter()
   const [productInfo, setProductInfo] = useState<any>(null)
   const searchParams = useSearchParams()
   const productId = searchParams.get('productId')
   const fromUserId = searchParams.get('userId')
   const toUserId = searchParams.get('adminUser')
-
   const [orderFormData, setOrderFormData] = useState<any>(null);
-  
   const [isCardModalOpen, setIsCardModalOpen] = useState(false)
-
   const bids = productInfo?.bid || [];
   const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
 
@@ -73,58 +63,27 @@ const CheckoutPage = () => {
     }
   }, [productId, fromUserId, toUserId]);
 
-  const handleSubmit = () => {
-    // Ideally send data to backend or Stripe here
-    console.log('Proceeding with payment...', userDetails)
-  }
-
   const handleOrderSubmit = async () => {
     // Ideally send data to backend or Stripe here
     try {
-        if(!userDetails.fullName || !userDetails.email || !userDetails.address || !userDetails.city || !userDetails.country || !userDetails.zipcode || !userDetails.phone) {
-            toast.error("Please fill in all fields")
-            return
-        }
-        const formData = new FormData()
-        formData.append("fromUserId", fromUserId  || "")
-        formData.append("toUserId", toUserId || "")
-        formData.append("productId", productId || "")
-        formData.append("fullName", userDetails.fullName)
-        formData.append("email", userDetails.email)
-        formData.append("address", userDetails.address)
-        formData.append("city", userDetails.city)
-        formData.append("country", userDetails.country)
-        formData.append("zipcode", userDetails.zipcode)
-        formData.append("phone", userDetails.phone)
-        formData.append("total", matchedBid?.price || productInfo?.price);
-        formData.append("subtotal", matchedBid?.inclPrice || productInfo?.inclPrice);
-        for (const [key, value] of formData.entries()) {
-          console.log(key, value);
-        }
-        setOrderFormData(formData);
+
+      const payload = {
+        fromUserId: fromUserId || "",
+        toUserId: toUserId || "",
+        productId: [`${productId}`],
+        fullName: userDetails.fullName,
+        email: userDetails.email,
+        address: userDetails.address,
+        city: userDetails.city,
+        country: userDetails.country,
+        zipcode: userDetails.zipcode,
+        phone: userDetails.phone,
+        total: matchedBid?.price || productInfo?.price,
+        subtotal: matchedBid?.inclPrice || productInfo?.inclPrice,
+      }
+        
+        setOrderFormData(payload);
         return;
-        const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/create`,
-            formData,
-            {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get('token')}`,
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        )
-
-        if (response.status !== 200){
-            toast.error("Error submitting order. Please try again.")
-            return
-        }
-
-        console.log("Response from Order:", response);
-        toast.success("Order submitted successfully!")
-        setIsCardModalOpen(false)
-        router.push('/')
-        
-        
     } catch (error) {
         console.log("Error submitting order:", error);
         toast.error("Error submitting order. Please try again.");
@@ -239,7 +198,7 @@ const CheckoutPage = () => {
           <div className="flex flex-col mb-4">
         <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo?.image?.[0]}`}
-            alt={productInfo?.name}
+            alt={productInfo?.name || "Product Image"}
             width={200}
             height={70}
             unoptimized

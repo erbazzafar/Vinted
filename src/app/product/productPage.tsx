@@ -76,7 +76,7 @@ const ProductPage = () => {
     );
   };
 
-  const handleContact = () => {
+  const handleBuyNow = () => {
     if(!token) {
       toast.error("Please login to buy the product")
       return
@@ -91,6 +91,7 @@ const ProductPage = () => {
       return
     }
     localStorage.setItem("product", JSON.stringify(gettingProduct));
+    localStorage.setItem("fromProductPage", "true")
     router.push(`/inbox/${gettingProduct?._id}`);
   };
 
@@ -217,7 +218,7 @@ const ProductPage = () => {
             {/* Contact Seller Button */}
             <button
               className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-              onClick={handleContact}
+              onClick={handleBuyNow}
             >
               <span>Buy Now</span>
             </button>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import Image from "next/image";
 
 // Sample product list
 export const products = [
@@ -91,9 +92,12 @@ const ProductCard = ({ product }: { product: any }) => {
     <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px] z-[10]">
       {/* Product Image */}
       <div className="relative">
-        <img
+        <Image
           src={product.image}
           alt={product.name}
+          height={300}
+          width={300}
+          unoptimized
           className="w-full h-[300px] object-cover rounded-lg"
         />
       </div>

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import axios from "axios";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const router = useRouter()
@@ -17,7 +17,6 @@ const Navbar = () => {
   const notifRef = useRef<HTMLDivElement>(null);
   
   const photoURL = Cookies.get("photourl")
-  const namepic = Cookies.get("name0")
   const token = Cookies.get("token")
   console.log("token: ", token);
   const id = Cookies.get("userId")
@@ -91,10 +90,6 @@ const Navbar = () => {
 
     const [notifications, setNotifications] = useState(notificationsData)
 
-    const clearNotifications = () => {
-      setNotifications([]);
-    };
-
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -129,6 +124,15 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleSellNowClick =() => {
+    if(!token) {
+      toast.info("Please log in first to sell the items")
+      router.push("/signup")
+    } else {
+      router.push("/sell")
+    }
+  }
 
   return (
     <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative overflow-visible">
@@ -276,9 +280,12 @@ const Navbar = () => {
           </>
          )}
 
-          <Link href="/sell" className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-600">
-            Sell Now
-          </Link>
+          <button
+              onClick={handleSellNowClick}
+              className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 cursor-poin hover:bg-gray-600"
+            >
+              Sell Now
+          </button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -300,15 +307,26 @@ const Navbar = () => {
 
         {/* Mobile Links */}
         <nav className="mt-8 flex flex-col gap-4">
-          <Link href="/signup" className="text-gray-900 dark:text-white hover:text-blue-500 transition" onClick={() => setIsMobileMenuOpen(false)}>
-            Sign Up
-          </Link>
-          <Link href="/login" className="text-gray-900 dark:text-white hover:text-blue-500 transition" onClick={() => setIsMobileMenuOpen(false)}>
-            Login
-          </Link>
-          <Link href="/sell" className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-700 text-center" onClick={() => setIsMobileMenuOpen(false)}>
-            Sell Now
-          </Link>
+          {!token ? (
+            <>
+             <Link href="/signup" className="text-gray-900 dark:text-white hover:text-blue-500 transition" onClick={() => setIsMobileMenuOpen(false)}>
+             Sign Up
+           </Link>
+           <Link href="/login" className="text-gray-900 dark:text-white hover:text-blue-500 transition" onClick={() => setIsMobileMenuOpen(false)}>
+             Login
+           </Link>
+           <button
+              onClick={handleSellNowClick}
+              className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 cursor-poin hover:bg-gray-600"
+            >
+              Sell Now
+          </button>
+           </>
+          ) : (
+            <>
+            
+            </>
+          )}
         </nav>
       </div>
     </nav>
