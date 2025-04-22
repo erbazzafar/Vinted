@@ -348,143 +348,145 @@ const Chatbox = () => {
               </div>
 
               {/* Chat Messages */}
-              <div className="mt-4 space-y-3 max-h-[300px] md:max-h-[400px] overflow-y-auto p-2">
-                {messages.length > 0 ? (
-                  messages.map((msg: any, index: any) => {
-                    const isSentByCurrentUser = msg.senderId === loggedInUser;
-                    const senderImage = isSentByCurrentUser ? photoURL : selectedChat?.photoURL;
+              <div className="relative h-[calc(100vh-300px)] md:h-[calc(100vh-350px)]">
+                <div className="h-full overflow-y-auto p-2">
+                  {messages.length > 0 ? (
+                    messages.map((msg: any, index: any) => {
+                      const isSentByCurrentUser = msg.senderId === loggedInUser;
+                      const senderImage = isSentByCurrentUser ? photoURL : selectedChat?.photoURL;
 
-                    return (
-                      <div key={index} className={`flex items-start gap-3 ${isSentByCurrentUser ? 'flex-row-reverse' : ''}`}>
-                        <Image
-                          src={senderImage}
-                          alt={isSentByCurrentUser ? "You" : "Other"}
-                          width={10}
-                          height={10}
-                          unoptimized
-                          className="w-8 h-8 md:w-10 md:h-10 object-cover rounded-full"
-                        />
-                        <div className={`p-2 md:p-3 rounded-lg border max-w-[75%] ${msg.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "bg-gray-200"}`}>
-                          {msg.message && <p className="mb-1 text-sm md:text-base">{msg.message}</p>}
-                          {msg.image && (
-                            <Image
-                            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}`}
-                            className="mt-2 rounded-md max-h-32 md:max-h-40" 
-                            alt="Message Image" 
-                            width={225}
-                            height={99}
-                            unoptimized/>
-                          )}
-                          {msg.bidPrice && (
-                            <div className="mt-2 flex flex-col gap-2">
-                              <p className="text-teal-600 font-semibold text-sm md:text-base">Offer: ${msg.bidPrice}</p>
+                      return (
+                        <div key={index} className={`flex items-start gap-3 ${isSentByCurrentUser ? 'flex-row-reverse' : ''}`}>
+                          <Image
+                            src={senderImage}
+                            alt={isSentByCurrentUser ? "You" : "Other"}
+                            width={10}
+                            height={10}
+                            unoptimized
+                            className="w-8 h-8 md:w-10 md:h-10 object-cover rounded-full"
+                          />
+                          <div className={`p-2 md:p-3 rounded-lg border max-w-[75%] ${msg.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "bg-gray-200"}`}>
+                            {msg.message && <p className="mb-1 text-sm md:text-base">{msg.message}</p>}
+                            {msg.image && (
+                              <Image
+                              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}`}
+                              className="mt-2 rounded-md max-h-32 md:max-h-40" 
+                              alt="Message Image" 
+                              width={225}
+                              height={99}
+                              unoptimized/>
+                            )}
+                            {msg.bidPrice && (
+                              <div className="mt-2 flex flex-col gap-2">
+                                <p className="text-teal-600 font-semibold text-sm md:text-base">Offer: ${msg.bidPrice}</p>
 
-                              {/* Bid Status: Accepted */}
-                              {msg.bidStatus === "Accepted" ? (
-                                msg.userId === loggedInUser  ? (
-                                  <button 
-                                    onClick={() => handleBuyNow(msg._id)}
-                                    className="px-4 md:px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer text-sm md:text-base">
-                                    Buy Now
-                                  </button>
+                                {/* Bid Status: Accepted */}
+                                {msg.bidStatus === "Accepted" ? (
+                                  msg.userId === loggedInUser  ? (
+                                    <button 
+                                      onClick={() => handleBuyNow(msg._id)}
+                                      className="px-4 md:px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer text-sm md:text-base">
+                                      Buy Now
+                                    </button>
+                                  ) : (
+                                    <p className="text-xs md:text-sm text-green-500">You accepted the offer</p>
+                                  )
+                                ) : msg.bidStatus === "Decline" ? (
+                                  <p className="text-red-500 font-medium text-sm md:text-base">Offer is Declined</p>
+                                ) : isSentByCurrentUser ? (
+                                  <p className="text-xs md:text-sm text-gray-500 text-right">{msg.bidStatus || "Pending"}</p>
                                 ) : (
-                                  <p className="text-xs md:text-sm text-green-500">You accepted the offer</p>
-                                )
-                              ) : msg.bidStatus === "Decline" ? (
-                                <p className="text-red-500 font-medium text-sm md:text-base">Offer is Declined</p>
-                              ) : isSentByCurrentUser ? (
-                                <p className="text-xs md:text-sm text-gray-500 text-right">{msg.bidStatus || "Pending"}</p>
-                              ) : (
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleOfferAccept(msg._id, msg.bidPrice)}
-                                    className="px-3 md:px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 text-sm md:text-base"
-                                  >
-                                    Accept
-                                  </button>
-                                  <button
-                                    onClick={() => handleOfferReject(msg._id)}
-                                    className="px-3 md:px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 text-sm md:text-base"
-                                  >
-                                    Decline
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleOfferAccept(msg._id, msg.bidPrice)}
+                                      className="px-3 md:px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 text-sm md:text-base"
+                                    >
+                                      Accept
+                                    </button>
+                                    <button
+                                      onClick={() => handleOfferReject(msg._id)}
+                                      className="px-3 md:px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500 text-sm md:text-base"
+                                    >
+                                      Decline
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-gray-500 text-center">No messages yet.</p>
-                )}
-              </div>
-
-              {/* Image Upload */}
-              {image.length > 0 && (
-                <div className="flex gap-2 p-2">
-                  {image.map((img, index) => (
-                    <div key={index} className="relative w-[150px] md:w-[225px] h-full aspect-square overflow-hidden rounded-md border">
-                      <Image
-                        src={URL.createObjectURL(img)}
-                        alt={`preview-${index}`}
-                        width={225}
-                        height={99}
-                        className="object-cover w-full h-full rounded-md"
-                        onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
-                      />
-                      <button
-                        className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
-                        onClick={() => handleRemoveImage(index)}
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
+                      );
+                    })
+                  ) : (
+                    <p className="text-gray-500 text-center">No messages yet.</p>
+                  )}
                 </div>
-              )}
 
-              {/* Message Input */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-2 md:p-4">
-                <div className="max-w-4xl mx-auto flex items-center">
-                  {/* Hidden Image Input */}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    ref={fileInputRef}
-                    onChange={handleImageUpload}
-                  />
+                {/* Image Upload */}
+                {image.length > 0 && (
+                  <div className="flex gap-2 p-2">
+                    {image.map((img, index) => (
+                      <div key={index} className="relative w-[150px] md:w-[225px] h-full aspect-square overflow-hidden rounded-md border">
+                        <Image
+                          src={URL.createObjectURL(img)}
+                          alt={`preview-${index}`}
+                          width={225}
+                          height={99}
+                          className="object-cover w-full h-full rounded-md"
+                          onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
+                        />
+                        <button
+                          className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                  {/* Camera Icon */}
-                  <button
-                    className="text-gray-500 mr-2"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={message.trim().length > 0}
-                  >
-                    <Camera className="w-5 h-5 md:w-6 md:h-6" />
-                  </button>
+                {/* Message Input */}
+                <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-2 md:p-4">
+                  <div className="max-w-4xl mx-auto flex items-center">
+                    {/* Hidden Image Input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                    />
 
-                  {/* Text Input */}
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Write a message here"
-                    className="w-full p-2 border rounded-md focus:outline-none text-sm md:text-base"
-                    disabled={image.length > 0}
-                  />
+                    {/* Camera Icon */}
+                    <button
+                      className="text-gray-500 mr-2"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={message.trim().length > 0}
+                    >
+                      <Camera className="w-5 h-5 md:w-6 md:h-6" />
+                    </button>
 
-                  {/* Send Button */}
-                  <button
-                    onClick={handleMessageSend}
-                    disabled={!message.trim() && image.length === 0}
-                    className="bg-gray-800 text-white px-3 md:px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600 ml-2"
-                  >
-                    <Send size={18} className="shrink-0 md:w-6 md:h-6" />
-                  </button>
+                    {/* Text Input */}
+                    <input
+                      type="text"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Write a message here"
+                      className="w-full p-2 border rounded-md focus:outline-none text-sm md:text-base"
+                      disabled={image.length > 0}
+                    />
+
+                    {/* Send Button */}
+                    <button
+                      onClick={handleMessageSend}
+                      disabled={!message.trim() && image.length === 0}
+                      className="bg-gray-800 text-white px-3 md:px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600 ml-2"
+                    >
+                      <Send size={18} className="shrink-0 md:w-6 md:h-6" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
