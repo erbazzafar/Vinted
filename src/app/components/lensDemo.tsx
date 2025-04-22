@@ -166,7 +166,7 @@ const ProductList = () => {
 
   return (
     <div className="container mx-auto max-w-screen-2xl py-6">
-      <div className="px-2 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
+      <div className=" grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
         {products.map((product, index) => (
           <ProductCard key={product._id || index} product={product} />
         ))}

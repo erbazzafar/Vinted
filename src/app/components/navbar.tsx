@@ -177,7 +177,7 @@ const Navbar = () => {
           <div className="relative" ref={notifRef}>
             {/* 🔔 Notification Bell */}
             <button
-              className="p-3 rounded-lg flex items-center gap-2 relative"
+              className="cursor-pointer p-3 rounded-lg flex items-center gap-2 relative"
               onClick={() => setIsNotifOpen(!isNotifOpen)}
             >
               <Bell size={25} className="text-gray-700 dark:text-white" />
@@ -238,7 +238,7 @@ const Navbar = () => {
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              className="p-3 rounded-lg flex items-center gap-2"
+              className="cursor-pointer p-3 rounded-lg flex items-center gap-2"
               onClick={() => setIsOpen(!isOpen)}
             >
               <Image 
@@ -288,7 +288,7 @@ const Navbar = () => {
 
           <button
               onClick={handleSellNowClick}
-              className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 cursor-poin hover:bg-gray-600"
+              className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-600"
             >
               Sell Now
           </button>

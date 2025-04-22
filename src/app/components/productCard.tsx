@@ -152,7 +152,7 @@ const ProductCard = () => {
         return;
       }
 
-      const categoryList = response.data.data.map((category: any) => ({
+      const categoryList = response.data.data.map((category: Category) => ({
         _id: category._id,
         name: category.name,
         subCategoryCount: category.subCategoryCount || 0,

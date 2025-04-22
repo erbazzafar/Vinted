@@ -60,7 +60,7 @@ const TabsComponent = ({ sellerId }: any) => {
 
   const tabs = [
     { name: "Products", key: "Products" },
-    
+    // { name: "Reviews", key: "Reviews" },
   ];
 
   return (
