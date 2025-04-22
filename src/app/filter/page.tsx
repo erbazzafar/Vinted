@@ -1,12 +1,12 @@
 "use client"
 import React from 'react'
-import ProductList from '../components/lensDemo'
+import Filter from '../components/filter'
 
 function Page() {
     
     return (
         <>
-            <ProductList/>
+            <Filter/>
         </>        
     )
 }
