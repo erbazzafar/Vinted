@@ -148,6 +148,7 @@ const ProductPage = () => {
                         alt={`Product ${index}`}
                         width={950}
                         height={600}
+                        unoptimized
                         className="w-full h-[600px] object-cover"
                       />
                     </div>
@@ -164,6 +165,7 @@ const ProductPage = () => {
                 alt={gettingProduct?.name}
                 width={500}
                 height={600}
+                unoptimized
                 className="w-full h-[530px] object-cover rounded-lg shadow-lg"
               />
             </div>

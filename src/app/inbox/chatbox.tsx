@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Send } from "lucide-react";
+import { Send, Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -15,12 +15,13 @@ const Chatbox = () => {
   const [chat, setChat] = useState<any>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const loggedInUser: any = Cookies.get("userId");
-  const [image, setImage] = useState<any>({});
+  const [image, setImage] = useState<File []>([]);
   const [newChat, setNewChat] = useState<any>('')
   const [showOffer, setShowOffer] = useState(false)
   const photoURL = Cookies.get("photourl")
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
 useEffect(() => {
   // Scroll to the bottom of the chat box
@@ -121,12 +122,11 @@ useEffect(() => {
     formData.append("userId", selectedChat?.userId?._id)
     formData.append("senderId", loggedInUser)
     formData.append("sendBy", loggedInUser === selectedChat?.adminUser?._id ? "admin": "user")
+    image.forEach((img) => formData.append("image", img));
     if(message !== ""){
       formData.append("message", message);
     }
-    if(Object.keys(image)?.length > 0){
-      formData.append("image", image);
-    }
+
     if(offerPrice !== ""){
       formData.append("bidStatus", "pending");
       formData.append("bidPrice", offerPrice);
@@ -140,6 +140,7 @@ useEffect(() => {
     console.log("Response status from Chat Creating: ", response.data);
     setMessage("")
     setOfferPrice("")
+    setImage([])
    } catch (error) {
     console.log("error Creating a message");
     return
@@ -206,11 +207,30 @@ useEffect(() => {
   }
 
   const handleBuyNow = async (id: any) => {
-
     localStorage.setItem("productsInfo", JSON.stringify(selectedChat?.productId?.[0]))
     router.push(`/checkout?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&adminUser=${selectedChat?.adminUser?._id}`);
-  
   }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files) {
+        const newImages = [...image]; // Clone the current image state array
+        for (let i = 0; i < files.length; i++) {
+          if (newImages.length < 2) {
+            newImages.push(files[i]); // Push each selected file to the array
+          } else {
+            toast.error("You can upload up to 2 images only.");
+            break;
+          }
+        }
+        setImage(newImages); // Update the state with the new array of images
+      }
+    };
+  
+    const handleRemoveImage = (index: number) => {
+      const updatedImages = image.filter((_, i) => i !== index); // Remove the image at the given index
+      setImage(updatedImages); // Update the state with the new images array
+    };
 
 
   return  (
@@ -395,21 +415,69 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Message Input */}
-        <div className="mt-4 flex items-center border-t pt-3">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Write a message here"
-            className="w-full p-2 border rounded-md focus:outline-none"
-          />
-          <button
-            onClick={handleMessageSend}
-            className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-600 cursor-pointer ml-2"
-          >
-            <Send size={22} className="shrink-0" />
-          </button>
+        {/* Image Upload */}
+      {image.length > 0 && (
+        <div className="flex gap-2 p-2">
+          {image.map((img, index) => (
+            <div key={index} className="relative w-225 h-full aspectp-square overflow-hidden rounded-md border">
+              <Image
+                src={URL.createObjectURL(img)}
+                alt={`preview-${index}`}
+                width={225}
+                height={99}
+                className="object-cover w-full h-full rounded-md"
+                onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
+              />
+              <button
+                className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
+                onClick={() => handleRemoveImage(index)}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Message Input */}
+      <div className="mt-2 flex items-center border-t pt-3 sticky bottom-0 bg-white px-2">
+        {/* Hidden Image Input */}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+        />
+
+        {/* Camera Icon */}
+        <button
+          className="text-gray-500 mr-2"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={message.trim().length > 0}
+        >
+          <Camera className="w-6 h-6" />
+        </button>
+
+        {/* Text Input */}
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Write a message here"
+          className="w-full p-2 border rounded-md focus:outline-none"
+          disabled={image.length > 0}
+        />
+
+        {/* Send Button */}
+        <button
+          onClick={handleMessageSend}
+          disabled={!message.trim() && image.length === 0}
+          className="bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600 ml-2"
+        >
+          <Send size={22} className="shrink-0" />
+        </button>
         </div>
 
         {/* Carousel Modal */}
@@ -451,5 +519,6 @@ useEffect(() => {
       </div>
   );
 };
+
 
 export default Chatbox;

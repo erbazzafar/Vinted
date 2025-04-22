@@ -139,7 +139,13 @@ const Navbar = () => {
       <div className="container mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
-          AffariDoro
+          <Image
+          src="/istockphoto-1222357475-612x612.jpg"
+          alt="AffariDoro"
+          width={100}
+          height={100}
+          unoptimized
+        />
         </Link>
 
         {/* Search Bar (Hidden on Mobile) */}

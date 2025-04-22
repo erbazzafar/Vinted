@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-8 text-left border-b-2">
           {/* Vinted Section */}
           <div>
-            <h3 className="font-semibold text-gray-800">Brand Name</h3>
+            <h3 className="font-semibold text-gray-800">AffariDoro</h3>
             <ul className="mt-2 space-y-2">
               <li><Link href="/about">About us</Link></li>
               <li><Link href="/jobs">Jobs</Link></li>
@@ -64,6 +64,7 @@ const Footer = () => {
                 alt="App Store"
                 width={32}
                 height={9} 
+                unoptimized
                 className="h-9 w-32" />
             </Link>
             <Link href="https://play.google.com/store" target="_blank">
@@ -72,6 +73,7 @@ const Footer = () => {
                 alt="Google Play"
                 width={32}
                 height={9} 
+                unoptimized
                 className="h-9 w-32" />
             </Link>
           </div>

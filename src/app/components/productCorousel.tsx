@@ -87,6 +87,7 @@ const ProductCard = ({ product }: { product: any }) => {
           alt={product?.name}
           height={250}
           width={300}
+          unoptimized
           className="w-full h-[250px] object-cover rounded-lg"
         />
       </div>
@@ -175,7 +176,7 @@ const ProductCarousel = () => {
       <Carousel
         responsive={responsive}
         infinite
-        autoPlay={false}
+        autoPlay={true}
         keyBoardControl
         showDots={false}
         arrows={false}

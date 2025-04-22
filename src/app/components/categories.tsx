@@ -8,6 +8,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 interface Category {
+  _id: string
   name: string
   image: string
 }
@@ -61,16 +62,17 @@ const Categories: React.FC = () => {
           return (
             <Link
               key={index}
-              href={`/filter/`}
+              href={`/filter?Id=${category._id}`}
               className="flex flex-col items-center space-y-2 text-gray-700 hover:text-gray-900 transition"
             >
-              <div className="w-22 h-22 flex items-center justify-center bg-[#EAEAEA] rounded-full">
+              <div className="w-20 h-20 flex items-center justify-center bg-[#EAEAEA] rounded-full">
                 <Image
                   src={imageSrc}
                   alt={category.name}
                   width={32}
                   height={32}
-                  className="w-8 h-8 object-contain"
+                  unoptimized
+                  className="w-full h-full object-cover rounded-full"
                 />
               </div>
               <span className="text-sm font-medium">{category.name}</span>
