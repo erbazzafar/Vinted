@@ -30,6 +30,55 @@ const Chatbox = () => {
     }
   }, [messages]);
 
+  // Get product from localStorage when coming from product page
+  useEffect(() => {
+    const productFromStorage = localStorage.getItem("product");
+    const fromProductPage = localStorage.getItem("fromProductPage");
+    
+    if (productFromStorage && fromProductPage === "true") {
+      try {
+        const parsedProduct = JSON.parse(productFromStorage);
+        setNewChat(parsedProduct);
+        
+        // Check if chat already exists for this product
+        const existingChat = chat.find((c: any) => 
+          c.productId?.[0]?._id === parsedProduct._id && 
+          (c.userId?._id === loggedInUser || c.adminUser?._id === loggedInUser)
+        );
+
+        if (existingChat) {
+          // If chat exists, select it
+          setSelectedChat(existingChat);
+          getChatFunc(existingChat);
+        } else {
+          // Create a new chat object
+          const tempChat = {
+            productId: [parsedProduct],
+            userId: {
+              _id: parsedProduct?.userId?._id
+            },
+            adminUser: {
+              _id: parsedProduct?.userId?._id,
+              username: parsedProduct?.userId?.username,
+              image: parsedProduct?.userId?.image
+            }
+          };
+          
+          // Add new chat to the beginning of the chat list
+          setChat(prevChats => [tempChat, ...prevChats]);
+          setSelectedChat(tempChat);
+          getChatFunc(tempChat);
+        }
+        
+        // Clear the localStorage items
+        localStorage.removeItem("product");
+        localStorage.removeItem("fromProductPage");
+      } catch (error) {
+        console.error("Error parsing product from localStorage:", error);
+      }
+    }
+  }, [chat, loggedInUser]);
+
   // Fetch chat data based on user ID
   useEffect(() => {
     const getChat = async () => {
@@ -53,7 +102,7 @@ const Chatbox = () => {
       }
     };
     getChat();
-  }, []);
+  }, [loggedInUser]);
 
   const getChatFunc = async (firstChat: any) => {
     const response = await axios.get(
@@ -75,41 +124,6 @@ const Chatbox = () => {
       getChatFunc(firstChat)
     }
   }, [chat]);
-
-  // Get product from localStorage when coming from product page
-  useEffect(() => {
-    const productFromStorage = localStorage.getItem("product");
-    const fromProductPage = localStorage.getItem("fromProductPage");
-    
-    if (productFromStorage && fromProductPage === "true") {
-      try {
-        const parsedProduct = JSON.parse(productFromStorage);
-        setNewChat(parsedProduct);
-        
-        // Create a temporary chat object
-        const tempChat = {
-          productId: [parsedProduct],
-          userId: {
-            _id: parsedProduct?.userId?._id
-          },
-          adminUser: {
-            _id: parsedProduct?.userId?._id,
-            username: parsedProduct?.userId?.username,
-            image: parsedProduct?.userId?.image
-          }
-        };
-        
-        setSelectedChat(tempChat);
-        getChatFunc(tempChat);
-        
-        // Clear the localStorage items
-        localStorage.removeItem("product");
-        localStorage.removeItem("fromProductPage");
-      } catch (error) {
-        console.error("Error parsing product from localStorage:", error);
-      }
-    }
-  }, []);
 
   const handleMessageSend = async () => {
     const formData = new FormData();
@@ -235,43 +249,48 @@ const Chatbox = () => {
       <div className="w-1/4 bg-white text-gray-800 p-4 rounded-l-xl border-r-2">
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
         <ul>
-          {chat?.map((chatMessage: any) => (
-            <li
-              key={chatMessage._id}
-              className={`flex items-center gap-3 p-3 cursor-pointer rounded-md mb-2 transition ${
-                selectedChat?._id === chatMessage._id
-                  ? "bg-gray-200 text-black"
-                  : "hover:bg-gray-300 text-black"
-              }`}
-              onClick={() => {
-                setSelectedChat(chatMessage);
-                getChatFunc(chatMessage)
-              }}
-            >
-              <Image
-                className="w-10 h-10 object-cover rounded-full"
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image || "/default-avatar.png"}`}
-                alt={chatMessage.adminUser.fullName}
-                width={40}
-                height={40}
-              />
-              <div className="text-lg">
-                {chatMessage.adminUser.username}
-                <br />
-                {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
-                  <div key={mg._id} className="w-[40px] h-[40px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
+          {chat?.map((chatMessage: any) => {
+            // For buyers, always show seller's info
+            const profileImage = chatMessage?.adminUser?.image;
+            const username = chatMessage?.adminUser?.username;
+            const productImage = chatMessage?.productId?.[0]?.image?.[0];
+
+            return (
+              <li
+                key={chatMessage._id}
+                className={`flex items-center gap-3 p-3 cursor-pointer rounded-md mb-2 transition ${
+                  selectedChat?._id === chatMessage._id
+                    ? "bg-gray-200 text-black"
+                    : "hover:bg-gray-300 text-black"
+                }`}
+                onClick={() => {
+                  setSelectedChat(chatMessage);
+                  getChatFunc(chatMessage)
+                }}
+              >
+                <Image
+                  className="w-10 h-10 object-cover rounded-full"
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${profileImage || "/default-avatar.png"}`}
+                  alt={username}
+                  width={40}
+                  height={40}
+                />
+                <div className="text-lg">
+                  {username}
+                  <br />
+                  <div className="w-[40px] h-[40px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
                     <Image
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mg?.image?.[0]}`}
+                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productImage}`}
                       alt={"Product"}
                       width={40}
                       height={40}
                       className="object-cover"
                     />
                   </div>
-                ))}
-              </div>
-            </li>
-          ))}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
