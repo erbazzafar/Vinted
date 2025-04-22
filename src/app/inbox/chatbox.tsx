@@ -16,19 +16,19 @@ const Chatbox = () => {
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const loggedInUser: any = Cookies.get("userId");
   const [image, setImage] = useState<File []>([]);
-  const [newChat, setNewChat] = useState<any>('')
+  const [newChat, setNewChat] = useState<any>(null)
   const [showOffer, setShowOffer] = useState(false)
   const photoURL = Cookies.get("photourl")
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-useEffect(() => {
-  // Scroll to the bottom of the chat box
-  if (messagesEndRef.current) {
-    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  }
-}, [messages]);
+  useEffect(() => {
+    // Scroll to the bottom of the chat box
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   // Fetch chat data based on user ID
   useEffect(() => {
@@ -76,44 +76,40 @@ useEffect(() => {
     }
   }, [chat]);
 
-  // const getItemFromLocalStorage = () => {
-  //   const newProduct = localStorage.getItem("product")
-  //   if (!newProduct){
-  //     return
-  //   }
-  //   if (newProduct) {
-  //     try {
-  //       const parsedData = JSON.parse(newProduct)
-  //       setNewChat(parsedData)
-
-  //       const matchingChat = chat.find((c: any) => {
-  //         c.product?.[0]?._id === parsedData?._id && (c.userId?._id === loggedInUser || c.adminUser?._id === loggedInUser)
-  //       })
-
-  //       if (matchingChat) {
-  //         selectedChat(matchingChat)
-  //         getChatFunc(matchingChat)
-  //       } else {
-  //         const tempNewChat = {
-  //           productId : [parsedData],
-  //           userId: {
-  //             _id : parsedData?.userId?._id
-  //           },
-  //         }
-
-  //         const updateChatList = [tempNewChat, ...chat]
-  //       } 
-  //     } catch (error) {
-  //       console.log("Error in Contacting seller through Chat");
-  //       toast.error("Error in Contacting seller through Chat");
-  //       return
-  //     }
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getItemFromLocalStorage()
-  // }, [])
+  // Get product from localStorage when coming from product page
+  useEffect(() => {
+    const productFromStorage = localStorage.getItem("product");
+    const fromProductPage = localStorage.getItem("fromProductPage");
+    
+    if (productFromStorage && fromProductPage === "true") {
+      try {
+        const parsedProduct = JSON.parse(productFromStorage);
+        setNewChat(parsedProduct);
+        
+        // Create a temporary chat object
+        const tempChat = {
+          productId: [parsedProduct],
+          userId: {
+            _id: parsedProduct?.userId?._id
+          },
+          adminUser: {
+            _id: parsedProduct?.userId?._id,
+            username: parsedProduct?.userId?.username,
+            image: parsedProduct?.userId?.image
+          }
+        };
+        
+        setSelectedChat(tempChat);
+        getChatFunc(tempChat);
+        
+        // Clear the localStorage items
+        localStorage.removeItem("product");
+        localStorage.removeItem("fromProductPage");
+      } catch (error) {
+        console.error("Error parsing product from localStorage:", error);
+      }
+    }
+  }, []);
 
   const handleMessageSend = async () => {
     const formData = new FormData();
@@ -290,42 +286,26 @@ useEffect(() => {
           <div className="flex items-center gap-3">
             <Image
               className="w-16 h-16 object-cover rounded-lg"
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
-              alt={selectedChat?.productId?.[0]?.name }
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${newChat ? newChat?.image?.[0] : selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
+              alt={newChat ? newChat?.name : selectedChat?.productId?.[0]?.name}
               width={16}
               height={64}
               unoptimized
             />
             <div>
               <h3 className="text-lg font-semibold text-gray-800">
-                {newChat? newChat?.name : selectedChat?.productId?.[0]?.name}
+                {newChat ? newChat?.name : selectedChat?.productId?.[0]?.name}
               </h3>
-              {(() => {
-                const product = selectedChat?.productId?.[0]
-                const userBid = product?.bid?.find((bidProduct: any) => bidProduct.userId === selectedChat?.userId?._id);
-                console.log("bid price: ", userBid?.price);
-                
-
-                return userBid ? (
-                  <>
-                    <p className="text-gray-600 text-sm">
-                      ${userBid.price}
-                    </p>
-                    <p className="text-teal-700 text-sm">
-                      ${userBid.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-gray-600 text-sm">
-                      ${product?.price}
-                    </p>
-                    <p className="text-teal-800 text-sm">
-                      ${product?.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
-                    </p>
-                  </>
-                );
-              })()}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <p className="text-gray-600 text-sm">
+                    Price: ${newChat ? newChat?.price : selectedChat?.productId?.[0]?.price}
+                  </p>
+                  <p className="text-teal-700 text-sm">
+                    (${newChat ? newChat?.inclPrice : selectedChat?.productId?.[0]?.inclPrice} incl. of tax)
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
           <button
