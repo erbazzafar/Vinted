@@ -47,8 +47,6 @@ const Navbar = () => {
   // Mobile Dropdown Options
   const mobileDropdownOptions: DropdownOption[] = [
     { label: "Profile", path: `/seller/${id}`, icon: <User size={20} /> },
-    { label: "Inbox", path: `/inbox/${id}`, icon: <Inbox size={20} /> },
-    { label: "Wishlist", path: "/wishlist", icon: <Heart size={20} /> },
     { label: "My Orders", path: "/orders", icon: <Package size={20} /> },
     { label: "Wallet", path: "/wallet", icon: <Wallet size={20} /> },
     { label: "Settings", path: "/user-setting", icon: <Settings size={20} /> },
@@ -317,6 +315,14 @@ const Navbar = () => {
         <div className="md:hidden flex items-center gap-4">
           {isLoggedIn ? (
             <>
+              {/* Inbox and Wishlist Icons */}
+              <Link href={`/inbox/${id}`} className="p-2">
+                <Inbox size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+              </Link>
+              <Link href="/wishlist" className="p-2">
+                <Heart size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+              </Link>
+
               {/* Notification Bell for Mobile */}
               <div className="relative" ref={notifRef}>
                 <button
@@ -379,7 +385,7 @@ const Navbar = () => {
               {/* Profile Dropdown for Mobile */}
               <div className="relative" ref={dropdownRef}>
                 <button
-                  className="p-2 rounded-lg flex items-center gap-2 cursor-pointer"
+                  className="p-2 rounded-lg cursor-pointer"
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <Image 
@@ -389,7 +395,6 @@ const Navbar = () => {
                     height={10}
                     unoptimized
                     className="w-8 h-8 rounded-full" />
-                  {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </button>
 
                 <AnimatePresence>
