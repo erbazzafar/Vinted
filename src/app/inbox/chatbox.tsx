@@ -315,8 +315,8 @@ const Chatbox = () => {
             <h1 className="text-xl font-semibold mb-4 border-b-4">{selectedChat?.adminUser?.username}</h1>
             <div className="bg-gray-50 gap-y-4 p-4 md:p-6 rounded-lg">
               {/* Product Details */}
-              <div className="flex flex-col md:flex-row justify-between items-center border-b pb-2">
-                <div className="flex items-center gap-3 mb-2 md:mb-0">
+              <div className="flex justify-between items-center border-b pb-2">
+                <div className="flex items-center gap-3">
                   <Image
                     className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg"
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${newChat ? newChat?.image?.[0] : selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
@@ -330,19 +330,17 @@ const Chatbox = () => {
                       {newChat ? newChat?.name : selectedChat?.productId?.[0]?.name}
                     </h3>
                     <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <p className="text-gray-600 text-xs md:text-sm">
-                          Price: ${newChat ? newChat?.price : selectedChat?.productId?.[0]?.price}
-                        </p>
-                        <p className="text-teal-700 text-xs md:text-sm">
-                          (${newChat ? newChat?.inclPrice : selectedChat?.productId?.[0]?.inclPrice} incl. of tax)
-                        </p>
-                      </div>
+                      <p className="text-gray-600 text-sm md:text-base">
+                        ${newChat ? newChat?.price : selectedChat?.productId?.[0]?.price}
+                      </p>
+                      <p className="text-teal-700 text-xs md:text-sm">
+                        ${newChat ? newChat?.inclPrice : selectedChat?.productId?.[0]?.inclPrice} incl. of tax
+                      </p>
                     </div>
                   </div>
                 </div>
                 <button
-                  className="bg-gray-800 text-white px-4 md:px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-600 cursor-pointer text-sm md:text-base"
+                  className="bg-gray-800 text-white px-2 md:px-6 py-1 md:py-2 rounded-lg transition duration-300 hover:bg-gray-600 cursor-pointer text-xs md:text-base"
                   onClick={() => setShowOffer(true)}
                 >
                   Make an Offer
@@ -448,44 +446,46 @@ const Chatbox = () => {
               )}
 
               {/* Message Input */}
-              <div className="mt-2 flex items-center border-t pt-3 sticky bottom-0 bg-white px-2">
-                {/* Hidden Image Input */}
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  ref={fileInputRef}
-                  onChange={handleImageUpload}
-                />
+              <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-2 md:p-4">
+                <div className="max-w-4xl mx-auto flex items-center">
+                  {/* Hidden Image Input */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                  />
 
-                {/* Camera Icon */}
-                <button
-                  className="text-gray-500 mr-2"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={message.trim().length > 0}
-                >
-                  <Camera className="w-5 h-5 md:w-6 md:h-6" />
-                </button>
+                  {/* Camera Icon */}
+                  <button
+                    className="text-gray-500 mr-2"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={message.trim().length > 0}
+                  >
+                    <Camera className="w-5 h-5 md:w-6 md:h-6" />
+                  </button>
 
-                {/* Text Input */}
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Write a message here"
-                  className="w-full p-2 border rounded-md focus:outline-none text-sm md:text-base"
-                  disabled={image.length > 0}
-                />
+                  {/* Text Input */}
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Write a message here"
+                    className="w-full p-2 border rounded-md focus:outline-none text-sm md:text-base"
+                    disabled={image.length > 0}
+                  />
 
-                {/* Send Button */}
-                <button
-                  onClick={handleMessageSend}
-                  disabled={!message.trim() && image.length === 0}
-                  className="bg-gray-800 text-white px-3 md:px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600 ml-2"
-                >
-                  <Send size={18} className="shrink-0 md:w-6 md:h-6" />
-                </button>
+                  {/* Send Button */}
+                  <button
+                    onClick={handleMessageSend}
+                    disabled={!message.trim() && image.length === 0}
+                    className="bg-gray-800 text-white px-3 md:px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600 ml-2"
+                  >
+                    <Send size={18} className="shrink-0 md:w-6 md:h-6" />
+                  </button>
+                </div>
               </div>
             </div>
           </>
