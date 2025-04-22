@@ -117,11 +117,11 @@ const SellerProfile = () => {
   return (
     <div>
       {seller ? (
-      <div className="mt-16 max-w-screen-2xl mx-auto">
+      <div className="mt-0 md:mt-16 max-w-screen-2xl mx-auto px-4">
         {/* Seller Profile Section */}
-        <div className="flex items-start bg-white py-13 mb-10">
-          {/* Seller Image (Aligned with "Brand" in Navbar) */}
-          <div className="w-68 h-68 rounded-full overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center md:items-start bg-white py-13 mb-10">
+          {/* Seller Image (Centered on mobile, aligned with "Brand" in Navbar on desktop) */}
+          <div className="w-32 h-32 md:w-68 md:h-68 rounded-full overflow-hidden mb-4 md:mb-0">
             <Image
               src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${seller.image}`}
               alt={seller?.username}
@@ -133,35 +133,39 @@ const SellerProfile = () => {
           </div>
 
           {/* Seller Info & Follow Button Container */}
-          <div className="ml-8 flex-1">
+          <div className="md:ml-8 flex-1 w-full text-center md:text-left">
             {/* Seller Name and Follow Button Row */}
-            <div className="flex justify-between items-center">
-              <h1 className="text-5xl font-bold">{seller.username}</h1>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-3xl md:text-5xl font-bold">{seller.username}</h1>
 
-              {/* Follow Button (Aligned with "Sell Now") */}
-             { !isOwnProfile ? (
+              {/* Follow/Edit Button */}
+              {!isOwnProfile ? (
                 <button
-                  className={`px-12 py-2 rounded-lg transition cursor-pointer ${
+                  className={`px-8 md:px-12 py-2 rounded-lg transition cursor-pointer ${
                     isFollowing
                       ? "bg-gray-600 hover:bg-gray-500"
                       : "bg-gray-800 hover:bg-gray-600"
-                  } text-white`}
+                  } text-white w-full md:w-auto`}
                   onClick={handleFollow}
                 >
                   {isFollowing ? "Unfollow" : "Follow"}
                 </button>
-                ) : (
-                  <button
-                    className="px-12 py-2 rounded-lg transition cursor-pointer bg-gray-600 hover:bg-gray-500 text-white"
-                    onClick={() => router.push('/user-setting')}>
-                      Edit Profile
-                  </button>
-                )
-              }
+              ) : (
+                <button
+                  className="px-8 md:px-12 py-2 rounded-lg transition cursor-pointer bg-gray-600 hover:bg-gray-500 text-white w-full md:w-auto flex items-center justify-center gap-2"
+                  onClick={() => router.push('/user-setting')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  Edit Profile
+                </button>
+              )}
             </div>
 
             {/* Seller Rating and Reviews */}
-            <div className="flex items-center mt-2">
+            <div className="flex items-center justify-center md:justify-start mt-2">
               {getStarRating(seller.rating)}
               <span className="text-gray-600 text-lg ml-2">
                 {seller.reviews} reviews
@@ -170,15 +174,15 @@ const SellerProfile = () => {
 
             {/* Frequent Uploads */}
             {seller.frequentUploads && (
-              <div className="flex items-center text-gray-700 text-lg mt-4">
+              <div className="flex items-center text-gray-700 text-lg mt-4 justify-center md:justify-start">
                 <CheckCircle size={20} className="text-teal-500 mr-2" />
                 <span className="font-medium">Frequent Uploads</span>
-                <span className="ml-2">Regularly lists 5 or more items.</span>
+                <span className="ml-2 hidden md:inline">Regularly lists 5 or more items.</span>
               </div>
             )}
 
             {/* About Section */}
-            <div className="text-gray-700 text-lg mt-2">
+            <div className="text-gray-700 text-lg mt-2 flex flex-col items-center md:items-start">
               <div className="flex items-center space-x-3">
                 <MapPin size={20} />
                 <span>{seller.country}</span>
@@ -195,7 +199,7 @@ const SellerProfile = () => {
             </div>
 
             {/* Verified Info */}
-            <div className="flex items-center space-x-4 mt-2 text-gray-700 text-lg">
+            <div className="flex items-center justify-center md:justify-start space-x-4 mt-2 text-gray-700 text-lg">
               {seller.verifiedGoogle && (
                 <div className="flex items-center">
                   <CheckCircle size={20} className="text-teal-500 mr-2" />
@@ -211,10 +215,10 @@ const SellerProfile = () => {
             </div>
             
             {/* Seller Description */}
-            <div className="mt-5">
-            {seller.about && typeof seller.about === "string" && (
-              <p>{seller.about}</p>
-            )}
+            <div className="mt-5 text-center md:text-left">
+              {seller.about && typeof seller.about === "string" && (
+                <p>{seller.about}</p>
+              )}
             </div>
           </div>
         </div>
