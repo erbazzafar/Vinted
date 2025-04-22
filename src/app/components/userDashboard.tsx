@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import {Settings, User, Shield, Bell, Camera, PlusCircle } from "lucide-react";
+import {Settings, User, Shield, Bell, Camera, PlusCircle, Menu, X } from "lucide-react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { DatePicker} from "@heroui/react"
@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [phone, setPhoneNumber] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   console.log("User Id: ",Cookies.get("userId"));
   const token = Cookies.get("token");
@@ -143,19 +144,40 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="mt-15 flex w-7xl mx-auto min-h-screen">
+    <div className="mt-0 md:mt-20 flex flex-col md:flex-row w-full mx-auto min-h-screen">
+      {/* Mobile Menu Button */}
+      <button 
+        className={`md:hidden fixed top-32 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg ${isMobileMenuOpen ? 'hidden' : 'block'}`}
+        onClick={() => setIsMobileMenuOpen(true)}
+      >
+        <Menu size={24} />
+      </button>
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white p-5 ">
-        <h2 className="text-xl font-semibold mt-2 mb-4 border-b-4">Setting</h2>
+      <aside className={`${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:translate-x-0 fixed md:relative z-40 w-64 bg-white p-5 transition-transform duration-300 ease-in-out
+        h-screen md:h-auto`}>
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold mt-2 mb-4 border-b-4">Setting</h2>
+          <button 
+            className="md:hidden p-2 text-gray-800"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <X size={24} />
+          </button>
+        </div>
         <nav>
-          <ul>
+          <ul className="space-y-2">
             {pages.map((page) => (
               <li
                 key={page.name}
                 className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-200 transition ${
                   selectedPage.name === page.name ? "bg-gray-300" : ""
                 }`}
-                onClick={() => setSelectedPage(page)}
+                onClick={() => {
+                  setSelectedPage(page);
+                  setIsMobileMenuOpen(false);
+                }}
               >
                 <page.icon className="w-5 h-5" />
                 {page.name}
@@ -165,47 +187,55 @@ export default function Dashboard() {
         </nav>
       </aside>
 
+      {/* Overlay for mobile menu */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-white/5 z-30 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 md:p-6 mt-16 md:mt-0">
         <h1 className="text-xl font-semibold mb-4 border-b-4">{selectedPage.name}</h1>
-        <div className="bg-gray-50 gap-y-4 p-6 rounded-lg ">
+        <div className="bg-gray-50 gap-y-4 p-4 md:p-6 rounded-lg">
           {selectedPage.name === "Profile" ? (
-            <div className="space-y-9 ">
+            <div className="space-y-6 md:space-y-9">
               {/* Profile Picture */}
-              <div className=" flex flex-col items-center">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
-                {profile.image ? (
-                  <Image
-                  src={
-                    typeof profile.image === "string"
-                      ? profile.image.startsWith("http") 
-                        ? profile.image
-                        : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${profile.image}`
-                      : URL.createObjectURL(profile.image)
-                  }
-                  alt="Profile"
-                  width={128}
-                  height={128}
-                  unoptimized
-                  className="w-full h-full object-cover"
-                />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                    <Camera className="w-8 h-8 text-gray-500" />
-                  </div>
-                )}
-              </div>
+              <div className="flex flex-col items-center">
+                <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
+                  {profile.image ? (
+                    <Image
+                      src={
+                        typeof profile.image === "string"
+                          ? profile.image.startsWith("http") 
+                            ? profile.image
+                            : `${process.env.NEXT_PUBLIC_BACKEND_URL}/${profile.image}`
+                          : URL.createObjectURL(profile.image)
+                      }
+                      alt="Profile"
+                      width={128}
+                      height={128}
+                      unoptimized
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                      <Camera className="w-8 h-8 text-gray-500" />
+                    </div>
+                  )}
+                </div>
 
-              {/* File Input */}
-              <input type="file" className="mt-2 hidden" id="photoUpload" onChange={handlePhotoChange} />
-                <label htmlFor="photoUpload" className="mt-2 bg-gray-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-gray-700">
+                {/* File Input */}
+                <input type="file" className="mt-2 hidden" id="photoUpload" onChange={handlePhotoChange} />
+                <label htmlFor="photoUpload" className="mt-2 bg-gray-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-gray-700 text-sm md:text-base">
                   Upload Photo
-              </label>
-
+                </label>
               </div>
+
               {/* About Section */}
               <div>
-                <label className=" block text-md font-medium">About you</label>
+                <label className="block text-md font-medium">About you</label>
                 <textarea
                   className="mt-2 w-full border p-2 rounded"
                   placeholder="Tell us more about yourself and your style"
@@ -213,79 +243,41 @@ export default function Dashboard() {
                   onChange={(e) => setProfile({ ...profile, about: e.target.value })}
                 />
               </div>
-                 <div className="grid grid-cols-2 gap-4">
-                  {/* Phone Number */}
-                  <div className="flex flex-col">
-                    <label className="block text-md font-medium">Phone Number</label>
-                    <button 
-                        className="bg-gray-100 px-7 py-2 rounded flex items-center justify-between w-full"
-                        onClick={() => setIsPhoneModalOpen(true)}>
-                      {profile.phone ? profile.phone : "Add Phone Number"} <PlusCircle className="w-7 h-7 "/>
-                    </button>
-                  </div>
 
-                  {/* DatePicker */}
-                  <div className="flex flex-col">
-                    <label className=" ml-2 block text-md font-medium">Birth Date</label>
-                    <DatePicker
-                      value={
-                        profile.birthDay && /^\d{4}-\d{2}-\d{2}$/.test(profile.birthDay) // ISO 8601 check
-                          ? parseDate(profile.birthDay)
-                          : null
-                      }
-                      onChange={(date: CalendarDate | null) => {
-                        const formatted = date
-                          ? `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`
-                          : null;
-
-                        setProfile({ ...profile, birthDay: formatted });
-                      }}
-                      className="w-full min-w-0 z-50 bg-gray-100 cursor-pointer "
-                      variant="underlined"
-                      aria-label="Select your birth date"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Phone Number */}
+                <div className="flex flex-col">
+                  <label className="block text-md font-medium">Phone Number</label>
+                  <button 
+                    className="bg-gray-100 px-4 md:px-7 py-2 rounded flex items-center justify-between w-full"
+                    onClick={() => setIsPhoneModalOpen(true)}>
+                    {profile.phone ? profile.phone : "Add Phone Number"} <PlusCircle className="w-5 h-5 md:w-7 md:h-7"/>
+                  </button>
                 </div>
 
-                {/* Email Link */}
-              {/* <div>
-                <label className="block text-md font-medium">Add another Email</label>
-                <input
-                  type="email"
-                  className="mt-2 w-full border p-2 rounded"
-                  placeholder="Enter your Email"
-                  value={profile.emailLink}
-                  onChange={(e) => setProfile({ ...profile, emailLink: e.target.value })}
-                />
-              </div> */}
+                {/* DatePicker */}
+                <div className="flex flex-col">
+                  <label className="block text-md font-medium">Birth Date</label>
+                  <DatePicker
+                    value={
+                      profile.birthDay && /^\d{4}-\d{2}-\d{2}$/.test(profile.birthDay)
+                        ? parseDate(profile.birthDay)
+                        : null
+                    }
+                    onChange={(date: CalendarDate | null) => {
+                      const formatted = date
+                        ? `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`
+                        : null;
+                      setProfile({ ...profile, birthDay: formatted });
+                    }}
+                    className="w-full min-w-0 z-50 bg-gray-100 cursor-pointer"
+                    variant="underlined"
+                    aria-label="Select your birth date"
+                  />
+                </div>
+              </div>
 
-              {/*Phone Number Modal*/}
-              <Modal open={isPhoneModalOpen} onClose={() => setIsPhoneModalOpen(false)}>
-                  <Box
-                      className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                    >
-                      <h2 className="text-lg font-semibold mb-4">Add Phone Number</h2>
-                      <input
-                        type="text"
-                        className="w-full border p-2 rounded mb-4"
-                        placeholder="Enter phone number"
-                        value={phone}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                      />
-                      <button
-                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full"
-                        onClick={() => {
-                          setProfile({ ...profile, phone });
-                          setIsPhoneModalOpen(false);
-                          setPhoneNumber("");
-                        }}
-                      >
-                          Submit
-                      </button>
-                    </Box>
-                </Modal>
-
-                {/* Gender Selection */}
+              {/* Gender Selection */}
               <div>
                 <label className="block text-md font-medium">Gender</label>
                 <select
@@ -313,6 +305,7 @@ export default function Dashboard() {
                   <option>Germany</option>
                 </select>
               </div>
+
               {/* City Selection */}
               <div>
                 <label className="block text-md font-medium">Town/City</label>
@@ -324,6 +317,7 @@ export default function Dashboard() {
                   onChange={(e) => setProfile({ ...profile, city: e.target.value })}
                 />
               </div>
+
               {/* Language Preferences */}
               <div>
                 <label className="block text-md font-medium">Language</label>
@@ -338,21 +332,22 @@ export default function Dashboard() {
                   <option>German</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 justify-center gap-x-8">
-              {/* Update Profile Button */}
-              <button
-                className="mt-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
-                onClick={handleProfileUpdate}
-              >
-                Update Profile
-              </button>
-              {/* Delete Profile Button */}
-              <button
-                className="mt-4 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
-                onClick={() => setIsDeleteModalOpen(true)}
-              >
-                Delete Profile
-              </button>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Update Profile Button */}
+                <button
+                  className="mt-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
+                  onClick={handleProfileUpdate}
+                >
+                  Update Profile
+                </button>
+                {/* Delete Profile Button */}
+                <button
+                  className="mt-4 bg-red-400 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                >
+                  Delete Profile
+                </button>
               </div>
             </div>
           ) : (
@@ -360,21 +355,42 @@ export default function Dashboard() {
           )}
         </div>
 
-              {/*Delet Modal*/}
-               <Modal open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                  <Box
-                      className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                    >
-                      <h3 className="text-lg font-semibold mb-4">Are you sure you want to delete Your Profile </h3>
-                      <button
-                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full cursor-pointer"
-                        onClick={handleProfileDelete}
-                      >
-                          Delete Profile
-                      </button>
-                    </Box>
-                </Modal>
+        {/* Phone Number Modal */}
+        <Modal open={isPhoneModalOpen} onClose={() => setIsPhoneModalOpen(false)}>
+          <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <h2 className="text-lg font-semibold mb-4">Add Phone Number</h2>
+            <input
+              type="text"
+              className="w-full border p-2 rounded mb-4"
+              placeholder="Enter phone number"
+              value={phone}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+            <button
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full"
+              onClick={() => {
+                setProfile({ ...profile, phone });
+                setIsPhoneModalOpen(false);
+                setPhoneNumber("");
+              }}
+            >
+              Submit
+            </button>
+          </Box>
+        </Modal>
 
+        {/* Delete Modal */}
+        <Modal open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+          <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <h3 className="text-lg font-semibold mb-4">Are you sure you want to delete Your Profile</h3>
+            <button
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full cursor-pointer"
+              onClick={handleProfileDelete}
+            >
+              Delete Profile
+            </button>
+          </Box>
+        </Modal>
       </main>
     </div>
   );
