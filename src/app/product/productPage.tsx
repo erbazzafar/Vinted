@@ -90,10 +90,16 @@ const ProductPage = () => {
       toast.error("Please login to chat with the seller")
       return
     }
+    // return console.log("gettingProduct ", gettingProduct);
     localStorage.setItem("product", JSON.stringify(gettingProduct));
     localStorage.setItem("fromProductPage", "true")
-    router.push(`/inbox/${gettingProduct?._id}`);
+    router.push(`/inbox/${gettingProduct?._id}?id=${gettingProduct?._id}`);
   };
+
+  const handleBump = () => {
+    toast.success(`Your Product ${gettingProduct.name} is bumped Successfully`);
+    return
+  }
 
 
   return (
@@ -111,7 +117,7 @@ const ProductPage = () => {
                     alt={`Thumbnail ${index}`}
                     width={80}
                     height={80}
-                    className={`object-cover rounded-lg cursor-pointer border ${
+                    className={`object-contain rounded-lg cursor-pointer border ${
                       mainImage === image ? "border-teal-500" : "border-gray-300"
                     }`}
                     onClick={() => setMainImage(image)} // Change the mainImage on thumbnail click
@@ -162,7 +168,7 @@ const ProductPage = () => {
             <div className="w-full">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mainImage}`}
-                alt={gettingProduct?.name}
+                alt={"Product"}
                 width={500}
                 height={600}
                 unoptimized
@@ -218,30 +224,53 @@ const ProductPage = () => {
             </p>
 
             {/* Contact Seller Button */}
-            <button
-              className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-              onClick={handleBuyNow}
-            >
-              <span>Buy Now</span>
-            </button>
+            {gettingProduct?.userId?._id === loggedInUser ? (
+              <>
+                <button
+                className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                onClick={handleBump}
+              >
+                <span>Bump</span>
+              </button>
+                <SellerButton
+                seller={{
+                  username: gettingProduct?.userId?.username,
+                  profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
+                  rating: gettingProduct?.userId?.rating,
+                  reviews: gettingProduct?.userId?.reviews,
+                }}
+                sellerId={gettingProduct?.userId?._id}
+              />
+            </>
+            ) : (
+            <>
+              <button
+                className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                onClick={handleBuyNow}
+              >
+                <span>Buy Now</span>
+              </button>
 
-            <button
-              className="text-xl mt-3 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-              onClick={handleChat}
-            >
-              <span>Chat with Seller</span>
-              <MessageCircle size={20} className="shrink-0" />
-            </button>
+              <button
+                className="text-xl mt-3 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                onClick={handleChat}
+              >
+                <span>Chat with Seller</span>
+                <MessageCircle size={20} className="shrink-0" />
+              </button>
 
-            <SellerButton
-              seller={{
-                username: gettingProduct?.userId?.username,
-                profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
-                rating: gettingProduct?.userId?.rating,
-                reviews: gettingProduct?.userId?.reviews,
-              }}
-              sellerId={gettingProduct?.userId?._id}
-            />
+              <SellerButton
+                seller={{
+                  username: gettingProduct?.userId?.username,
+                  profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
+                  rating: gettingProduct?.userId?.rating,
+                  reviews: gettingProduct?.userId?.reviews,
+                }}
+                sellerId={gettingProduct?.userId?._id}
+              />
+            </>
+            )}
+            
           </div>
         </div>
       </div>

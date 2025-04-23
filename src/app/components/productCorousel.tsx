@@ -80,7 +80,7 @@ const ProductCard = ({ product }: { product: any }) => {
   }, [product]);
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden w-full max-w-[300px] mx-auto">
+    <div className="bg-white py-2 shadow-md rounded-xl overflow-hidden w-full max-w-[300px] mx-auto">
       <div className="relative">
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
@@ -88,7 +88,7 @@ const ProductCard = ({ product }: { product: any }) => {
           height={250}
           width={300}
           unoptimized
-          className="w-full h-[250px] object-cover rounded-lg"
+          className="w-full h-[200px] object-contain rounded-lg"
         />
       </div>
 
@@ -96,7 +96,7 @@ const ProductCard = ({ product }: { product: any }) => {
         <div className="flex justify-between items-center">
           <Link
             href={`/product/${product._id}`}
-            className="ml-2 text-lg font-semibold text-gray-800 hover:underline"
+            className="ml-2 text-[13px] font-semibold text-gray-800 hover:underline"
           >
             {product?.name}
           </Link>
@@ -111,12 +111,12 @@ const ProductCard = ({ product }: { product: any }) => {
         </div>
 
         <div className="ml-2 flex items-center gap-1 mt-1">{getStarRating(product?.rating)}</div>
-        <p className="ml-2 text-md text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="ml-2 text-md text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length-1]?.name ?? "N/A"}</p>
-        <p className="ml-2 text-md font-semibold text-teal-600">
+        <p className="ml-2 text-[12px] text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
+        <p className="ml-2 text-[12px] text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length-1]?.name ?? "N/A"}</p>
+        <p className="ml-2 text-[12px] font-semibold text-teal-600">
           ${product?.price}
         </p>
-        <p className="ml-2 text-md font-semibold text-teal-600">
+        <p className="ml-2 text-[12px] font-semibold text-teal-600">
           ${product?.inclPrice} <span className="text-xs text-gray-400">incl.</span>
         </p>
       </div>
@@ -172,7 +172,7 @@ const ProductCarousel = () => {
   }, []);
 
   return (
-    <div className="px-1 py-10 max-w-screen-2xl mx-auto">
+    <div className="lg:px-[50px] px-1 py-10 max-w-screen-2xl mx-auto">
       <Carousel
         responsive={responsive}
         infinite
