@@ -144,7 +144,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="mt-0 md:mt-20 flex flex-col md:flex-row w-full mx-auto min-h-screen">
+    <div className="mt-0 md:mt-5 flex flex-col md:flex-row w-full mx-auto min-h-screen">
       {/* Mobile Menu Button */}
       <button 
         className={`md:hidden fixed top-32 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg ${isMobileMenuOpen ? 'hidden' : 'block'}`}

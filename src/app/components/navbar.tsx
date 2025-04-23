@@ -151,7 +151,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative overflow-visible">
-      <div className="container mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
+      <div className="container lg:px-[50px] mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
           <Image

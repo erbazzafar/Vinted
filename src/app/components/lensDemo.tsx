@@ -94,10 +94,10 @@ const ProductCard = ({ product }: { product: Product }) => {
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
           alt={product.name}
-          height={300}
+          height={200}
           width={10}
           unoptimized
-          className="w-full h-[300px] object-cover rounded-lg"
+          className="w-full h-[200px] object-contain rounded-lg"
         />
       </div>
 
@@ -105,7 +105,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         <div className="flex justify-between items-center">
           <Link
             href={`/product/${product._id}`}
-            className="text-lg font-semibold text-gray-800 hover:underline"
+            className="text-[13px] font-semibold text-gray-800 hover:underline"
           >
             {product.name}
           </Link>
@@ -125,12 +125,12 @@ const ProductCard = ({ product }: { product: Product }) => {
         </div>
 
 
-        <p className="text-md text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="text-md text-gray-500">Category: {product.categoryId?.[product.categoryId?.length-1]?.name || "N/A"}</p>
-        <p className="text-lg font-semibold text-teal-600">
+        <p className="text-[12px] text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
+        <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length-1]?.name || "N/A"}</p>
+        <p className="text-[12px] font-semibold text-teal-600">
           ${product.price}{" "}
         </p>
-        <p className="text-lg font-semibold text-teal-600">
+        <p className="text-[12px] font-semibold text-teal-600">
           ${product.inclPrice}{" "}
           <span className="text-xs text-gray-400">incl.</span>
         </p>
@@ -165,8 +165,8 @@ const ProductList = () => {
   }, []);
 
   return (
-    <div className="container mx-auto max-w-screen-2xl py-6">
-      <div className=" grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
+    <div className=" lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
         {products.map((product, index) => (
           <ProductCard key={product._id || index} product={product} />
         ))}

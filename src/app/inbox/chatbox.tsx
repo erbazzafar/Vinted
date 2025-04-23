@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Send, Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
@@ -9,57 +9,69 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 
 const Chatbox = () => {
+
+  const queryPrams = useSearchParams()
+  const id = queryPrams.get("id")
+  const pathname = usePathname()
+
+  console.log("===>", id);
+
+
   const [messages, setMessages] = useState<any>([]);
   const [offerPrice, setOfferPrice] = useState<any>("");
   const [message, setMessage] = useState<any>("");
   const [chat, setChat] = useState<any>([]);
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const loggedInUser: any = Cookies.get("userId");
-  const [image, setImage] = useState<File []>([]);
-  const [newChat, setNewChat] = useState<any>('')
+  const [image, setImage] = useState<File[]>([]);
+  const [newChat, setNewChat] = useState<any>(null)
   const [showOffer, setShowOffer] = useState(false)
   const photoURL = Cookies.get("photourl")
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-useEffect(() => {
-  // Scroll to the bottom of the chat box
-  if (messagesEndRef.current) {
-    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  }
-}, [messages]);
+  useEffect(() => {
+    // Scroll to the bottom of the chat box
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  const getChat = async () => {
+    try {
+      if (!loggedInUser) {
+        return;
+      }
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/chatConversation/viewAll?userId=${loggedInUser} `
+      );
+
+      if (response.status !== 200) {
+        toast.error("Error Connecting to Seller");
+        return;
+      }
+      setChat(response.data.data);
+    } catch (error) {
+      toast.error("Error Occurred. Try again later");
+      console.log("Error Fetching the Chat");
+    }
+  };
 
   // Fetch chat data based on user ID
   useEffect(() => {
-    const getChat = async () => {
-      try {
-        if (!loggedInUser) {
-          return;
-        }
-
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/chatConversation/viewAll?userId=${loggedInUser} `
-        );
-
-        if (response.status !== 200) {
-          toast.error("Error Connecting to Seller");
-          return;
-        }
-        setChat(response.data.data);
-      } catch (error) {
-        toast.error("Error Occurred. Try again later");
-        console.log("Error Fetching the Chat");
-      }
-    };
     getChat();
+    if (id) {
+      setNewChat(JSON.parse(localStorage.getItem('product')));
+    }
   }, []);
 
   const getChatFunc = async (firstChat: any) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/viewAll?userId=${firstChat?.userId?._id}&adminUser=${firstChat?.adminUser?._id}&productId=["${firstChat?.productId?.[0]?._id}"]`
     )
-    if (response.status !== 200){
+    if (response.status !== 200) {
       toast.error("Error in fetching the Chat")
     };
     console.log("response from getchat :", response);
@@ -69,10 +81,12 @@ useEffect(() => {
   // Auto-select the first chat and set the product ID in the URL when chat data is available
   useEffect(() => {
     if (Array.isArray(chat) && chat.length > 0) {
-      const firstChat = chat[0];
-      setSelectedChat(firstChat);
-      console.log("first chat: ", firstChat);
-      getChatFunc(firstChat)
+      if (!newChat) {
+        const firstChat = chat[0];
+        setSelectedChat(firstChat);
+        console.log("first chat: ", firstChat);
+        getChatFunc(firstChat)
+      };
     }
   }, [chat]);
 
@@ -117,34 +131,41 @@ useEffect(() => {
 
   const handleMessageSend = async () => {
     const formData = new FormData();
-    formData.append("productId", selectedChat?.productId?.[0]?._id)
-    formData.append("adminUser", selectedChat?.adminUser?._id)
-    formData.append("userId", selectedChat?.userId?._id)
+    formData.append("productId", newChat ? newChat?._id : selectedChat?.productId?.[0]?._id)
+    formData.append("adminUser", newChat ? newChat?.userId?._id : selectedChat?.adminUser?._id)
+    formData.append("userId", newChat ? loggedInUser : selectedChat?.userId?._id)
     formData.append("senderId", loggedInUser)
-    formData.append("sendBy", loggedInUser === selectedChat?.adminUser?._id ? "admin": "user")
+    formData.append("sendBy", loggedInUser === selectedChat?.adminUser?._id ? "admin" : "user")
     image.forEach((img) => formData.append("image", img));
-    if(message !== ""){
+    if (message !== "") {
       formData.append("message", message);
     }
 
-    if(offerPrice !== ""){
+    if (offerPrice !== "") {
       formData.append("bidStatus", "pending");
       formData.append("bidPrice", offerPrice);
     }
-   try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/create`,
-      formData
-    )
-    getChatFunc(selectedChat)
-    console.log("Response status from Chat Creating: ", response.data);
-    setMessage("")
-    setOfferPrice("")
-    setImage([])
-   } catch (error) {
-    console.log("error Creating a message");
-    return
-   }
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/create`, formData);
+      if (response?.status === 200) {
+        const chatConResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chatConversation/viewAll?userId=${loggedInUser} `);
+        setChat(chatConResponse.data.data);
+        const newFirstChat = chatConResponse?.data?.data?.[0];
+        setSelectedChat(newFirstChat);
+        getChatFunc(newFirstChat);
+        localStorage.clear();
+        if (newChat) {
+          newChat(null);
+          router.replace(pathname)
+        }
+        setMessage("")
+        setOfferPrice("")
+        setImage([])
+      }
+    } catch (error) {
+      console.log("error Creating a message");
+      return
+    }
   };
 
   const handleOfferAccept = async (id: any, bidPrice: Number) => {
@@ -158,8 +179,8 @@ useEffect(() => {
           },
         }
       )
-      
-      if (response.status !== 200){
+
+      if (response.status !== 200) {
         toast.error("Error while accepting the offer")
         return
       }
@@ -168,7 +189,7 @@ useEffect(() => {
       const responseforBID = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/updateBid?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&price=${bidPrice}`
       )
-      if (responseforBID.status !== 200){
+      if (responseforBID.status !== 200) {
         toast.error("Error while updating the bid")
         return
       }
@@ -179,7 +200,7 @@ useEffect(() => {
       toast.error("Error accepting the offer. Please try again later.");
       return
     }
-    
+
   }
 
   const handleOfferReject = async (id: any) => {
@@ -193,7 +214,7 @@ useEffect(() => {
           },
         }
       )
-      if (response.status !== 200){
+      if (response.status !== 200) {
         toast.error("Error while Rejecting the offer")
         return
       }
@@ -212,28 +233,28 @@ useEffect(() => {
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (files) {
-        const newImages = [...image]; // Clone the current image state array
-        for (let i = 0; i < files.length; i++) {
-          if (newImages.length < 2) {
-            newImages.push(files[i]); // Push each selected file to the array
-          } else {
-            toast.error("You can upload up to 2 images only.");
-            break;
-          }
+    const files = e.target.files;
+    if (files) {
+      const newImages = [...image]; // Clone the current image state array
+      for (let i = 0; i < files.length; i++) {
+        if (newImages.length < 2) {
+          newImages.push(files[i]); // Push each selected file to the array
+        } else {
+          toast.error("You can upload up to 2 images only.");
+          break;
         }
-        setImage(newImages); // Update the state with the new array of images
       }
-    };
-  
-    const handleRemoveImage = (index: number) => {
-      const updatedImages = image.filter((_, i) => i !== index); // Remove the image at the given index
-      setImage(updatedImages); // Update the state with the new images array
-    };
+      setImage(newImages); // Update the state with the new array of images
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updatedImages = image.filter((_, i) => i !== index); // Remove the image at the given index
+    setImage(updatedImages); // Update the state with the new images array
+  };
 
 
-  return  (
+  return (
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-15">
       {/* Sidebar */}
       <div className="w-1/4 bg-white text-gray-800 p-4 rounded-l-xl border-r-2">
@@ -242,14 +263,14 @@ useEffect(() => {
           {chat?.map((chatMessage: any) => (
             <li
               key={chatMessage._id}
-              className={`flex items-center gap-3 p-3 cursor-pointer rounded-md mb-2 transition ${
-                selectedChat?._id === chatMessage._id
-                  ? "bg-gray-200 text-black"
-                  : "hover:bg-gray-300 text-black"
-              }`}
+              className={`flex items-center gap-3 p-3 cursor-pointer rounded-md mb-2 transition ${selectedChat?._id === chatMessage._id
+                ? "bg-gray-200 text-black"
+                : "hover:bg-gray-300 text-black"
+                }`}
               onClick={() => {
                 setSelectedChat(chatMessage);
-                getChatFunc(chatMessage)
+                getChatFunc(chatMessage);
+                setNewChat(null);
               }}
             >
               <Image
@@ -280,31 +301,31 @@ useEffect(() => {
       </div>
 
       {/* Chatbox */}
-      <div className="w-3/4 p-4">
+      <div className="w-3/4 relative">
         <h2 className="text-lg border-b-2 font-semibold text-gray-800 mb-4 text-center">
           {selectedChat?.adminUser?.username}
         </h2>
 
         {/* Product Details */}
-        <div className="flex justify-between items-center border-b pb-2">
+        <div className="px-3 flex justify-between items-center border-b pb-2">
           <div className="flex items-center gap-3">
             <Image
               className="w-16 h-16 object-cover rounded-lg"
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
-              alt={selectedChat?.productId?.[0]?.name }
+              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${newChat ? newChat?.image?.[0] : selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
+              alt={"Product image"}
               width={16}
               height={64}
               unoptimized
             />
             <div>
               <h3 className="text-lg font-semibold text-gray-800">
-                {newChat? newChat?.name : selectedChat?.productId?.[0]?.name}
+                {newChat ? newChat?.name : selectedChat?.productId?.[0]?.name}
               </h3>
               {(() => {
-                const product = selectedChat?.productId?.[0]
+                const product = newChat ? newChat : selectedChat?.productId?.[0]
                 const userBid = product?.bid?.find((bidProduct: any) => bidProduct.userId === selectedChat?.userId?._id);
                 console.log("bid price: ", userBid?.price);
-                
+
 
                 return userBid ? (
                   <>
@@ -337,8 +358,8 @@ useEffect(() => {
         </div>
 
         {/* Chat Messages */}
-        <div 
-          className="mt-4 space-y-3 max-h-96 overflow-y-auto p-2 ">
+        <div
+          className="mt-4 space-y-3 max-h-96 overflow-y-auto p-2">
           {messages.length > 0 ? (
             messages.map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
@@ -358,12 +379,12 @@ useEffect(() => {
                     {msg.message && <p className="mb-1">{msg.message}</p>}
                     {msg.image && (
                       <Image
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}`}
-                      className="mt-2 rounded-md max-h-40" 
-                      alt="Message Image" 
-                      width={225}
-                      height={99}
-                      unoptimized/>
+                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}`}
+                        className="mt-2 rounded-md max-h-40"
+                        alt="Message Image"
+                        width={225}
+                        height={99}
+                        unoptimized />
                     )}
                     {msg.bidPrice && (
                       <div className="mt-2 flex flex-col gap-2">
@@ -372,8 +393,8 @@ useEffect(() => {
                         {/* Bid Status: Accepted */}
                         {msg.bidStatus === "Accepted" ? (
                           // Only show Buy Now if current user is the original offer sender (buyer)
-                          msg.userId === loggedInUser  ? (
-                            <button 
+                          msg.userId === loggedInUser ? (
+                            <button
                               onClick={() => handleBuyNow(msg._id)}
                               className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer">
                               Buy Now
@@ -416,75 +437,74 @@ useEffect(() => {
         </div>
 
         {/* Image Upload */}
-      {image.length > 0 && (
-        <div className="flex gap-2 p-2">
-          {image.map((img, index) => (
-            <div key={index} className="relative w-225 h-full aspectp-square overflow-hidden rounded-md border">
-              <Image
-                src={URL.createObjectURL(img)}
-                alt={`preview-${index}`}
-                width={225}
-                height={99}
-                className="object-cover w-full h-full rounded-md"
-                onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
-              />
-              <button
-                className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
-                onClick={() => handleRemoveImage(index)}
-              >
-                <X size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+        {image.length > 0 && (
+          <div className="flex gap-2 p-2">
+            {image.map((img, index) => (
+              <div key={index} className="relative w-225 h-full aspectp-square overflow-hidden rounded-md border">
+                <Image
+                  src={URL.createObjectURL(img)}
+                  alt={`preview-${index}`}
+                  width={225}
+                  height={99}
+                  className="object-cover w-full h-full rounded-md"
+                  onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
+                />
+                <button
+                  className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
+                  onClick={() => handleRemoveImage(index)}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-      {/* Message Input */}
-      <div className="mt-2 flex items-center border-t pt-3 sticky bottom-0 bg-white px-2">
-        {/* Hidden Image Input */}
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          ref={fileInputRef}
-          onChange={handleImageUpload}
-        />
+        <div className="absolute bottom-0 w-full mt-2 flex items-center gap-2 border-t p-3 px-2">
+          {/* Hidden Image Input */}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+          />
 
-        {/* Camera Icon */}
-        <button
-          className="text-gray-500 mr-2"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={message.trim().length > 0}
-        >
-          <Camera className="w-6 h-6" />
-        </button>
+          {/* Camera Icon */}
+          <button
+            className="text-gray-500"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={message.trim().length > 0}
+          >
+            <Camera size={22} className="cursor-pointer shrink-0" />
+          </button>
 
-        {/* Text Input */}
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write a message here"
-          className="w-full p-2 border rounded-md focus:outline-none"
-          disabled={image.length > 0}
-        />
+          {/* Text Input */}
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Write a message here"
+            className=" flex-1 p-2 border rounded-md focus:outline-none"
+            disabled={image.length > 0}
+          />
 
-        {/* Send Button */}
-        <button
-          onClick={handleMessageSend}
-          disabled={!message.trim() && image.length === 0}
-          className="bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600 ml-2"
-        >
-          <Send size={22} className="shrink-0" />
-        </button>
+          {/* Send Button */}
+          <button
+            onClick={handleMessageSend}
+            disabled={!message.trim() && image.length === 0}
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-300 hover:bg-gray-600"
+          >
+            <Send size={22} className="shrink-0" />
+          </button>
         </div>
 
         {/* Carousel Modal */}
         <Modal open={showOffer} onClose={() => setShowOffer(false)}>
           <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-white rounded-lg shadow-lg w-[50%] md:w-[52%] max-w-lg h-[200px] overflow-hidden">
             <h3 className="text-xl font-semibold text-center mb-4">Enter Your Offer</h3>
-            
+
             <div className="w-full flex justify-center items-center">
               <input
                 type="text"
@@ -495,28 +515,28 @@ useEffect(() => {
               />
             </div>
             <br />
-            <div 
+            <div
               className="flex justify-center">
-            <button
-              onClick={() => setShowOffer(false)}
-              className="  px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                handleMessageSend();
-                setShowOffer(false);
-              }}
-              className="ml-4 px-5 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-            >
-              Send Offer
-            </button>
+              <button
+                onClick={() => setShowOffer(false)}
+                className="  px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleMessageSend();
+                  setShowOffer(false);
+                }}
+                className="ml-4 px-5 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Send Offer
+              </button>
             </div>
           </Box>
         </Modal>
       </div>
-      </div>
+    </div>
   );
 };
 
