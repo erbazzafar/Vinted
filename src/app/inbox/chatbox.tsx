@@ -31,6 +31,8 @@ const Chatbox = () => {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [firstState, setFirstState] = useState(false);
+
   useEffect(() => {
     // Scroll to the bottom of the chat box
     if (messagesEndRef.current) {
@@ -62,6 +64,7 @@ const Chatbox = () => {
   // Fetch chat data based on user ID
   useEffect(() => {
     getChat();
+    setTimeout(() => setFirstState(true), 1000);
     if (id) {
       setNewChat(JSON.parse(localStorage.getItem('product')));
     }
@@ -81,7 +84,7 @@ const Chatbox = () => {
   // Auto-select the first chat and set the product ID in the URL when chat data is available
   useEffect(() => {
     if (Array.isArray(chat) && chat.length > 0) {
-      if (!newChat) {
+      if (!newChat && !firstState) {
         const firstChat = chat[0];
         setSelectedChat(firstChat);
         console.log("first chat: ", firstChat);
@@ -150,13 +153,15 @@ const Chatbox = () => {
       if (response?.status === 200) {
         const chatConResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chatConversation/viewAll?userId=${loggedInUser} `);
         setChat(chatConResponse.data.data);
-        const newFirstChat = chatConResponse?.data?.data?.[0];
-        setSelectedChat(newFirstChat);
-        getChatFunc(newFirstChat);
         localStorage.clear();
         if (newChat) {
           newChat(null);
           router.replace(pathname)
+          const newFirstChat = chatConResponse?.data?.data?.[0];
+          setSelectedChat(newFirstChat);
+          getChatFunc(newFirstChat);
+        } else {
+          getChatFunc(selectedChat);
         }
         setMessage("")
         setOfferPrice("")
@@ -257,15 +262,15 @@ const Chatbox = () => {
   return (
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-15">
       {/* Sidebar */}
-      <div className="w-1/4 bg-white text-gray-800 p-4 rounded-l-xl border-r-2">
+      <div className="w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2">
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
-        <ul>
+        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(10 * 72px)' }}>
           {chat?.map((chatMessage: any) => (
             <li
               key={chatMessage._id}
-              className={`flex items-center gap-3 p-3 cursor-pointer rounded-md mb-2 transition ${selectedChat?._id === chatMessage._id
-                ? "bg-gray-200 text-black"
-                : "hover:bg-gray-300 text-black"
+              className={`flex items-center gap-3  cursor-pointer rounded-md mb-2 transition ${selectedChat?._id === chatMessage._id
+                ? 'bg-gray-200 text-black'
+                : 'hover:bg-gray-300 text-black'
                 }`}
               onClick={() => {
                 setSelectedChat(chatMessage);
@@ -277,20 +282,20 @@ const Chatbox = () => {
                 className="w-10 h-10 object-cover rounded-full"
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image || "/default-avatar.png"}`}
                 alt={chatMessage.adminUser.fullName}
-                width={40}
-                height={40}
+                width={30}
+                height={30}
               />
-              <div className="text-lg">
+              <div className="font-semibold text-[13px]">
                 {chatMessage.adminUser.username}
                 <br />
                 {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
-                  <div key={mg._id} className="w-[40px] h-[40px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
+                  <div key={mg._id} className="mt-1 w-[33px] h-[33px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mg?.image?.[0]}`}
-                      alt={"Product"}
+                      alt="Product"
                       width={40}
                       height={40}
-                      className="object-cover"
+                      className=" object-cover"
                     />
                   </div>
                 ))}
@@ -302,7 +307,7 @@ const Chatbox = () => {
 
       {/* Chatbox */}
       <div className="w-3/4 relative">
-        <h2 className="text-lg border-b-2 font-semibold text-gray-800 mb-4 text-center">
+        <h2 className="p-2 text-lg border-b-2 font-semibold text-gray-800 mb-4 text-center">
           {selectedChat?.adminUser?.username}
         </h2>
 
@@ -310,7 +315,7 @@ const Chatbox = () => {
         <div className="px-3 flex justify-between items-center border-b pb-2">
           <div className="flex items-center gap-3">
             <Image
-              className="w-16 h-16 object-cover rounded-lg"
+              className="w-12 h-12 object-cover rounded-lg"
               src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${newChat ? newChat?.image?.[0] : selectedChat?.productId?.[0]?.image?.[0] || "/default-product.png"}`}
               alt={"Product image"}
               width={16}
@@ -318,7 +323,7 @@ const Chatbox = () => {
               unoptimized
             />
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">
+              <h3 className="text-[13px] font-semibold text-gray-800">
                 {newChat ? newChat?.name : selectedChat?.productId?.[0]?.name}
               </h3>
               {(() => {
@@ -329,19 +334,19 @@ const Chatbox = () => {
 
                 return userBid ? (
                   <>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-[12px]">
                       ${userBid.price}
                     </p>
-                    <p className="text-teal-700 text-sm">
+                    <p className="text-teal-700 text-[12px]">
                       ${userBid.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-[12px]">
                       ${product?.price}
                     </p>
-                    <p className="text-teal-800 text-sm">
+                    <p className="text-teal-700 text-[12px]">
                       ${product?.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
                     </p>
                   </>
@@ -359,9 +364,9 @@ const Chatbox = () => {
 
         {/* Chat Messages */}
         <div
-          className="mt-4 space-y-3 max-h-96 overflow-y-auto p-2">
+          className="bg-gray-50 mt-4 space-y-3 max-h-118 overflow-y-auto p-2 pb-[80px]">
           {messages.length > 0 ? (
-            messages.map((msg: any, index: any) => {
+            [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
               const senderImage = isSentByCurrentUser ? photoURL : selectedChat?.photoURL;
 
@@ -373,9 +378,9 @@ const Chatbox = () => {
                     width={10}
                     height={10}
                     unoptimized
-                    className="w-10 h-10 object-cover rounded-full"
+                    className="w-8 h-8 object-cover rounded-full"
                   />
-                  <div className={`p-3 rounded-lg border max-w-[75%] ${msg.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "bg-gray-200"}`}>
+                  <div className={`p-1.5 rounded-md border max-w-[75%] ${msg.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "text-[12px] bg-gray-200"}`}>
                     {msg.message && <p className="mb-1">{msg.message}</p>}
                     {msg.image && (
                       <Image
@@ -388,7 +393,7 @@ const Chatbox = () => {
                     )}
                     {msg.bidPrice && (
                       <div className="mt-2 flex flex-col gap-2">
-                        <p className="text-teal-600 font-semibold">Offer: ${msg.bidPrice}</p>
+                        <p className="text-[12px] text-teal-600 font-semibold">Offer: ${msg.bidPrice}</p>
 
                         {/* Bid Status: Accepted */}
                         {msg.bidStatus === "Accepted" ? (
@@ -396,7 +401,7 @@ const Chatbox = () => {
                           msg.userId === loggedInUser ? (
                             <button
                               onClick={() => handleBuyNow(msg._id)}
-                              className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer">
+                              className="text-[13px] px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer">
                               Buy Now
                             </button>
                           ) : (
@@ -407,19 +412,19 @@ const Chatbox = () => {
                           <p className="text-red-500 font-medium">Offer is Declined</p>
                         ) : isSentByCurrentUser ? (
                           // Pending view for buyer
-                          <p className="text-sm text-gray-500 text-right">{msg.bidStatus || "Pending"}</p>
+                          <p className="text-[12px] text-gray-500 text-right">{msg.bidStatus || "Pending"}</p>
                         ) : (
                           // Show Accept/Reject buttons to seller
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleOfferAccept(msg._id, msg.bidPrice)}
-                              className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+                              className="text-[13px] px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
                             >
                               Accept
                             </button>
                             <button
                               onClick={() => handleOfferReject(msg._id)}
-                              className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+                              className="text-[13px] px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
                             >
                               Decline
                             </button>
@@ -444,8 +449,8 @@ const Chatbox = () => {
                 <Image
                   src={URL.createObjectURL(img)}
                   alt={`preview-${index}`}
-                  width={225}
-                  height={99}
+                  width={40}
+                  height={15}
                   className="object-cover w-full h-full rounded-md"
                   onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
                 />
@@ -460,7 +465,7 @@ const Chatbox = () => {
           </div>
         )}
 
-        <div className="absolute bottom-0 w-full mt-2 flex items-center gap-2 border-t p-3 px-2">
+        <div className="bg-white absolute bottom-0 w-full mt-2 flex items-center gap-2 border-t p-3 px-2">
           {/* Hidden Image Input */}
           <input
             type="file"
