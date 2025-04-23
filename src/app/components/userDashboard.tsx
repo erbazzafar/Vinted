@@ -264,7 +264,7 @@ export default function Dashboard() {
                       const formatted = date ? date.format('YYYY-MM-DD') : null;
                       setProfile({ ...profile, birthDay: formatted });
                     }}
-                    className="w-full min-w-0 bg-gray-300 cursor-pointer"
+                    className="w-full min-w-0 bg-gray-100 cursor-pointer"
                     placeholder="Select birth date"
                     format="YYYY-MM-DD"
                     style={{ height: '40px' }}
