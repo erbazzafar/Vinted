@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import {Settings, User, Shield, Bell, Camera, PlusCircle, Menu, X } from "lucide-react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import { DatePicker} from "@heroui/react"
+import { DatePicker } from "antd";
+import moment from "moment";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import axios from "axios"
-import { parseDate, CalendarDate } from "@internationalized/date";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -259,20 +259,15 @@ export default function Dashboard() {
                 <div className="flex flex-col">
                   <label className="block text-md font-medium">Birth Date</label>
                   <DatePicker
-                    value={
-                      profile.birthDay && /^\d{4}-\d{2}-\d{2}$/.test(profile.birthDay)
-                        ? parseDate(profile.birthDay)
-                        : null
-                    }
-                    onChange={(date: CalendarDate | null) => {
-                      const formatted = date
-                        ? `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`
-                        : null;
+                    value={profile.birthDay ? moment(profile.birthDay) : null}
+                    onChange={(date) => {
+                      const formatted = date ? date.format('YYYY-MM-DD') : null;
                       setProfile({ ...profile, birthDay: formatted });
                     }}
-                    className="w-full min-w-0 z-50 bg-gray-100 cursor-pointer"
-                    variant="underlined"
-                    aria-label="Select your birth date"
+                    className="w-full min-w-0 bg-gray-300 cursor-pointer"
+                    placeholder="Select birth date"
+                    format="YYYY-MM-DD"
+                    style={{ height: '40px' }}
                   />
                 </div>
               </div>

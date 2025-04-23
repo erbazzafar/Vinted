@@ -1,11 +1,12 @@
+"use client"
+
 import React from 'react'
+import Wallet from '../components/wallet'
 
 function WalletPage() {
 
     return (
-        <>
-           <h1>This is a Wallet Page</h1> 
-        </>
+        <Wallet/>
     )
 }
 

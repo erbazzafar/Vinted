@@ -1,7 +1,7 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import 'antd/dist/reset.css';
 import Navbar from "./components/navbar";
 import { Particles } from "@/components/magicui/particles";
 import Footer from "./components/footer";
