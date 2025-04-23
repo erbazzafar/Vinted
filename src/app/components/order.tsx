@@ -153,6 +153,7 @@ export default function MyOrders() {
                   alt={order?.productId?.[0]?.name}
                   width={32}
                   height={32} 
+                  unoptimized
                   className="w-32 h-32 rounded-md object-cover" />
                 <div>
                   <h2 className="text-lg font-semibold ml-4">{order?.productId?.[0]?.name}</h2>

@@ -65,7 +65,7 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
             fn_createOrder();
             onSuccess();
             toast.success("Payment successful!");
-            router.push(`/orders/${Cookies.get("userId")}`);
+            router.push(`/orders`);
 
         } catch (error: any) {
             console.error("Payment error:", error);

@@ -244,7 +244,7 @@ const Chatbox = () => {
 
 
   return  (
-    <div className="mt-0 md:mt-20 flex flex-col md:flex-row w-full mx-auto min-h-screen">
+    <div className="mt-0 md:mt-20 flex flex-col md:flex-row max-w-7xl mx-auto min-h-screen">
       {/* Mobile Menu Button */}
       <button 
         className={`md:hidden fixed top-32 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg ${selectedChat ? 'block' : 'hidden'}`}
@@ -293,6 +293,18 @@ const Chatbox = () => {
                     />
                   </div>
                   <span className="text-sm md:text-base">{username}</span>
+                  <br />
+                 {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
+                  <div key={mg._id} className="w-[40px] h-[40px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mg?.image?.[0]}`}
+                      alt={"Product"}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
                 </li>
               );
             })}
