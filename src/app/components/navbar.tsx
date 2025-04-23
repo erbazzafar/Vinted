@@ -151,7 +151,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative overflow-visible">
-      <div className="container lg:px-[50px] mx-auto max-w-screen-2xl py-4 flex items-center justify-between">
+      <div className="lg:px-[50px] container mx-auto max-w-screen-2xl flex items-center justify-between">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
           <Image
@@ -167,7 +167,7 @@ const Navbar = () => {
         <div className="relative w-[42%] xl:w-[52%] hidden md:block">
           <input
             type="text"
-            className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full py-2 pl-10 border border-gray-400 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800"
+            className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full py-2 pl-10 border border-gray-400 dark:border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
             placeholder="Search..."
           />
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 cursor-pointer" />
@@ -176,16 +176,16 @@ const Navbar = () => {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
         {!isLoggedIn  ? (
-            <Link href="/signup" className="text-gray-900 dark:text-white hover:text-gray-900 transition">
+            <Link href="/signup" className="text-[13px] text-gray-900 dark:text-white hover:text-gray-900 transition">
               Sign Up | Login
             </Link>
           ) : (
             <>
             <Link href={`/inbox/${id}`}>
-              <Inbox size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+              <Inbox size={20} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
             </Link>
               <Link href="/wishlist">
-                <Heart size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+                <Heart size={20} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
               </Link>
 
           {/* Notification Dropdown */}
@@ -195,9 +195,9 @@ const Navbar = () => {
               className="p-3 rounded-lg flex items-center gap-2 relative cursor-pointer"
               onClick={() => setIsNotifOpen(!isNotifOpen)}
             >
-              <Bell size={25} className="text-gray-700 dark:text-white" />
+              <Bell size={20} className="text-gray-700 dark:text-white" />
               {notifications.length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-400 text-white text-xs px-2 py-1 rounded-full">
+                <span className="absolute top-0 right-0 bg-red-400 text-white text-[8px] px-2 py-1 rounded-full">
                   {notifications.length}
                 </span>
               )}
@@ -262,7 +262,7 @@ const Navbar = () => {
                 width={10}  
                 height={10}
                 unoptimized
-                className="w-10 h-10 rounded-full" />
+                className="w-8 h-8 rounded-full" />
 
               {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </button>
@@ -305,7 +305,7 @@ const Navbar = () => {
 
           <button
               onClick={handleSellNowClick}
-              className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-600"
+              className="text-[13px] bg-gray-800 text-white px-6 py-1.5 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-600"
             >
               Sell Now
           </button>

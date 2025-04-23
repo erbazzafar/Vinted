@@ -84,53 +84,29 @@ const Chatbox = () => {
   // Auto-select the first chat and set the product ID in the URL when chat data is available
   useEffect(() => {
     if (Array.isArray(chat) && chat.length > 0) {
-      if (!newChat && !firstState) {
+      if (newChat) {
+        // Find matching chat
+        const existingChat = chat.find((c) =>
+          c?.adminUser?._id === newChat?.userId?._id &&
+          c?.userId?._id === loggedInUser &&
+          c?.productId?.[0]?._id === newChat?._id
+        );
+  
+        if (existingChat) {
+          setSelectedChat(existingChat);
+          getChatFunc(existingChat);
+        } else {
+          // No matching chat — fallback logic (if needed)
+          setSelectedChat(chat[0]);
+          getChatFunc(chat[0]);
+        }
+      } else if (!firstState) {
         const firstChat = chat[0];
         setSelectedChat(firstChat);
-        console.log("first chat: ", firstChat);
-        getChatFunc(firstChat)
-      };
+        getChatFunc(firstChat);
+      }
     }
-  }, [chat]);
-
-  // const getItemFromLocalStorage = () => {
-  //   const newProduct = localStorage.getItem("product")
-  //   if (!newProduct){
-  //     return
-  //   }
-  //   if (newProduct) {
-  //     try {
-  //       const parsedData = JSON.parse(newProduct)
-  //       setNewChat(parsedData)
-
-  //       const matchingChat = chat.find((c: any) => {
-  //         c.product?.[0]?._id === parsedData?._id && (c.userId?._id === loggedInUser || c.adminUser?._id === loggedInUser)
-  //       })
-
-  //       if (matchingChat) {
-  //         selectedChat(matchingChat)
-  //         getChatFunc(matchingChat)
-  //       } else {
-  //         const tempNewChat = {
-  //           productId : [parsedData],
-  //           userId: {
-  //             _id : parsedData?.userId?._id
-  //           },
-  //         }
-
-  //         const updateChatList = [tempNewChat, ...chat]
-  //       } 
-  //     } catch (error) {
-  //       console.log("Error in Contacting seller through Chat");
-  //       toast.error("Error in Contacting seller through Chat");
-  //       return
-  //     }
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getItemFromLocalStorage()
-  // }, [])
+  }, [chat, newChat]);
 
   const handleMessageSend = async () => {
     const formData = new FormData();

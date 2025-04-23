@@ -117,7 +117,7 @@ const ProductPage = () => {
                     alt={`Thumbnail ${index}`}
                     width={80}
                     height={80}
-                    className={`object-cover rounded-lg cursor-pointer border ${
+                    className={`object-contain rounded-lg cursor-pointer border ${
                       mainImage === image ? "border-teal-500" : "border-gray-300"
                     }`}
                     onClick={() => setMainImage(image)} // Change the mainImage on thumbnail click
@@ -168,7 +168,7 @@ const ProductPage = () => {
             <div className="w-full">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mainImage}`}
-                alt={gettingProduct?.name}
+                alt={"Product"}
                 width={500}
                 height={600}
                 unoptimized
