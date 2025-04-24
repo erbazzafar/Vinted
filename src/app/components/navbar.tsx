@@ -437,7 +437,7 @@ const Navbar = () => {
                 Sign Up
               </Link>
               <span className="text-gray-900 dark:text-white">|</span>
-              <Link href="/login" className="text-gray-900 dark:text-white hover:text-gray-900 transition">
+              <Link href="/login" className="text-gray-900 dark:text-white hover:text-gray-900 transition mr-3">
                 Login
               </Link>
             </div>

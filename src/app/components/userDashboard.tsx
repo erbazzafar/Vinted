@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import {Settings, User, Shield, Bell, Camera, PlusCircle, Menu, X } from "lucide-react";
+import {Settings, User, FileText, Bell, Camera, PlusCircle, Menu, X } from "lucide-react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { DatePicker } from "antd";
@@ -11,11 +11,218 @@ import axios from "axios"
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const pages = [
+interface PageType {
+  name: string;
+  icon: any;
+  content?: ({ vacationMode, onVacationModeChange, notificationEnabled, onNotificationChange }: { 
+    vacationMode: boolean;
+    onVacationModeChange: (e: any) => void;
+    notificationEnabled: boolean;
+    onNotificationChange: (e: any) => void;
+  }) => React.ReactNode;
+  isLink?: boolean;
+  path?: string;
+}
+
+const pages: PageType[] = [
   { name: "Profile", icon: User },
-  { name: "Settings", icon: Settings, content: "This is the Settings page." },
-  { name: "Notifications", icon: Bell, content: "This is the Notifications page." },
-  { name: "Security", icon: Shield, content: "This is the Security page." },
+  { name: "Settings", icon: Settings, content: ({ vacationMode, onVacationModeChange, notificationEnabled, onNotificationChange }) => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
+        <div>
+          <h3 className="font-medium">Vacation Mode</h3>
+          <p className="text-sm text-gray-500">When enabled, your listings will be hidden from buyers</p>
+        </div>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={vacationMode}
+            onChange={onVacationModeChange}
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-600"></div>
+        </label>
+      </div>
+
+      <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
+        <div>
+          <h3 className="font-medium">Notifications</h3>
+          <p className="text-sm text-gray-500">Receive notifications about your orders and messages</p>
+        </div>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={notificationEnabled}
+            onChange={onNotificationChange}
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-600"></div>
+        </label>
+      </div>
+    </div>
+  )},
+  { name: "Terms & Conditions", icon: FileText, content: () => (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Terms and Conditions</h1>
+      <p className="text-gray-600 mb-8">Last Updated: April 24, 2025</p>
+      
+      <div className="space-y-8">
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
+          <p className="text-gray-600 mb-4">
+            Welcome to Vinted. These terms and conditions outline the rules and regulations for the use of our e-commerce platform. 
+            By accessing this website and using our services, you accept these terms and conditions in full. 
+            Do not continue to use Vinted&apos;s website if you do not accept all of the terms and conditions stated on this page.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">2. Account Registration</h2>
+          <div className="space-y-3 text-gray-600">
+            <p>To use our services, you must:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Be at least 18 years old or have parental consent</li>
+              <li>Provide accurate and complete registration information</li>
+              <li>Maintain the security of your account credentials</li>
+              <li>Notify us immediately of any unauthorized account access</li>
+            </ul>
+            <p>We reserve the right to suspend or terminate accounts that violate our terms.</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">3. Product Listings & Purchases</h2>
+          <div className="space-y-3 text-gray-600">
+            <h3 className="text-xl font-medium mb-2">3.1 Sellers</h3>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Must provide accurate product descriptions and images</li>
+              <li>Are responsible for setting fair prices and shipping costs</li>
+              <li>Must ship items within the specified timeframe</li>
+              <li>Cannot list prohibited items or counterfeit goods</li>
+            </ul>
+            
+            <h3 className="text-xl font-medium mb-2 mt-4">3.2 Buyers</h3>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Are responsible for reviewing product descriptions before purchase</li>
+              <li>Must make prompt payments for ordered items</li>
+              <li>Should contact sellers with questions before purchasing</li>
+              <li>Accept our return and refund policies</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">4. Payments & Pricing</h2>
+          <div className="space-y-3 text-gray-600">
+            <p>We accept various payment methods including:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Major credit and debit cards</li>
+              <li>PayPal</li>
+              <li>Other supported payment methods</li>
+            </ul>
+            <p>All prices are in the displayed currency and include applicable taxes. Shipping costs are calculated at checkout.</p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">5. Shipping & Delivery</h2>
+          <div className="space-y-3 text-gray-600">
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Sellers must ship items within 3 business days of order confirmation</li>
+              <li>Shipping times vary based on location and selected shipping method</li>
+              <li>Buyers are responsible for providing accurate shipping information</li>
+              <li>Risk of loss transfers to buyer upon delivery</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">6. Returns & Refunds</h2>
+          <div className="space-y-3 text-gray-600">
+            <p>Our return policy allows:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>14 days to initiate a return from delivery date</li>
+              <li>Items must be unused and in original condition</li>
+              <li>Buyer pays return shipping unless item is defective</li>
+              <li>Refunds processed within 5-7 business days after return receipt</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">7. Privacy & Data Protection</h2>
+          <div className="text-gray-600">
+            <p className="mb-3">
+              We collect and process personal data as outlined in our Privacy Policy. 
+              By using our services, you consent to our data collection practices.
+            </p>
+            <p>We protect your data through:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Secure payment processing</li>
+              <li>Encrypted data transmission</li>
+              <li>Regular security audits</li>
+              <li>Strict data access controls</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">8. Intellectual Property</h2>
+          <p className="text-gray-600">
+            All content on this website, including but not limited to text, graphics, logos, images, and software, 
+            is the property of Vinted or its content suppliers and is protected by international copyright laws.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">9. Dispute Resolution</h2>
+          <div className="space-y-3 text-gray-600">
+            <p>In case of disputes:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Buyers and sellers should first attempt direct resolution</li>
+              <li>Our support team can mediate unresolved issues</li>
+              <li>We reserve the right to make final decisions on disputes</li>
+              <li>Legal proceedings subject to local jurisdiction</li>
+            </ul>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">10. Limitation of Liability</h2>
+          <p className="text-gray-600">
+            Vinted shall not be liable for any indirect, incidental, special, consequential, or punitive damages, 
+            or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, 
+            use, goodwill, or other intangible losses.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">11. Changes to Terms</h2>
+          <div className="text-gray-600">
+            <p className="mb-3">
+              We reserve the right to modify these terms at any time. We will notify users of any material changes via:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Email notifications</li>
+              <li>Website announcements</li>
+              <li>App notifications</li>
+            </ul>
+            <p className="mt-3">
+              Continued use of our platform after changes constitutes acceptance of new terms.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">12. Contact Information</h2>
+          <p className="text-gray-600">
+            For any questions or concerns regarding these terms, please contact our support team at:
+            support@vinted.com
+          </p>
+        </section>
+      </div>
+    </div>
+  )}
 ];
 
 export default function Dashboard() {
@@ -29,6 +236,8 @@ export default function Dashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [phone, setPhoneNumber] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [vacationMode, setVacationMode] = useState(false);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
 
   console.log("User Id: ",Cookies.get("userId"));
   const token = Cookies.get("token");
@@ -39,7 +248,7 @@ export default function Dashboard() {
       try {
         if (!id || !token){
           console.log("user is not authenticated");
-          return
+          return;
         }
 
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/viewUser/${id}`,
@@ -48,21 +257,23 @@ export default function Dashboard() {
               Authorization: `Bearer ${token}`
             }
           }
-        )
+        );
 
         if (response.status !== 200){
           console.log("server Error");
-          return
+          return;
         }
 
-        setProfile(response.data.data)
+        setProfile(response.data.data);
+        setVacationMode(response.data.data.vacation || false);
+        setNotificationEnabled(response.data.data.notifications || false);
         
       } catch (error) {
-        toast.error("Error in Fetching the Data")
+        toast.error("Error in Fetching the Data");
       }
-    }
-    fetchData()
-  }, [id, token])
+    };
+    fetchData();
+  }, [id, token]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,6 +354,62 @@ export default function Dashboard() {
     }
   };
 
+  const handleVacationModeChange = async (e) => {
+    try {
+      const newVacationMode = e.target.checked;
+      
+      if(!token || !id){
+        toast.error("You must be logged in to change vacation mode");
+        return;
+      }
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${id}`,
+        { vacation: newVacationMode },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        setVacationMode(newVacationMode);
+        toast.success(newVacationMode ? "Vacation mode enabled" : "Vacation mode disabled");
+      }
+    } catch (error) {
+      toast.error("Error updating vacation mode");
+    }
+  };
+
+  const handleNotificationChange = async (e) => {
+    try {
+      const newNotificationState = e.target.checked;
+      
+      if(!token || !id){
+        toast.error("You must be logged in to change notification settings");
+        return;
+      }
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${id}`,
+        { notifications: newNotificationState },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        setNotificationEnabled(newNotificationState);
+        toast.success(newNotificationState ? "Notifications enabled" : "Notifications disabled");
+      }
+    } catch (error) {
+      toast.error("Error updating notification settings");
+    }
+  };
+
   return (
     <div className="mt-0 md:mt-5 flex flex-col md:flex-row w-full mx-auto min-h-screen">
       {/* Mobile Menu Button */}
@@ -175,7 +442,7 @@ export default function Dashboard() {
                   selectedPage.name === page.name ? "bg-gray-300" : ""
                 }`}
                 onClick={() => {
-                  setSelectedPage(page);
+                  setSelectedPage(page); // Update the selected page state
                   setIsMobileMenuOpen(false);
                 }}
               >
@@ -264,7 +531,7 @@ export default function Dashboard() {
                       const formatted = date ? date.format('YYYY-MM-DD') : null;
                       setProfile({ ...profile, birthDay: formatted });
                     }}
-                    className="w-full min-w-0 bg-gray-100 cursor-pointer"
+                    className="w-full min-w-0 bg-gray-300 cursor-pointer"
                     placeholder="Select birth date"
                     format="YYYY-MM-DD"
                     style={{ height: '40px' }}
@@ -345,9 +612,14 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
-          ) : (
-            selectedPage.content
-          )}
+          ) : typeof selectedPage.content === "function" ? (
+            selectedPage.content({ 
+              vacationMode,
+              onVacationModeChange: handleVacationModeChange,
+              notificationEnabled,
+              onNotificationChange: handleNotificationChange
+            })
+          ) : null}
         </div>
 
         {/* Phone Number Modal */}
