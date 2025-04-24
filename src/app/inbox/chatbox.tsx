@@ -133,11 +133,11 @@ const Chatbox = () => {
         setChat(chatConResponse.data.data);
         localStorage.clear();
         if (newChat) {
-          newChat(null);
-          router.replace(pathname)
           const newFirstChat = chatConResponse?.data?.data?.[0];
           setSelectedChat(newFirstChat);
-          getChatFunc(newFirstChat, false);
+          await getChatFunc(newFirstChat, false);
+          setNewChat(null);
+          router.replace(pathname)
         } else {
           getChatFunc(selectedChat, true);
         }
@@ -236,6 +236,8 @@ const Chatbox = () => {
     setImage(updatedImages); // Update the state with the new images array
   };
 
+  
+
 
   return (
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-15">
@@ -256,9 +258,13 @@ const Chatbox = () => {
                 getChatFunc(chatMessage, true);
               }}
             >
+
               <Image
                 className="w-10 h-10 object-cover rounded-full"
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image || "/default-avatar.png"}`}
+                src={
+                  chatMessage?.adminUser?.image ?    
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image }` : `/imageLogo2.jpg`
+                }
                 alt={chatMessage.adminUser.fullName}
                 width={30}
                 height={30}

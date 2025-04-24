@@ -53,6 +53,7 @@ export default function SignupFormDemo() {
       console.log("Response", response)
       Cookies.set('token', response.data.token)
       Cookies.set("userId", response.data.data._id)
+      Cookies.set("photoUrl", response.data.photoURL)
 
 
       router.push("/")
