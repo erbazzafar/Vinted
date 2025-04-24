@@ -231,7 +231,7 @@ export default function MyOrders() {
         <div className="flex items-center justify-center mt-6">
           {/* Step 1 - Checked Out */}
           <div className="flex flex-col items-center">
-            <Package className={`w-10 h-10 ${selectedOrder?.pending ? "text-black" : "text-gray-400"}`} />
+            <Package className={`w-10 h-10 ${selectedOrder?.orderStatus === "pending" ? "text-black" : "text-gray-400"}`} />
             <span className="text-sm text-gray-600 mt-1">Pending</span>
           </div>
 
@@ -240,7 +240,7 @@ export default function MyOrders() {
 
           {/* Step 2 - Shipping */}
           <div className="flex flex-col items-center">
-            <Truck className={`w-10 h-10 ${selectedOrder?.shipping ? "text-black" : "text-gray-400"}`} />
+            <Truck className={`w-10 h-10 ${selectedOrder?.orderStatus === "shipping" ? "text-black" : "text-gray-400"}`} />
             <span className="text-sm text-gray-600 mt-1">Shipping</span>
           </div>
 

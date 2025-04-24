@@ -70,7 +70,7 @@ const Chatbox = () => {
     }
   }, []);
 
-  const getChatFunc = async (firstChat: any) => {
+  const getChatFunc = async (firstChat: any, updateNewChat: Boolean) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/viewAll?userId=${firstChat?.userId?._id}&adminUser=${firstChat?.adminUser?._id}&productId=["${firstChat?.productId?.[0]?._id}"]`
     )
@@ -78,7 +78,9 @@ const Chatbox = () => {
       toast.error("Error in fetching the Chat")
     };
     console.log("response from getchat :", response);
-    setMessages(response.data.data)
+    if (updateNewChat) {
+      setMessages(response.data.data)
+    }
   }
 
   // Auto-select the first chat and set the product ID in the URL when chat data is available
@@ -91,19 +93,19 @@ const Chatbox = () => {
           c?.userId?._id === loggedInUser &&
           c?.productId?.[0]?._id === newChat?._id
         );
-  
+
         if (existingChat) {
           setSelectedChat(existingChat);
-          getChatFunc(existingChat);
+          getChatFunc(existingChat, true);
         } else {
           // No matching chat — fallback logic (if needed)
           setSelectedChat(chat[0]);
-          getChatFunc(chat[0]);
+          getChatFunc(chat[0], false);
         }
       } else if (!firstState) {
         const firstChat = chat[0];
         setSelectedChat(firstChat);
-        getChatFunc(firstChat);
+        getChatFunc(firstChat, true);
       }
     }
   }, [chat, newChat]);
@@ -135,9 +137,9 @@ const Chatbox = () => {
           router.replace(pathname)
           const newFirstChat = chatConResponse?.data?.data?.[0];
           setSelectedChat(newFirstChat);
-          getChatFunc(newFirstChat);
+          getChatFunc(newFirstChat, false);
         } else {
-          getChatFunc(selectedChat);
+          getChatFunc(selectedChat, true);
         }
         setMessage("")
         setOfferPrice("")
@@ -166,7 +168,7 @@ const Chatbox = () => {
         return
       }
       console.log("offer accept response", response);
-      getChatFunc(selectedChat)
+      getChatFunc(selectedChat, true)
       const responseforBID = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/updateBid?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&price=${bidPrice}`
       )
@@ -200,7 +202,7 @@ const Chatbox = () => {
         return
       }
       console.log("offer Reject response", response);
-      getChatFunc(selectedChat)
+      getChatFunc(selectedChat, true)
     } catch (error) {
       console.log("error in rejecting the offer");
       toast.error("Error!! try again later")
@@ -249,9 +251,9 @@ const Chatbox = () => {
                 : 'hover:bg-gray-300 text-black'
                 }`}
               onClick={() => {
-                setSelectedChat(chatMessage);
-                getChatFunc(chatMessage);
                 setNewChat(null);
+                setSelectedChat(chatMessage);
+                getChatFunc(chatMessage, true);
               }}
             >
               <Image
@@ -262,7 +264,7 @@ const Chatbox = () => {
                 height={30}
               />
               <div className="font-semibold text-[13px]">
-                {chatMessage.adminUser.username}
+                {chatMessage.adminUser._id === loggedInUser ? chatMessage?.userId?.username : chatMessage?.adminUser?.username}
                 <br />
                 {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
                   <div key={mg._id} className="mt-1 w-[33px] h-[33px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
@@ -284,7 +286,7 @@ const Chatbox = () => {
       {/* Chatbox */}
       <div className="w-3/4 relative">
         <h2 className="p-2 text-lg border-b-2 font-semibold text-gray-800 mb-4 text-center">
-          {selectedChat?.adminUser?.username}
+          {newChat ? newChat?.userId?.username : selectedChat?.adminUser?._id === loggedInUser ? selectedChat?.userId?.username : selectedChat?.adminUser?.username}
         </h2>
 
         {/* Product Details */}
@@ -340,7 +342,7 @@ const Chatbox = () => {
 
         {/* Chat Messages */}
         <div
-          className="bg-gray-50 mt-4 space-y-3 max-h-118 overflow-y-auto p-2 pb-[80px]">
+          className="bg-gray-50 pt-4 space-y-3 max-h-118 min-h-118 overflow-y-auto p-2 pb-[55px]">
           {messages.length > 0 ? (
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
@@ -361,7 +363,7 @@ const Chatbox = () => {
                     {msg.image && (
                       <Image
                         src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}`}
-                        className="mt-2 rounded-md max-h-40"
+                        className="rounded-md max-h-40 w-auto"
                         alt="Message Image"
                         width={225}
                         height={99}
@@ -421,13 +423,13 @@ const Chatbox = () => {
         {image.length > 0 && (
           <div className="flex gap-2 p-2">
             {image.map((img, index) => (
-              <div key={index} className="relative w-225 h-full aspectp-square overflow-hidden rounded-md border">
+              <div key={index} className="relative w-[150px] h-full aspectp-square overflow-hidden rounded-md border">
                 <Image
                   src={URL.createObjectURL(img)}
                   alt={`preview-${index}`}
                   width={40}
                   height={15}
-                  className="object-cover w-full h-full rounded-md"
+                  className="object-contain w-full h-full rounded-md"
                   onLoad={() => URL.revokeObjectURL(URL.createObjectURL(img))}
                 />
                 <button
@@ -469,6 +471,12 @@ const Chatbox = () => {
             placeholder="Write a message here"
             className=" flex-1 p-2 border rounded-md focus:outline-none"
             disabled={image.length > 0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (message.trim() || image.length > 0)) {
+                e.preventDefault(); // Prevent form submission or newline
+                handleMessageSend();
+              }
+            }}
           />
 
           {/* Send Button */}

@@ -117,6 +117,7 @@ const ProductPage = () => {
                     alt={`Thumbnail ${index}`}
                     width={80}
                     height={80}
+                    unoptimized
                     className={`object-contain rounded-lg cursor-pointer border ${
                       mainImage === image ? "border-teal-500" : "border-gray-300"
                     }`}
