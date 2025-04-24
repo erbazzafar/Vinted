@@ -6,7 +6,6 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
-import { reauthenticateWithRedirect } from 'firebase/auth'
 
 interface Product {
   _id: string
@@ -21,11 +20,11 @@ interface Product {
 }
 
 interface Category {
-    _id: string;
-    name: string;
-    subCategoryCount: number;
-    parentCategoryId?: string;
-  }
+  _id: string;
+  name: string;
+  subCategoryCount: number;
+  parentCategoryId?: string;
+}
 
 const getStarRating = (rating: number) => {
   const fullStars = Math.floor(rating)
@@ -94,10 +93,10 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
           alt={product.name}
-          height={300}
-          width={300}
+          height={200}
+          width={10}
           unoptimized
-          className="w-full h-[300px] object-cover rounded-lg"
+          className="w-full h-[200px] object-contain rounded-lg"
         />
       </div>
 
@@ -105,18 +104,17 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         <div className="flex justify-between items-center">
           <Link
             href={`/product/${product._id}`}
-            className="text-lg font-semibold text-gray-800 hover:underline"
+            className="text-[13px] font-semibold text-gray-800 hover:underline"
           >
             {product.name}
           </Link>
 
           <button
-            className={`cursor-pointer transition-colors ${
-              isWishlisted ? 'text-red-500' : 'text-gray-500 hover:text-red-300'
-            }`}
+            className={`cursor-pointer transition-colors ${isWishlisted ? 'text-red-500' : 'text-gray-500 hover:text-red-300'
+              }`}
             onClick={handleWishList}
           >
-            <Heart size={22} fill={isWishlisted ? 'red' : 'none'} />
+            <Heart size={20} fill={isWishlisted ? 'red' : 'none'} />
           </button>
         </div>
 
@@ -124,16 +122,16 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           {getStarRating(product.rating)}
         </div>
 
-        <p className="text-md text-gray-500">
+        <p className="text-[12px] text-gray-500">
           Size: {product.sizeId?.name || 'None'}
         </p>
-        <p className="text-md text-gray-500">
+        <p className="text-[12px] text-gray-500">
           Category: {product.categoryId?.at(-1)?.name || 'N/A'}
         </p>
-        <p className="text-lg font-semibold text-teal-600">
+        <p className="text-[13px] font-semibold text-teal-600">
           ${product.price}
         </p>
-        <p className="text-lg font-semibold text-teal-600">
+        <p className="text-[13px] font-semibold text-teal-600">
           ${product.inclPrice}{' '}
           <span className="text-xs text-gray-400">incl.</span>
         </p>
@@ -156,67 +154,67 @@ function Filter() {
 
   useEffect(() => {
     const fetchingCategoryName = async () => {
-        try {
-            if (!categoryId){
-                return
-            }
-            const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll`
-            )
-            if(response.status !== 200) {
-                toast.error("Error fetching the category names")
-                return
-            }
-
-            const allCategories = response.data.data
-            const matchedCategory = allCategories.find((cat) => {
-                return cat._id === categoryId
-            })
-
-            if (matchedCategory){
-                setCategoryName(matchedCategory.name)
-
-                setPath((prev) => {
-                    const exists = prev.find((c) => c._id === matchedCategory._id);
-                    if (exists) return prev;
-                    return [...prev, matchedCategory];
-                })
-
-                return
-            } 
-
-        } catch (error) {
-            console.log("Error fetching the category name", error);
-            return
+      try {
+        if (!categoryId) {
+          return
         }
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll`
+        )
+        if (response.status !== 200) {
+          toast.error("Error fetching the category names")
+          return
+        }
+
+        const allCategories = response.data.data
+        const matchedCategory = allCategories.find((cat) => {
+          return cat._id === categoryId
+        })
+
+        if (matchedCategory) {
+          setCategoryName(matchedCategory.name)
+
+          setPath((prev) => {
+            const exists = prev.find((c) => c._id === matchedCategory._id);
+            if (exists) return prev;
+            return [...prev, matchedCategory];
+          })
+
+          return
+        }
+
+      } catch (error) {
+        console.log("Error fetching the category name", error);
+        return
+      }
     }
     fetchingCategoryName()
   }, [categoryId])
 
-  useEffect( () => {
+  useEffect(() => {
     const getCategory = async () => {
-        try {
-            if(!categoryId){
-                return
-            }
-            const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${categoryId}`
-            )
-            
-            if (response.status !== 200){
-                toast.error("Error Fetching the Subcategories")
-                return
-            }
-            console.log("category response: ", response);
-            setCategory(response.data.data)
-
-            const categoryName = response.data.data.name
-            console.log("category name: ", categoryName);
-            
-        } catch (error) {
-            console.log("Error fetching the category and it subCategory", error)
-            return
+      try {
+        if (!categoryId) {
+          return
         }
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${categoryId}`
+        )
+
+        if (response.status !== 200) {
+          toast.error("Error Fetching the Subcategories")
+          return
+        }
+        console.log("category response: ", response);
+        setCategory(response.data.data)
+
+        const categoryName = response.data.data.name
+        console.log("category name: ", categoryName);
+
+      } catch (error) {
+        console.log("Error fetching the category and it subCategory", error)
+        return
+      }
     }
     getCategory()
   }, [categoryId])
@@ -265,27 +263,27 @@ function Filter() {
         </div>
 
         <h1 className="text-2xl font-bold my-6 py-4 border-b-4">
-            {path.map((p, index) => (
-                <span key={p._id}>
-                {p.name}
-                {index < path.length - 1 && " / "}
-                </span>
-            ))}
+          {path.map((p, index) => (
+            <span key={p._id}>
+              {p.name}
+              {index < path.length - 1 && " / "}
+            </span>
+          ))}
         </h1>
 
         {category.length > 0 && (
-            <ul className="flex gap-4 overflow-x-auto whitespace-nowrap no-scrollbar list-none border-b-4 py-6">
-                {category.map((cat) => (
-                <li key={cat._id}>
-                    <button
-                    onClick={() => handleCategoryClick(cat._id)}
-                    className="text-blue-600 hover:underline"
-                    >
-                    {cat.name}
-                    </button>
-                </li>
-                ))}
-            </ul>
+          <ul className="flex gap-4 overflow-x-auto whitespace-nowrap no-scrollbar list-none border-b-4 py-6">
+            {category.map((cat) => (
+              <li key={cat._id}>
+                <button
+                  onClick={() => handleCategoryClick(cat._id)}
+                  className="text-blue-600 hover:underline"
+                >
+                  {cat.name}
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">

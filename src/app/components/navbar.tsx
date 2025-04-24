@@ -40,7 +40,7 @@ const Navbar = () => {
     { label: "Profile", path: `/seller/${id}`, icon: <User size={20} /> },
     { label: "Settings", path: "/user-setting", icon: <Settings size={20} /> },
     { label: "My Orders", path: "/orders", icon: <Package size={20} /> },
-    { label: "Wallet", path: "/wallet", icon: <Wallet size={20} /> },
+    { label: "Wallet", path: `/wallet`, icon: <Wallet size={20} /> },
     { label: "Logout", path: "#", icon: <LogOut size={20} />, onClick: handleLogout },
   ];
   
@@ -48,7 +48,7 @@ const Navbar = () => {
   const mobileDropdownOptions: DropdownOption[] = [
     { label: "Profile", path: `/seller/${id}`, icon: <User size={20} /> },
     { label: "My Orders", path: "/orders", icon: <Package size={20} /> },
-    { label: "Wallet", path: "/wallet", icon: <Wallet size={20} /> },
+    { label: "Wallet", path: `/wallet`, icon: <Wallet size={20} /> },
     { label: "Settings", path: "/user-setting", icon: <Settings size={20} /> },
     { label: "Sell Now", path: "/sell", icon: <Plus size={20} />, className: "bg-gray-800 text-white hover:bg-gray-700" },
     { label: "Logout", path: "#", icon: <LogOut size={20} />, onClick: handleLogout },
