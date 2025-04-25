@@ -249,9 +249,9 @@ function Filter() {
 
 
   return (
-    <div className="bg-white mt-15 w-full">
+    <div className="bg-white mt-15 w-[90%] m-auto sm:w-full ">
       <div className="container mx-auto max-w-screen-2xl">
-        <div className="w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl">
+        <div className="w-full h-[200px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl">
           <Image
             src="/cat.jpeg"
             alt="Slider Image"

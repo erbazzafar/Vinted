@@ -168,10 +168,10 @@ function Wallet() {
 
 
   return (
-    <div className="bg-white mt-15 w-full">
+    <div className="bg-white mt-[-18px] sm:mt-15 w-full">
       <div className="container mx-auto max-w-screen-2xl lg:px-[50px] py-8">
         {/* Balance Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-4 sm:m-0 mb-6">
           {/* Available Balance Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Balance</h2>
