@@ -167,7 +167,7 @@ const ProductList = () => {
     <div className="lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
     {Array.isArray(products) && products.length > 0 ? (
       <>
-        <h2 className="mt-5 text-3xl font-bold text-center">
+        <h2 className="mt-5 text-3xl rounded-xl font-bold lg:px-[50px]">
           Our Recent Products
         </h2>
 
@@ -177,11 +177,7 @@ const ProductList = () => {
           ))}
         </div>
       </>
-    ) : (
-      <div className="text-center text-gray-400 text-sm">
-        No products found.
-      </div>
-    )}
+    ) : null}
   </div>
   );
 };

@@ -1,74 +1,11 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import Image from "next/image";
-
-// Sample product list
-export const products = [
-  {
-    id: 1,
-    name: "Controller-XBOX",
-    image: "/pexels-stasknop-1298601.jpg",
-    size: "Normal",
-    originalPrice: "$150",
-    discountedPrice: "$120",
-    rating: 4.5,
-    category: "gadget"
-  },
-  {
-    id: 2,
-    name: "Watch",
-    image: "/pexels-pixabay-277390.jpg",
-    size: "10",
-    originalPrice: "$180",
-    discountedPrice: "$140",
-    rating: 4.2,
-    category: "gadget"
-  },
-  {
-    id: 3,
-    name: "Gold Rings",
-    image: "/pexels-pixabay-248077.jpg",
-    size: "16",
-    originalPrice: "$130",
-    discountedPrice: "$100",
-    rating: 3.8,
-    category: "Jewelery"
-  },
-  {
-    id: 4,
-    name: "Rider Watch",
-    image: "/pexels-anthony-derosa-39577-236915.jpg",
-    size: "9",
-    originalPrice: "$90",
-    discountedPrice: "$75",
-    rating: 4.0,
-    category: "gadget"
-  },
-  {
-    id: 5,
-    name: "Reebok Classic",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQX0FcIaWxjHcy8ojw98mYFf9ULVT6F50MYPw&s",
-    size: "8",
-    originalPrice: "$100",
-    discountedPrice: "$80",
-    rating: 4.1,
-    category: "Shoes",
-    subCategory: "Shoes",
-    subSubCategory: "joggers",
-  },
-  {
-    id: 6,
-    name: "Sweat Shirt",
-    image: "/pexels-cottonbro-4066293.jpg",
-    size: "9",
-    originalPrice: "$85",
-    discountedPrice: "$70",
-    rating: 4.3,
-    category: "clothing"
-  }
-];
+import axios from "axios";
+import Cookies from "js-cookie";
+import { toast } from "sonner";
 
 // Function to generate star ratings
 const getStarRating = (rating: number) => {
@@ -85,57 +22,117 @@ const getStarRating = (rating: number) => {
   );
 };
 
-const ProductCard = ({ product }: { product: any }) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+
+
+
+const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: string) => void }) => {
+  const [isWishlisted, setIsWishlisted] = useState(true);
+  const token = Cookies.get("token");
+
+  useEffect( () => {
+    const getNotifications = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/viewAll`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        console.log(response.status);
+        console.log("Notification Response",response);
+        
+      } catch (error) {
+        toast.error("error")
+      }
+    }
+    getNotifications()
+  }, [token])
+
+  const handleWishList = async () => {
+    if (!product._id) return;
+
+    if (!token) {
+      toast.error("Please log in to modify wishlist");
+      return;
+    }
+
+    setIsWishlisted(false); // Optimistically update UI
+
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/toggleLike`,
+        { productId: product._id, userId: Cookies.get("userId") },
+        {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Removed from wishlist");
+        onRemove(product._id); // Notify parent to remove from UI
+      } else {
+        setIsWishlisted(true); // Revert
+        toast.error("Failed to update wishlist");
+      }
+    } catch (error) {
+      setIsWishlisted(true); // Revert
+      toast.error("Something went wrong");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px] z-[10]">
       {/* Product Image */}
       <div className="relative">
         <Image
-          src={product.image}
+          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
           alt={product.name}
           height={300}
           width={300}
           unoptimized
-          className="w-full h-[300px] object-cover rounded-lg"
+          className="w-full h-[200px] object-contain rounded-lg"
         />
       </div>
 
       {/* Product Details */}
       <div className="mt-3 px-3">
         <div className="flex justify-between">
-          {/* Product Name */}
           <Link
-            href={`/product/`}
-            className="text-lg font-semibold text-gray-800 hover:underline"
+            href={`/product/${product._id}`}
+            className="text-[13px] font-semibold text-gray-800 hover:underline"
           >
             {product.name}
           </Link>
 
-          {/* Wishlist Button */}
           <button
-            className={`transition-colors ${
+            className={`text-[11px] transition-colors ${
               isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
             }`}
-            onClick={() => setIsWishlisted(!isWishlisted)}
+            onClick={handleWishList}
           >
-            <Heart size={20} fill={isWishlisted ? "red" : "none"} />
+            <Heart size={17} fill={isWishlisted ? "red" : "none"} />
           </button>
         </div>
 
-        {/* Star Rating */}
-        <div className="flex items-center gap-1 mt-1">{getStarRating(product.rating)}</div>
+        <div className="flex items-center gap-1 mt-1">
+          {getStarRating(product.rating)}
+        </div>
 
-        {/* Size */}
-        <p className="text-md text-gray-500">Size: {product.size ?? "N/A"}</p>
-
-        {/* Category */}
-        <p className="text-md text-gray-500">Category: {product.category ?? "N/A"}</p>
-
-        {/* Prices */}
-        <p className="text-lg font-semibold text-teal-600">
-          {product.discountedPrice} <span className="text-xs text-gray-400">incl.</span>
+        <p className="text-[12px] text-gray-500">Size: {product.sizeId?.name ?? "N/A"}</p>
+        <p className="text-[12px] text-gray-500">
+          Category: {product.categoryId?.[product.categoryId.length - 1]?.name ?? "N/A"}
+        </p>
+        <p className="text-[12px] font-semibold text-teal-600">
+          ${product.price}
+        </p>
+        <p className="text-[12px] font-semibold text-teal-600">
+          ${product.inclPrice} <span className="text-xs text-gray-400">incl.</span>
         </p>
       </div>
     </div>
@@ -143,15 +140,52 @@ const ProductCard = ({ product }: { product: any }) => {
 };
 
 const ProductList = () => {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getSellerProducts = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/getLike`,
+          {
+            headers: {
+              Authorization: `Bearer ${Cookies.get("token")}`,
+            },
+          }
+        );
+
+        if (response.status !== 200) {
+          toast.error("Cannot find any liked products");
+          return;
+        }
+
+        setProducts(response.data.data);
+      } catch (error) {
+        toast.error("Error fetching the products");
+        console.error("Error fetching the products", error);
+      }
+    };
+
+    getSellerProducts();
+  }, []);
+
+  const removeProductFromList = (id: string) => {
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+  };
+
   return (
     <div className="relative z-[20] container mx-auto max-w-screen-2xl py-6">
       <div className="px-2 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
         {products.map((product, index) => (
-          <ProductCard key={index} product={product} />
+          <ProductCard
+            key={index}
+            product={product}
+            onRemove={removeProductFromList}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-export default ProductList;
+export default ProductList

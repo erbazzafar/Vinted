@@ -153,7 +153,7 @@ const ProductCarousel = () => {
     const getSellerProducts = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/getRecomend`
         );
 
         if (response.status !== 200) {

@@ -13,10 +13,13 @@ import Cookies from "js-cookie";
 import SellerButton from "../components/routeSellerButton";
 import ProductCarousel from "../components/productCorousel";
 
+
 const ProductPage = () => {
   const [showCarousel, setShowCarousel] = useState(false);
   const [gettingProduct, setGettingProduct] = useState<any>("")
   const router = useRouter();
+
+  const [hidden, setHidden] = useState(false)
 
   const token = Cookies.get("token")
   const loggedInUser = Cookies.get("userId")
@@ -101,10 +104,41 @@ const ProductPage = () => {
     return
   }
 
+  const handleHide = async () => {
+    try {
+      if(!loggedInUser || !token){
+        return
+      }
+
+      const hiddenState = !hidden
+      const response = await axios.put (
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${loggedInUser}`,
+        {hidden: hiddenState},
+        {
+          headers: {
+            Authorization: `Bearer ${token}` 
+          }
+        }
+      )
+
+      if(response.status !== 200){
+        toast.error("unable to hide the item")
+        return
+      }
+
+      setHidden(hiddenState)
+      toast.success(hiddenState ? "Item hidden" : "Item is now visible");
+    } catch (error) {
+      console.log("Unable to hide the product Right Now", error)
+      toast.error("Unable to hide the Item. Try again later")
+      return
+    }
+  }
+
 
   return (
     <div className="mt-20">
-      <div className="container mx-auto  sm:px-6 py-10 max-w-6xl">
+      <div className="container mx-auto sm:px-6 py-10 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-15 items-start">
           {/* Left: Product Images */}
           <div className="flex gap-6">
@@ -233,6 +267,14 @@ const ProductPage = () => {
               >
                 <span>Bump</span>
               </button>
+
+              <button
+                className="text-xl flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                onClick={handleHide}
+              >
+                 <span>{hidden ? "Unhide" : "Hide"}</span>
+              </button>
+
                 <SellerButton
                 seller={{
                   username: gettingProduct?.userId?.username,
