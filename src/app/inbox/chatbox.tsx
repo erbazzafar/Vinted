@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Send, Camera, X } from "lucide-react";
+import { Send, Camera, X,  ChevronsLeft } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -32,6 +32,7 @@ const Chatbox = () => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [firstState, setFirstState] = useState(false);
+    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
 
   useEffect(() => {
     // Scroll to the bottom of the chat box
@@ -242,7 +243,11 @@ const Chatbox = () => {
   return (
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-15">
       {/* Sidebar */}
-      <div className="w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2">
+      <div
+        className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${
+          isMobileChatOpen ? "hidden" : "block"
+        } md:block`}
+      >
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
         <ul className="overflow-y-auto" style={{ maxHeight: 'calc(10 * 72px)' }}>
           {chat?.map((chatMessage: any) => (
@@ -256,11 +261,12 @@ const Chatbox = () => {
                 setNewChat(null);
                 setSelectedChat(chatMessage);
                 getChatFunc(chatMessage, true);
+                setIsMobileChatOpen(true); // Open chat in mobile view
               }}
             >
-
+                {/* User Image  */}
               <Image
-                className="w-10 h-10 object-cover rounded-full"
+                className="w-11 h-11 ml-2 object-cover rounded-full"
                 src={
                   chatMessage?.adminUser?.image ?    
                   `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image }` : `/imageLogo2.jpg`
@@ -274,6 +280,7 @@ const Chatbox = () => {
                 <br />
                 {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
                   <div key={mg._id} className="mt-1 w-[33px] h-[33px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
+                  {/* product image  */}
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mg?.image?.[0]}`}
                       alt="Product"
@@ -290,7 +297,17 @@ const Chatbox = () => {
       </div>
 
       {/* Chatbox */}
-      <div className="w-3/4 relative">
+      <div
+        className={`w-full  md:w-3/4 relative ${
+          isMobileChatOpen ? "block" : "hidden"
+        } md:block`}
+      >
+        <button
+          className="md:hidden p-2 text-gray-500"
+          onClick={() => setIsMobileChatOpen(false)}
+        >
+          <ChevronsLeft size={30} className="cursor-pointer" />
+        </button>
         <h2 className="p-2 text-lg border-b-2 font-semibold text-gray-800 mb-4 text-center">
           {newChat ? newChat?.userId?.username : selectedChat?.adminUser?._id === loggedInUser ? selectedChat?.userId?.username : selectedChat?.adminUser?.username}
         </h2>
@@ -497,7 +514,7 @@ const Chatbox = () => {
 
         {/* Carousel Modal */}
         <Modal open={showOffer} onClose={() => setShowOffer(false)}>
-          <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-white rounded-lg shadow-lg w-[50%] md:w-[52%] max-w-lg h-[200px] overflow-hidden">
+          <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-white rounded-lg shadow-lg w-[90%] md:w-[52%] max-w-lg h-[200px] overflow-hidden">
             <h3 className="text-xl font-semibold text-center mb-4">Enter Your Offer</h3>
 
             <div className="w-full flex justify-center items-center">

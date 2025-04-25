@@ -16,17 +16,25 @@ interface Order {
   total: number;
 }
 
+// Updated modal styles to make them responsive
 const modalStyle = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 530,
+  width: "90%", // Use percentage for responsive width
+  maxWidth: "580px", // Set a maximum width for larger screens
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
   borderRadius: 2,
 };
+
+
+// src={
+//   chatMessage?.adminUser?.image ?    
+//   `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image }` : `/imageLogo2.jpg`
+// }
 
 export default function MyOrders() {
   const [activeTab, setActiveTab] = useState("Ongoing");
@@ -164,14 +172,14 @@ export default function MyOrders() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-4 sm:p-4 mt-6">
       {/* Tabs Section */}
-      <div className="flex justify-between p-2 rounded-md mb-6">
+      <div className="flex justify-between p-2 rounded-md mb-6 flex-wrap gap-2">
         {["Ongoing", "Completed", "Cancelled"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 text-center py-2 rounded-md font-medium cursor-pointer ${
+            className={`flex-1 text-center py-2 rounded-md font-medium cursor-pointer sm:text-sm sm:py-1 ${
               activeTab === tab ? "border-b-2 border-gray-800 text-gray-700" : "text-gray-400"
             }`}
           >
@@ -186,9 +194,9 @@ export default function MyOrders() {
           filteredOrders.map((order: any) => (
             <div
               key={order._id}
-              className="flex items-center justify-between p-4 border rounded-lg shadow-md bg-white"
+              className="flex flex-col sm:flex-row items-center justify-between p-4 border rounded-lg shadow-md bg-white gap-4"
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 w-full sm:w-auto">
                 <Image
                   src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order?.productId?.[0]?.image?.[0]}`}
                   alt={order?.productId?.[0]?.name}
@@ -197,9 +205,9 @@ export default function MyOrders() {
                   unoptimized
                   className="w-32 h-32 rounded-md object-cover"
                 />
-                <div>
-                  <h2 className="text-lg font-semibold ml-4">{order?.productId?.[0]?.name}</h2>
-                  <p className="m-2 text-gray-600 ml-4">
+                <div className="flex-1 sm:flex-none">
+                  <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
+                  <p className="m-2 text-gray-600 ml-4 sm:ml-0">
                     ${order?.total}
                     <span className="ml-5 rounded-lg bg-black text-white px-3 py-2 text-sm font-semibold">
                       {order.orderStatus}
@@ -210,16 +218,16 @@ export default function MyOrders() {
 
               {/* Ongoing Tab: Cancel & Track Buttons */}
               {activeTab === "Ongoing" && (
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                   <button
                     onClick={() => handleOpen(order)}
-                    className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg"
+                    className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg w-full sm:w-auto"
                   >
                     Cancel Order
                   </button>
                   <button
                     onClick={() => handleTrack(order)}
-                    className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg"
+                    className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg w-full sm:w-auto"
                   >
                     Track Order
                   </button>
@@ -234,7 +242,7 @@ export default function MyOrders() {
 
       {/* Cancel Confirmation Modal */}
       <Modal open={cancelOpen} onClose={handleClose} aria-labelledby="cancel-modal-title">
-        <Box sx={modalStyle}>
+        <Box sx={modalStyle} className="w-full sm:w-auto">
           <Typography
             id="cancel-modal-title"
             variant="h6"
@@ -268,7 +276,7 @@ export default function MyOrders() {
 
       {/* Track Order Modal */}
       <Modal open={trackOpen} onClose={handleTrackClose} aria-labelledby="track-modal-title">
-        <Box sx={modalStyle} className="bg-white p-6 rounded-lg shadow-lg">
+        <Box sx={modalStyle} className="w-full sm:w-auto">
           {/* Title */}
           <Typography
             id="track-modal-title"
