@@ -101,7 +101,7 @@ const Categories: React.FC = () => {
             return (
               <Link
                 key={index}
-                href={`/filter/`}
+                href={`/filter?id=${category._id}`}
                 className="flex flex-col items-center space-y-2 text-gray-700 hover:text-gray-900 transition"
               >
                 <div className="w-20 h-20 flex items-center justify-center bg-[#EAEAEA] rounded-full">

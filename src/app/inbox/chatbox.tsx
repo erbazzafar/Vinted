@@ -356,7 +356,7 @@ const Chatbox = () => {
             </div>
           </div>
           <button
-            className="bg-gray-800 text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-600 cursor-pointer"
+            className="bg-gray-800 text-[13px] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-600 cursor-pointer"
             onClick={() => setShowOffer(true)}
           >
             Make an Offer

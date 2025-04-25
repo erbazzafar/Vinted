@@ -40,7 +40,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   const token = Cookies.get("token")
 
   const handleWishList = async () => {
-    if (!product._id ) return;
+    if (!product._id) return;
 
     if (!token) {
       toast.error("Please log in to add to wishlist");
@@ -111,9 +111,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           </Link>
 
           <button
-            className={`cursor-pointer transition-colors ${
-              isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-300"
-            }`}
+            className={`cursor-pointer transition-colors ${isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-300"
+              }`}
             onClick={() => handleWishList()}
           >
             <Heart size={22} fill={isWishlisted ? "red" : "none"} />
@@ -126,7 +125,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
 
         <p className="text-[12px] text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length-1]?.name || "N/A"}</p>
+        <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length - 1]?.name || "N/A"}</p>
         <p className="text-[12px] font-semibold text-teal-600">
           ${product.price}{" "}
         </p>
@@ -153,7 +152,7 @@ const ProductList = () => {
           toast.error("Cannot find any products");
           return;
         }
-        
+
         setProducts(response.data.data);
       } catch (error) {
         toast.error("Error fetching the products");
@@ -165,13 +164,25 @@ const ProductList = () => {
   }, []);
 
   return (
-    <div className=" lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
-        {[...products]?.reverse().map((product, index) => (
-          <ProductCard key={product._id || index} product={product} />
-        ))}
+    <div className="lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
+    {Array.isArray(products) && products.length > 0 ? (
+      <>
+        <h2 className="mt-5 text-3xl font-bold text-center">
+          Our Recent Products
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center mt-6">
+          {[...products].reverse().map((product, index) => (
+            <ProductCard key={product._id || index} product={product} />
+          ))}
+        </div>
+      </>
+    ) : (
+      <div className="text-center text-gray-400 text-sm">
+        No products found.
       </div>
-    </div>
+    )}
+  </div>
   );
 };
 
