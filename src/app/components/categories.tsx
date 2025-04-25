@@ -82,7 +82,7 @@ const Categories: React.FC = () => {
       </div>
 
       {/* Tablet & Mobile: Always use carousel */}
-      <div className="lg:hidden">
+      <div className="lg:hidden mt-[-80px] ">
         <Carousel
           responsive={responsive}
           infinite={false}
@@ -90,8 +90,8 @@ const Categories: React.FC = () => {
           keyBoardControl
           arrows
           showDots={false}
-          containerClass="carousel-container overflow-hidden"
-          itemClass="p-2"
+          containerClass="carousel-container overflow-hidden flex justify-center"
+          itemClass="p-2 "
         >
           {categories.map((category, index) => {
             const imageSrc = category.image

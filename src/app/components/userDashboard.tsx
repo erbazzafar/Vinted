@@ -414,7 +414,7 @@ export default function Dashboard() {
     <div className="mt-0 md:mt-5 flex flex-col md:flex-row w-full mx-auto min-h-screen">
       {/* Mobile Menu Button */}
       <button 
-        className={`md:hidden fixed top-32 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg ${isMobileMenuOpen ? 'hidden' : 'block'}`}
+        className={`md:hidden fixed top-22 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg ${isMobileMenuOpen ? 'hidden' : 'block'}`}
         onClick={() => setIsMobileMenuOpen(true)}
       >
         <Menu size={24} />
@@ -463,7 +463,7 @@ export default function Dashboard() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-6 mt-16 md:mt-0">
+      <main className="flex-1 p-4 md:p-6 mt-10 md:mt-0">
         <h1 className="text-xl font-semibold mb-4 border-b-4">{selectedPage.name}</h1>
         <div className="bg-gray-50 gap-y-4 p-4 md:p-6 rounded-lg">
           {selectedPage.name === "Profile" ? (

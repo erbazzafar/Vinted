@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Heart, Inbox, Search, X, ChevronDown, ChevronUp, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
+import { Heart, Inbox, Search, X, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
@@ -101,10 +101,15 @@ const Navbar = () => {
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
-  // const [userImage, setUserImage] = useState<string | null>(null)
-
   const [notifications, setNotifications] = useState(notificationsData)
 
+  // Updated hover behavior for profile dropdown
+  const handleMouseEnter = () => setIsOpen(true);
+  const handleMouseLeave = () => setIsOpen(false);
+
+  // Updated hover behavior for notification dropdown
+  const handleNotifMouseEnter = () => setIsNotifOpen(true);
+  const handleNotifMouseLeave = () => setIsNotifOpen(false);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -116,7 +121,6 @@ const Navbar = () => {
         setIsNotifOpen(false);
       }
     };
-
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -164,20 +168,23 @@ const Navbar = () => {
           ) : (
             <>
               <Link href={`/inbox/${id}`}>
-                <Inbox size={20} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+                <Inbox size={25}  className="text-gray-900 dark:text-white hover:text-gray-900 transition mt-1" />
               </Link>
               <Link href="/wishlist">
-                <Heart size={20} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+                <Heart size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition mt-1" />
               </Link>
 
               {/* Notification Dropdown */}
-              <div className="relative" ref={notifRef}>
-                {/* 🔔 Notification Bell */}
+              <div
+                className="relative"
+                ref={notifRef}
+                onMouseEnter={handleNotifMouseEnter}
+                onMouseLeave={handleNotifMouseLeave}
+              >
                 <button
-                  className="p-3 rounded-lg flex items-center gap-2 relative cursor-pointer"
-                  onClick={() => setIsNotifOpen(!isNotifOpen)}
+                  className="p-2 rounded-lg flex items-center gap-2 relative cursor-pointer"
                 >
-                  <Bell size={20} className="text-gray-700 dark:text-white" />
+                  <Bell size={25} className="text-gray-700 dark:text-white mt-1" />
                   {notifications.length > 0 && (
                     <span className="absolute top-0 right-0 bg-red-400 text-white text-[8px] px-2 py-1 rounded-full">
                       {notifications.length}
@@ -185,7 +192,6 @@ const Navbar = () => {
                   )}
                 </button>
 
-                {/* 🔥 Dropdown Menu */}
                 <AnimatePresence>
                   {isNotifOpen && (
                     <motion.div
@@ -204,11 +210,10 @@ const Navbar = () => {
                         </button>
                       </div>
 
-                      {/* 🔔 Notification Items */}
                       {notifications.length > 0 ? (
                         <div className="max-h-80 overflow-y-auto">
-                          {notifications.map((notif) => (
-                            <Link key={notif.id} href={notif.link} className="block">
+                          {notifications.map((notif, index) => (
+                            <Link key={index} href={notif.link} className="block">
                               <button className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
                                   {notif.icon}
@@ -233,20 +238,21 @@ const Navbar = () => {
               </div>
 
               {/* Profile Dropdown */}
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  className="p-3 rounded-lg flex items-center gap-2 cursor-pointer"
-                  onClick={() => setIsOpen(!isOpen)}
-                >
+              <div
+                className="relative"
+                ref={dropdownRef}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button className="p-3 rounded-lg flex items-center gap-2 cursor-pointer">
                   <Image
                     src={photoURL ? photoURL : "default.png"}
                     alt={"profile"}
                     width={10}
                     height={10}
                     unoptimized
-                    className="w-8 h-8 rounded-full" />
-
-                  {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    className="w-8 h-8 rounded-full"
+                  />
                 </button>
 
                 <AnimatePresence>
@@ -339,8 +345,8 @@ const Navbar = () => {
                       </div>
                       {notifications.length > 0 ? (
                         <div className="max-h-80 overflow-y-auto">
-                          {notifications.map((notif) => (
-                            <Link key={notif.id} href={notif.link} className="block">
+                          {notifications.map((notif, index) => (
+                            <Link key={index} href={notif.link} className="block">
                               <button className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                                 <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
                                   {notif.icon}
