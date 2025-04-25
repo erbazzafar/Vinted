@@ -12,10 +12,10 @@ const CheckoutPage = () => {
   const [userDetails, setUserDetails] = useState({
     fullName: '',
     email: '',
-    address: '',
+    address1: '',
     city: '',
     country: '',
-    zipcode: '',
+    zipCode: '',
     phone: '',
     price: '',
     inclPrice: '', 
@@ -73,13 +73,13 @@ const CheckoutPage = () => {
         productId: [`${productId}`],
         fullName: userDetails.fullName,
         email: userDetails.email,
-        address: userDetails.address,
+        address1: userDetails.address1,
         city: userDetails.city,
         country: userDetails.country,
-        zipcode: userDetails.zipcode,
+        zipCode: userDetails.zipCode,
         phone: userDetails.phone,
         total: matchedBid?.price || productInfo?.price,
-        subtotal: matchedBid?.inclPrice || productInfo?.inclPrice,
+        subTotal: matchedBid?.inclPrice || productInfo?.inclPrice,
       }
         
         setOrderFormData(payload);
@@ -130,8 +130,8 @@ const CheckoutPage = () => {
             </label>
             <input
               type="text"
-              name="address"
-              value={userDetails.address}
+              name="address1"
+              value={userDetails.address1}
               onChange={handleChange}
               placeholder="Enter your address"
               className="w-full border rounded-md px-4 py-2"
@@ -171,8 +171,8 @@ const CheckoutPage = () => {
             </label>
             <input
               type="text"
-              name="zipcode"
-              value={userDetails.zipcode}
+              name="zipCode"
+              value={userDetails.zipCode}
               onChange={handleChange}
               placeholder="Enter the Zip Code"
               className="w-full border rounded-md px-4 py-2"
@@ -220,7 +220,7 @@ const CheckoutPage = () => {
           <div className="mt-6 space-y-4">
             <button
               onClick={() => {
-                if (!userDetails.fullName || !userDetails.email || !userDetails.address || !userDetails.city || !userDetails.country || !userDetails.zipcode || !userDetails.phone) {
+                if (!userDetails.fullName || !userDetails.email || !userDetails.address1 || !userDetails.city || !userDetails.country || !userDetails.zipCode || !userDetails.phone) {
                   toast.error("Please fill in all fields")
                   return
                 }
