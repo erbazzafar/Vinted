@@ -88,7 +88,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   }, [product.like])
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px]">
+    <div className="mt-5 bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px] ">
       <div className="relative">
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
@@ -249,7 +249,7 @@ function Filter() {
 
 
   return (
-    <div className="bg-white mt-15 w-[90%] m-auto sm:w-full ">
+    <div className="bg-white mt-15 w-[90%] m-auto sm:w-full lg:px-[50px] ">
       <div className="container mx-auto max-w-screen-2xl">
         <div className="w-full h-[200px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl">
           <Image

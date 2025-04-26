@@ -80,7 +80,7 @@ const ProductCard = ({ product }: { product: any }) => {
   }, [product]);
 
   return (
-    <div className="bg-white py-2 shadow-md rounded-xl overflow-hidden w-full max-w-[300px] mx-auto">
+    <div className="bg-white py-2 shadow-md rounded-xl overflow-hidden w-full max-w-[250px] mx-auto">
       <div className="relative">
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
@@ -129,16 +129,16 @@ const ButtonGroup = ({ next, previous }: any) => {
   return (
     <div className="absolute inset-0 flex justify-between items-center pointer-events-none">
       <button
-        className="bg-gray-300 text-white p-2 rounded-full hover:bg-gray-700 pointer-events-auto"
+        className="cursor-pointer bg-gray-300 text-white p-2 rounded-full hover:bg-gray-700 pointer-events-auto"
         onClick={previous}
       >
-        <ChevronLeft size={30} />
+        <ChevronLeft size={20} />
       </button>
       <button
-        className="bg-gray-300 text-white p-2 rounded-full hover:bg-gray-700 pointer-events-auto"
+        className="cursor-pointer bg-gray-300 text-white p-2 rounded-full hover:bg-gray-700 pointer-events-auto"
         onClick={next}
       >
-        <ChevronRight size={30} />
+        <ChevronRight size={20} />
       </button>
     </div>
   );
@@ -184,7 +184,7 @@ const ProductCarousel = () => {
         containerClass="carousel-container overflow-hidden"
         itemClass="p-2 gap-x-4"
       >
-        {products.slice(0,10).map((product, index) => (
+        {products.slice(0,11).map((product, index) => (
           <ProductCard key={index} product={product} />
         ))}
       </Carousel>

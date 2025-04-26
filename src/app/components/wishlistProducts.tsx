@@ -87,7 +87,7 @@ const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: strin
   };
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px] z-[10]">
+    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px] z-[10]">
       {/* Product Image */}
       <div className="relative">
         <Image

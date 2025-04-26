@@ -8,7 +8,7 @@ export function ImagesSliderDemo() {
     <div className="bg-white  sm:mt-15 w-[90%] m-auto sm:w-full mt-[-25px]">
       {/* Full-width slider container matching the navbar */}
       <div className="container rounded mx-auto max-w-screen-2xl lg:px-[50px]">
-        <div className="w-full h-[400px] sm:h-[500px] md:h-[550px] lg:h-[600px]  overflow-hidden rounded">
+        <div className="w-full h-[400px] sm:h-[800px] md:h-[550px] lg:h-[600px]  overflow-hidden rounded">
           <Image 
             src="/st.jpg" 
             alt="Slider Image"

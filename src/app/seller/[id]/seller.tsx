@@ -117,7 +117,7 @@ const SellerProfile = () => {
   return (
     <div>
       {seller ? (
-      <div className="mt-0 md:mt-16 max-w-screen-2xl mx-auto px-4">
+      <div className="mt-0 md:mt-16 max-w-screen-2xl mx-auto px-4 lg:px-[50px]">
         {/* Seller Profile Section */}
         <div className="flex flex-col md:flex-row items-center md:items-start bg-white py-13 mb-10">
           {/* Seller Image (Centered on mobile, aligned with "Brand" in Navbar on desktop) */}
@@ -224,7 +224,7 @@ const SellerProfile = () => {
         </div>
 
         {/* Updated Tabs Section */}
-        <div className="w-full">
+        <div className="w-full ">
           <TabsComponent sellerId={sellerId} />
         </div>
       </div>

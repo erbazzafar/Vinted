@@ -89,7 +89,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   }, [product]);
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[300px]">
+    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px]">
       <div className="relative">
         <Image
           src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
@@ -115,7 +115,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               }`}
             onClick={() => handleWishList()}
           >
-            <Heart size={22} fill={isWishlisted ? "red" : "none"} />
+            <Heart size={17} fill={isWishlisted ? "red" : "none"} />
           </button>
         </div>
 
@@ -131,7 +131,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         </p>
         <p className="text-[12px] font-semibold text-teal-600">
           ${product.inclPrice}{" "}
-          <span className="text-xs text-gray-400">incl.</span>
+          <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>
     </div>
@@ -167,7 +167,7 @@ const ProductList = () => {
     <div className="lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
     {Array.isArray(products) && products.length > 0 ? (
       <>
-        <h2 className="mt-5 text-3xl rounded-xl font-bold lg:px-[50px]">
+        <h2 className="mt-5 text-3xl rounded-xl font-bold ">
           Our Recent Products
         </h2>
 

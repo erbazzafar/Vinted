@@ -35,6 +35,8 @@ const Navbar = () => {
     router.push('/')
   }
 
+  console.log("phe ", photoURL?.includes("uploads/")?true:false)
+
   // Profile Dropdown Options
   const dropdownOptions: DropdownOption[] = [
     { label: "Profile", path: `/seller/${id}`, icon: <User size={20} /> },
@@ -141,7 +143,7 @@ const Navbar = () => {
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
           <Image
-            src="/nobg-affaredor.png"
+            src="/darkLogo.png"
             alt="AffariDoro"
             width={100}
             height={50}
@@ -246,12 +248,14 @@ const Navbar = () => {
               >
                 <button className="p-3 rounded-lg flex items-center gap-2 cursor-pointer">
                   <Image
-                    src={photoURL ? photoURL : "default.png"}
+                    src={photoURL && photoURL.includes("uploads/") 
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}` 
+                      : photoURL || "default.png"}
                     alt={"profile"}
                     width={10}
                     height={10}
                     unoptimized
-                    className="w-8 h-8 rounded-full"
+                    className="w-8 h-8 rounded-full object-cover"
                   />
                 </button>
 
@@ -377,7 +381,9 @@ const Navbar = () => {
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <Image
-                    src={photoURL ? photoURL : "default.png"}
+                    src={photoURL && photoURL.includes("uploads/") 
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}` 
+                      : photoURL || "default.png"}
                     alt={"profile"}
                     width={10}
                     height={10}

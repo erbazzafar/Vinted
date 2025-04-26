@@ -241,7 +241,7 @@ const Chatbox = () => {
 
 
   return (
-    <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-15">
+    <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-10">
       {/* Sidebar */}
       <div
         className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${
@@ -249,7 +249,7 @@ const Chatbox = () => {
         } md:block`}
       >
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
-        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(10 * 72px)' }}>
+        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(8 * 72px)' }}>
           {chat?.map((chatMessage: any) => (
             <li
               key={chatMessage._id}

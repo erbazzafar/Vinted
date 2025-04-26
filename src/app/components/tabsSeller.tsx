@@ -4,6 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import Image from "next/image";
+import Cookies from "js-cookie";
 
 // Function to generate star ratings
 const getStarRating = (rating: number) => {
@@ -21,8 +22,7 @@ const getStarRating = (rating: number) => {
 };
 
 const TabsComponent = ({ sellerId }: any) => {
-  const [product, setProduct] = useState<any[]>([]);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [product, setProduct] = useState([]);
   const [showTab, setShowTab] = useState("Products");
   const [reviews, setReviews] = useState([
     { id: 1, user: "John Doe", rating: 5, comment: "Amazing seller, highly recommended!" },
@@ -30,6 +30,60 @@ const TabsComponent = ({ sellerId }: any) => {
     { id: 3, user: "Mike Johnson", rating: 3, comment: "Product quality is average." },
     { id: 4, user: "Mike Tyson", rating: 4, comment: "Good Service, Early delivery." },
   ]);
+
+  const [wishlistState, setWishlistState] = useState<{ [key: string]: boolean }>({});
+  const token = Cookies.get("token")
+  
+  const handleWishList = async (product: any) => {
+    if (!product._id) return;
+
+    if (!token) {
+      toast.error("Please log in to add to wishlist");
+      return;
+    }
+
+    setWishlistState(prev => ({
+      ...prev,
+      [product._id]: !prev[product._id],
+    }));
+
+    try {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/toggleLike`,
+        { productId: product._id, userId: Cookies.get("userId") },
+        {
+          headers: {
+            authorization: `Bearer ${Cookies.get("token")}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        toast.error("Error adding to wishlist");
+        return;
+      }
+
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error("Error adding to wishlist");
+      console.error("Error adding to wishlist", error);
+    }
+  };
+
+  useEffect(() => {
+    const userId = Cookies.get("userId");
+    if (userId && Array.isArray(product)) {
+      const newWishlistState: { [key: string]: boolean } = {};
+      product.forEach((prod: any) => {
+        if (prod.like?.includes(userId)) {
+          newWishlistState[prod._id] = true;
+        } else {
+          newWishlistState[prod._id] = false;
+        }
+      });
+      setWishlistState(newWishlistState);
+    }
+  }, [product]);
 
   useEffect(() => {
     const getSellerProducts = async () => {
@@ -48,7 +102,8 @@ const TabsComponent = ({ sellerId }: any) => {
         }
 
         console.log("Product Fetched ", response.data.data);
-        setProduct(response.data.data);
+        setProduct(response.data.data)
+
       } catch (error) {
         toast.error("Error Fetching the Products");
         console.log("Error Fetching the Products");
@@ -70,11 +125,10 @@ const TabsComponent = ({ sellerId }: any) => {
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            className={`px-6 py-2 text-xl font-medium cursor-pointer ${
-              showTab === tab.key
-                ? "border-b-2 border-gray-600 text-gray-800"
-                : "text-gray-600 hover:text-gray-600"
-            } transition`}
+            className={`px-6 py-2 text-xl font-medium cursor-pointer ${showTab === tab.key
+              ? "border-b-2 border-gray-600 text-gray-800"
+              : "text-gray-600 hover:text-gray-600"
+              } transition`}
             onClick={() => setShowTab(tab.key)}
           >
             {tab.name}
@@ -85,11 +139,11 @@ const TabsComponent = ({ sellerId }: any) => {
       {/* Display Content Based on Selected Tab */}
       <div className="mt-6">
         {showTab === "Products" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 ">
             {product.map((product: any) => (
               <div
                 key={product._id}
-                className="bg-white shadow-md rounded-xl overflow-hidden p-3 relative w-full max-w-[300px] mx-auto"
+                className="bg-white shadow-md rounded-xl overflow-hidden p-3 relative w-full max-w-[250px] mx-auto"
               >
                 <div className="relative">
                   <Image
@@ -97,7 +151,7 @@ const TabsComponent = ({ sellerId }: any) => {
                     alt={product.name}
                     height={300}
                     width={300}
-                    className="w-full h-[300px] object-cover rounded-lg"
+                    className="w-full h-[200px] object-contain rounded-lg"
                   />
                 </div>
 
@@ -105,18 +159,16 @@ const TabsComponent = ({ sellerId }: any) => {
                   <div className="flex justify-between items-center">
                     <Link
                       href={`/product/${product._id}`}
-                      className="text-lg font-semibold text-gray-800 hover:underline"
+                      className="text-[13px] font-semibold text-gray-800 hover:underline"
                     >
                       {product.name}
                     </Link>
 
                     <button
-                      className={`cursor-pointer mr-3 transition-colors ${
-                        isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-300"
-                      }`}
-                      onClick={() => setIsWishlisted(!isWishlisted)}
+                      className={`mr-3 transition-colors ${wishlistState[product._id] ? "text-red-500" : "text-gray-500 hover:text-red-500"}`}
+                      onClick={() => handleWishList(product)}
                     >
-                      <Heart size={22} fill={isWishlisted ? "red" : "none"} />
+                      <Heart size={20} fill={wishlistState[product._id] ? "red" : "none"} />
                     </button>
                   </div>
 
@@ -124,15 +176,19 @@ const TabsComponent = ({ sellerId }: any) => {
                   <div className="flex items-center gap-1 mt-1">{getStarRating(product.rating)}</div>
 
                   {/* Size */}
-                  <p className="text-md text-gray-500">Size: {product.size?.name ?? "N/A"}</p>
+                  <p className="text-[12px] text-gray-500">Size: {product.sizeId?.name ?? "N/A"}</p>
 
                   {/* Category */}
-                  <p className="text-md text-gray-500">Category: {product.category?.name ?? "N/A"}</p>
+                  <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product?.categoryId?.length - 1]?.name ?? "N/A"}</p>
 
                   {/* Prices */}
-                  <p className="text-lg font-semibold text-teal-600">
-                    {product.discountedPrice ?? product.price}{" "}
-                    <span className="text-xs text-gray-400">incl.</span>
+                  <p className="text-[12px] font-semibold text-teal-600">
+                    {product?.price}
+                  </p>
+
+                  <p className="text-[12px] font-semibold text-teal-600">
+                    {product?.inclPrice}{" "}
+                    <span className="text-[10px] text-gray-400">incl.</span>
                   </p>
                 </div>
               </div>

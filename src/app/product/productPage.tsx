@@ -137,7 +137,7 @@ const ProductPage = () => {
 
 
   return (
-    <div className="mt-20">
+    <div className="mt-10">
       <div className="container mx-auto sm:px-6 py-10 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-15 items-start">
           {/* Left: Product Images */}
@@ -213,14 +213,14 @@ const ProductPage = () => {
           </div>
 
           {/* Right: Product Details */}
-          <div className="bg-white space-y-2">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+          <div className="bg-white space-y-1">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800">
               {gettingProduct.name}
             </h1>
 
             <div className="flex items-center space-x-2">
               {getStarRating(gettingProduct.ratings)}
-              <span className="text-gray-500 text-sm">{gettingProduct.ratings} () (Reviews)</span>
+              <span className="text-gray-500 text-sm">{gettingProduct.ratings}  (Reviews)</span>
             </div>
 
             <p className="text-gray-600">{gettingProduct.description}</p>
@@ -262,14 +262,14 @@ const ProductPage = () => {
             {gettingProduct?.userId?._id === loggedInUser ? (
               <>
                 <button
-                className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                className="text-lg mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
                 onClick={handleBump}
               >
                 <span>Bump</span>
               </button>
 
               <button
-                className="text-xl flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                className="text-lg mt-2 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
                 onClick={handleHide}
               >
                  <span>{hidden ? "Unhide" : "Hide"}</span>
