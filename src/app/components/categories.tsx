@@ -90,8 +90,7 @@ const Categories: React.FC = () => {
           keyBoardControl
           arrows
           showDots={false}
-          containerClass="carousel-container overflow-hidden flex justify-center sm:mt-[-50]"
-          itemClass="p-2 "
+          containerClass="carousel-container overflow-hidden flex justify-center sm:mt-[-10]"
         >
           {categories.map((category, index) => {
             const imageSrc = category.image
@@ -102,7 +101,7 @@ const Categories: React.FC = () => {
               <Link
                 key={index}
                 href={`/filter?id=${category._id}`}
-                className="flex flex-col items-center space-y-2 text-gray-700 hover:text-gray-900 transition"
+                className="flex flex-col items-center text-gray-700 hover:text-gray-900 transition"
               >
                 <div className="w-20 h-20 flex items-center justify-center bg-[#EAEAEA] rounded-full">
                 <Image

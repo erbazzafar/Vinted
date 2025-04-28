@@ -29,28 +29,6 @@ const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: strin
   const [isWishlisted, setIsWishlisted] = useState(true);
   const token = Cookies.get("token");
 
-  useEffect( () => {
-    const getNotifications = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/viewAll`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        )
-
-        console.log(response.status);
-        console.log("Notification Response",response);
-        
-      } catch (error) {
-        toast.error("error")
-      }
-    }
-    getNotifications()
-  }, [token])
-
   const handleWishList = async () => {
     if (!product._id) return;
 

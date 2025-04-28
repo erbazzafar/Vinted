@@ -20,6 +20,7 @@ const ProductPage = () => {
   const router = useRouter();
 
   const [hidden, setHidden] = useState(false)
+  const [bump, setBump] = useState(false)
 
   const token = Cookies.get("token")
   const loggedInUser = Cookies.get("userId")
@@ -99,9 +100,35 @@ const ProductPage = () => {
     router.push(`/inbox/${gettingProduct?._id}?id=${gettingProduct?._id}`);
   };
 
-  const handleBump = () => {
-    toast.success(`Your Product ${gettingProduct.name} is bumped Successfully`);
-    return
+  const handleBump = async () => {
+    try {
+      if(!loggedInUser || !token){
+        return
+      }
+
+      const bumpedState = !bump
+      const response = await axios.put (
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${loggedInUser}`,
+        {bump: bumpedState},
+        {
+          headers: {
+            Authorization: `Bearer ${token}` 
+          }
+        }
+      )
+
+      if(response.status !== 200){
+        toast.error("unable to hide the item")
+        return
+      }
+
+      setBump(bumpedState)
+      toast.success(bumpedState ? "Item Bumped" : "Bump Expire");
+    } catch (error) {
+      console.log("Unable to hide the product Right Now", error)
+      toast.error("Unable to hide the Item. Try again later")
+      return
+    }
   }
 
   const handleHide = async () => {
@@ -265,7 +292,7 @@ const ProductPage = () => {
                 className="text-lg mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
                 onClick={handleBump}
               >
-                <span>Bump</span>
+                <span>{bump? "bumped" : "Bump"}</span>
               </button>
 
               <button

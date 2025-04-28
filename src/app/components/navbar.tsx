@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Heart, Inbox, Search, X, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
+import { Heart, Inbox, Search, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
+import axios from "axios";
 
 interface DropdownOption {
   label: string;
@@ -17,10 +18,16 @@ interface DropdownOption {
   className?: string;
 }
 
+interface Notification {
+  _id: string,
+  subTitle: string,
+  title: string,
+  type: string
+}
+
 const Navbar = () => {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
@@ -35,7 +42,7 @@ const Navbar = () => {
     router.push('/')
   }
 
-  console.log("phe ", photoURL?.includes("uploads/")?true:false)
+  const token = Cookies.get("token")
 
   // Profile Dropdown Options
   const dropdownOptions: DropdownOption[] = [
@@ -57,53 +64,42 @@ const Navbar = () => {
   ];
 
   // Notification Data
-
-  const notificationsData = [
-    {
-      id: 1,
-      icon: <MessageSquare className="w-6 h-6 text-gray-500 dark:text-gray-300" />,
-      message: "Product Inquiry from Kathryn",
-      description: "Kathryn has sent you a message regarding a product inquiry.",
-      link: "/messages/kathryn",
-      time: "1 day ago",
-    },
-    {
-      id: 2,
-      icon: <Package className="w-6 h-6 text-gray-500 dark:text-gray-300" />,
-      message: "Order Confirmation",
-      description: "Your order has been placed successfully.",
-      link: "/orders",
-      time: "1 month ago",
-    },
-    {
-      id: 3,
-      icon: <Percent className="w-6 h-6 text-gray-500 dark:text-gray-300" />,
-      message: "Exclusive Discount Offer",
-      description: "Get 20% off on your next purchase!",
-      link: "/offers",
-      time: "1 day ago",
-    },
-    {
-      id: 4,
-      icon: <MessageSquare className="w-6 h-6 text-gray-500 dark:text-gray-300" />,
-      message: "Message from Joana",
-      description: "Joana has sent you a message. Tap to read!",
-      link: "/offers",
-      time: "2 days ago",
-    },
-    {
-      id: 5,
-      icon: <Percent className="w-6 h-6 text-gray-500 dark:text-gray-300" />,
-      message: "Exclusive Discount Offer",
-      description: "Get 20% off on your next purchase!",
-      link: "/offers",
-      time: "4 days ago",
-    },
-  ];
-
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification []>([])
 
-  const [notifications, setNotifications] = useState(notificationsData)
+  const getNotifIcon = (type: string) => {
+    switch (type) {
+      case "chat":
+        return <MessageSquare size={20} className="text-gray-700 dark:text-white" />;
+      case "offer":
+        return <Percent size={20} className="text-gray-700 dark:text-white" />;
+      default:
+        return <Bell size={20} className="text-gray-700 dark:text-white" />; // default icon
+    }
+  };
+
+
+  useEffect( () => {
+    const getNotifications = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/viewAll`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        console.log("Notification Response",response);
+        setNotifications(response.data.data)
+        
+      } catch (error) {
+        toast.error("error")
+      }
+    }
+    getNotifications()
+  }, [token])
 
   // Updated hover behavior for profile dropdown
   const handleMouseEnter = () => setIsOpen(true);
@@ -214,17 +210,16 @@ const Navbar = () => {
 
                       {notifications.length > 0 ? (
                         <div className="max-h-80 overflow-y-auto">
-                          {notifications.map((notif, index) => (
-                            <Link key={index} href={notif.link} className="block">
+                          {notifications.map((notif) => (
+                            <Link key={notif._id} href="#" className="block">
                               <button className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
-                                  {notif.icon}
+                                  {getNotifIcon(notif.type)}
                                 </div>
                                 <div className="flex-1 text-left">
-                                  <h4 className="text-gray-900 dark:text-white font-medium">{notif.message}</h4>
-                                  <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.description}</p>
+                                  <h4 className="text-gray-900 dark:text-white font-medium">{notif.title}</h4>
+                                  <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.subTitle}</p>
                                 </div>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">{notif.time}</span>
                               </button>
                             </Link>
                           ))}
@@ -349,17 +344,16 @@ const Navbar = () => {
                       </div>
                       {notifications.length > 0 ? (
                         <div className="max-h-80 overflow-y-auto">
-                          {notifications.map((notif, index) => (
-                            <Link key={index} href={notif.link} className="block">
+                          {notifications.map((notif) => (
+                            <Link key={notif._id} href="#" className="block">
                               <button className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                                 <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
-                                  {notif.icon}
+                                  {getNotifIcon(notif.type)}
                                 </div>
                                 <div className="flex-1 text-left">
-                                  <h4 className="text-gray-900 dark:text-white font-medium">{notif.message}</h4>
-                                  <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.description}</p>
+                                  <h4 className="text-gray-900 dark:text-white font-medium">{notif.title}</h4>
+                                  <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.subTitle}</p>
                                 </div>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">{notif.time}</span>
                               </button>
                             </Link>
                           ))}

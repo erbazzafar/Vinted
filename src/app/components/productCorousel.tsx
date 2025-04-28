@@ -101,7 +101,7 @@ const ProductCard = ({ product }: { product: any }) => {
             {product?.name}
           </Link>
           <button
-            className={`mr-3 transition-colors ${
+            className={`mr-3 transition-colors cursor-pointer ${
               isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
             }`}
             onClick={() => handleWishList()}
