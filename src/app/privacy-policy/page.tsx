@@ -38,8 +38,8 @@ function PrivacyPolicy() {
 
             <h2 className="text-2xl font-semibold mb-2">Product Bumping</h2>
             <p className="mb-4">
-                Sellers can promote ("bump") their products to appear at the top of listings for a selected number of days by paying a fee. 
-                The bump duration and cost are determined by the platform's admin.
+                Sellers can promote (&quot;bump&quot;) their products to appear at the top of listings for a selected number of days by paying a fee. 
+                The bump duration and cost are determined by the platform&apos;s admin.
             </p>
 
             <h2 className="text-2xl font-semibold mb-2">Admin Access</h2>
