@@ -12,19 +12,20 @@ import { Eye } from "lucide-react";
 
 interface Products {
   _id: string;
-  fullName: string
-  productId: {
-    _id: string;
-    name: string;
-    image: string[];
-  }[];
+  fullName: string,
   total: number;
   orderStatus: string;
   buyerFee: string,
   subTotal: string,
   country: string,
   city: string,
-  address1: string
+  address1: string,
+  productId: {
+    _id: string;
+    name: string;
+    image: string[];
+  }[];
+  
 
 }
 
@@ -337,8 +338,6 @@ function Wallet() {
                           <p className="text-[13px] text-gray-700">Country: {selectedProduct?.country || "N/A"}</p>
                         </div>
                       </div>
-
-
 
                       {/* Conditionally render the status dropdown */}
                       {selectedProduct?.orderStatus !== "cancelled" && selectedProduct?.orderStatus !== "completed" && (

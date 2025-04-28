@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Send, Camera, X,  ChevronsLeft } from "lucide-react";
+import { Send, Camera, X, ChevronsLeft } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -32,7 +32,7 @@ const Chatbox = () => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [firstState, setFirstState] = useState(false);
-    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
 
   useEffect(() => {
     // Scroll to the bottom of the chat box
@@ -242,9 +242,8 @@ const Chatbox = () => {
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-10">
       {/* Sidebar */}
       <div
-        className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${
-          isMobileChatOpen ? "hidden" : "block"
-        } md:block`}
+        className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${isMobileChatOpen ? "hidden" : "block"
+          } md:block`}
       >
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
         <ul className="overflow-y-auto" style={{ maxHeight: 'calc(8 * 72px)' }}>
@@ -262,12 +261,19 @@ const Chatbox = () => {
                 setIsMobileChatOpen(true); // Open chat in mobile view
               }}
             >
-                {/* User Image  */}
+              {/* User Image  */}
               <Image
                 className="w-11 h-11 ml-2 object-cover rounded-full"
                 src={
-                  chatMessage?.adminUser?.image ?    
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser.image }` : `/imageLogo2.jpg`
+                  chatMessage?.adminUser?._id === loggedInUser
+                    ? (chatMessage?.userId?.image
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage.userId.image}`
+                      : `/imageLogo2.jpg`
+                    )
+                    : (chatMessage?.adminUser?.image
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage.adminUser.image}`
+                      : `/imageLogo2.jpg`
+                    )
                 }
                 alt={chatMessage.adminUser.fullName}
                 width={30}
@@ -278,7 +284,7 @@ const Chatbox = () => {
                 <br />
                 {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
                   <div key={mg._id} className="mt-1 w-[33px] h-[33px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
-                  {/* product image  */}
+                    {/* product image  */}
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mg?.image?.[0]}`}
                       alt="Product"
@@ -296,9 +302,8 @@ const Chatbox = () => {
 
       {/* Chatbox */}
       <div
-        className={`w-full  md:w-3/4 relative ${
-          isMobileChatOpen ? "block" : "hidden"
-        } md:block`}
+        className={`w-full  md:w-3/4 relative ${isMobileChatOpen ? "block" : "hidden"
+          } md:block`}
       >
         <button
           className="md:hidden p-2 text-gray-500"
@@ -367,12 +372,15 @@ const Chatbox = () => {
           {messages.length > 0 ? (
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
-              const senderImage = isSentByCurrentUser ? photoURL : selectedChat?.photoURL;
+              const senderImage = isSentByCurrentUser
+                ? (msg?.userId?.image ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId.image}` : `/imageLogo2.jpg`)
+                : (msg?.adminUser?.image ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : `/imageLogo2.jpg`);
+
 
               return (
                 <div key={index} className={`flex items-start gap-3 ${isSentByCurrentUser ? 'flex-row-reverse' : ''}`}>
                   <Image
-                    src={senderImage || `/imageLogo2.jpg`}
+                    src={senderImage}
                     alt={isSentByCurrentUser ? "You" : "Other"}
                     width={10}
                     height={10}
