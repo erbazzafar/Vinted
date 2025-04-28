@@ -237,8 +237,6 @@ const Chatbox = () => {
     setImage(updatedImages); // Update the state with the new images array
   };
 
-  
-
 
   return (
     <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-10">
@@ -374,7 +372,7 @@ const Chatbox = () => {
               return (
                 <div key={index} className={`flex items-start gap-3 ${isSentByCurrentUser ? 'flex-row-reverse' : ''}`}>
                   <Image
-                    src={senderImage}
+                    src={senderImage || `/imageLogo2.jpg`}
                     alt={isSentByCurrentUser ? "You" : "Other"}
                     width={10}
                     height={10}
@@ -385,7 +383,7 @@ const Chatbox = () => {
                     {msg.message && <p className="mb-1">{msg.message}</p>}
                     {msg.image && (
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}`}
+                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}` || `/imageLogo2.jpg`}
                         className="rounded-md max-h-40 w-auto"
                         alt="Message Image"
                         width={225}

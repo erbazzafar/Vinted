@@ -161,7 +161,7 @@ export default function MyOrders() {
       return "Pending";
     }
     if (order?.orderStatus === "Completed") {
-      return "Delivered";
+      return "Completed";
     }
     if (order?.orderStatus === "Cancelled") {
       return "Cancelled";

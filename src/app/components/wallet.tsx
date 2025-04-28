@@ -285,9 +285,9 @@ function Wallet() {
 
                   <div className="flex items-center gap-5 sm:gap-2">
                     <p
-                      className={`text-[13px] text-gray-50 rounded-md px-4 py-1 sm:px-1 ${soldProd?.orderStatus === "cancelled"
+                      className={`text-[13px] text-gray-50 rounded-md px-5 py-2 sm:px-1 ${soldProd?.orderStatus === "cancelled"
                         ? "bg-gray-500"
-                        : soldProd?.orderStatus === "delivered"
+                        : soldProd?.orderStatus === "completed"
                           ? "bg-green-500"
                           : soldProd?.orderStatus === "pending"
                             ? "bg-orange-500"
@@ -341,7 +341,7 @@ function Wallet() {
 
 
                       {/* Conditionally render the status dropdown */}
-                      {selectedProduct?.orderStatus !== "cancelled" && selectedProduct?.orderStatus !== "delivered" && (
+                      {selectedProduct?.orderStatus !== "cancelled" && selectedProduct?.orderStatus !== "completed" && (
                         <>
                           {/* Update Status Section */}
                           <p className="text-[13px] text-red-600">Update Status</p>
@@ -353,9 +353,9 @@ function Wallet() {
                             <option value="pending">Pending</option>
                             <option value="shipping">Shipping</option>
                             <option value="ready-to-delivered">Ready for Delivered</option>
-                            <option value="delivered">Delivered</option>
+                            <option value="completed">Completed</option>
                           </select>
-                          <p className="text-[12px] text-gray-400 text-center">This action cannot be undone once marked as <span className="text-[13px] text-gray-600"> Delivered</span>
+                          <p className="text-[12px] text-gray-400 text-center">This action cannot be undone once marked as <span className="text-[13px] text-gray-600"> Completed </span>
                           </p>
                         </>
                       )}
