@@ -65,7 +65,7 @@ const Navbar = () => {
 
   // Notification Data
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification []>([])
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
   const getNotifIcon = (type: string) => {
     switch (type) {
@@ -79,7 +79,7 @@ const Navbar = () => {
   };
 
 
-  useEffect( () => {
+  useEffect(() => {
     const getNotifications = async () => {
       try {
         const response = await axios.get(
@@ -91,9 +91,9 @@ const Navbar = () => {
           }
         )
 
-        console.log("Notification Response",response);
+        console.log("Notification Response", response);
         setNotifications(response.data.data)
-        
+
       } catch (error) {
         toast.error("error")
       }
@@ -166,7 +166,7 @@ const Navbar = () => {
           ) : (
             <>
               <Link href={`/inbox/${id}`}>
-                <Inbox size={25}  className="text-gray-900 dark:text-white hover:text-gray-900 transition mt-1" />
+                <Inbox size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition mt-1" />
               </Link>
               <Link href="/wishlist">
                 <Heart size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition mt-1" />
@@ -242,16 +242,29 @@ const Navbar = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <button className="p-3 rounded-lg flex items-center gap-2 cursor-pointer">
-                  <Image
-                    src={photoURL && photoURL.includes("uploads/") 
-                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}` 
-                      : photoURL || "default.png"}
+                  {(() => {
+                    const type = Cookies.get("photoType");
+                    let img = ""
+                    if (type === "google"){
+                      if(photoURL.includes("uploads/*")) {
+                        img = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}`
+                      }
+                       img = Cookies.get("googlePhoto")
+                    } else if (type === "dummy"){
+                      img = `/imageLogo2.jpg`
+                    } else {
+                      img = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}`
+                    }
+                    return (<Image
+                    src={img}
                     alt={"profile"}
                     width={10}
                     height={10}
                     unoptimized
                     className="w-8 h-8 rounded-full object-cover"
-                  />
+                  />)
+                  })()}
+                  
                 </button>
 
                 <AnimatePresence>
@@ -375,8 +388,8 @@ const Navbar = () => {
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <Image
-                    src={photoURL && photoURL.includes("uploads/") 
-                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}` 
+                    src={photoURL && photoURL.includes("uploads/")
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}`
                       : photoURL || "default.png"}
                     alt={"profile"}
                     width={10}

@@ -25,7 +25,7 @@ interface Products {
     name: string;
     image: string[];
   }[];
-  
+
 
 }
 
@@ -254,7 +254,7 @@ function Wallet() {
           {/* Pending Balance Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Pending Balance</h2>
-            <p className="text-4xl font-bold text-red-500">-${wallet?.wallet?.pending}</p>
+            <p className="text-4xl font-bold text-red-500">${wallet?.wallet?.pending}</p>
             <p className="text-sm text-gray-500 mt-1">Will be available in 1-3 business days</p>
           </div>
         </div>
@@ -286,13 +286,13 @@ function Wallet() {
 
                   <div className="flex items-center gap-5 sm:gap-2">
                     <p
-                      className={`text-[13px] text-gray-50 rounded-md px-5 py-2 sm:px-1 ${soldProd?.orderStatus === "cancelled"
-                        ? "bg-gray-500"
-                        : soldProd?.orderStatus === "completed"
-                          ? "bg-green-500"
-                          : soldProd?.orderStatus === "pending"
-                            ? "bg-orange-500"
-                            : "bg-yellow-500"
+                      className={`text-[13px] text-gray-50 rounded-md px-1 py-2 sm:px-3 ${soldProd?.orderStatus === "cancelled"
+                          ? "bg-gray-500"
+                          : soldProd?.orderStatus === "completed"
+                            ? "bg-green-500"
+                            : soldProd?.orderStatus === "pending"
+                              ? "bg-orange-500"
+                              : "bg-yellow-500"
                         }`}
                     >
                       {soldProd?.orderStatus}

@@ -42,44 +42,52 @@ export default function MyOrders() {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [trackOpen, setTrackOpen] = useState(false);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [loader, setLoader] = useState(true)
   const token = Cookies.get("token");
   const loggedInUserId = Cookies.get("userId");
 
-  useEffect(() => {
-    const getUserOrders = async () => {
-      if (!token) {
-        return;
-      }
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/getAll?fromUserId=${loggedInUserId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          toast.error("Failed to fetch orders. Please try again later.");
-          return;
+  const getUserOrders = async () => {
+    if (!token) {
+      return;
+    }
+    setLoader(true)
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/getAll?fromUserId=${loggedInUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        console.log("All Orders:", response.data.data);
-        // Log each order's status
-        response.data.data.forEach((order: any) => {
-          console.log(`Order ID: ${order._id}, Status: ${order.orderStatus}`);
-        });
-        setUserOrders(response.data.data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
+      if (response.status !== 200) {
         toast.error("Failed to fetch orders. Please try again later.");
         return;
       }
-    };
-    getUserOrders();
-  }, [token, loggedInUserId]);
+
+      console.log("All Orders:", response.data.data);
+      // Log each order's status
+      response.data.data.forEach((order: any) => {
+        console.log(`Order ID: ${order._id}, Status: ${order.orderStatus}`);
+      });
+      setUserOrders(response.data.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      toast.error("Failed to fetch orders. Please try again later.");
+      return;
+    } finally {
+      setLoader(false)
+    }
+  };
+
+
+  useEffect(() => {
+    if (token && loggedInUserId) {
+      getUserOrders()
+    }
+  }, [token, loggedInUserId])
 
   // Filter orders based on selected tab
   const filteredOrders = userOrders.filter((order: any) => {
@@ -179,9 +187,8 @@ export default function MyOrders() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 text-center py-2 rounded-md font-medium cursor-pointer sm:text-sm sm:py-1 ${
-              activeTab === tab ? "border-b-2 border-gray-800 text-gray-700" : "text-gray-400"
-            }`}
+            className={`flex-1 text-center py-2 rounded-md font-medium cursor-pointer sm:text-sm sm:py-1 ${activeTab === tab ? "border-b-2 border-gray-800 text-gray-700" : "text-gray-400"
+              }`}
           >
             {tab}
           </button>
@@ -190,54 +197,78 @@ export default function MyOrders() {
 
       {/* Orders List */}
       <div className="space-y-4">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order: any) => (
-            <div
-              key={order._id}
-              className="flex flex-col sm:flex-row items-center justify-between p-4 border rounded-lg shadow-md bg-white gap-4"
+        {loader ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <svg
+              className="animate-spin h-8 w-8 text-gray-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
             >
-              <div className="flex items-center space-x-4 w-full sm:w-auto">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order?.productId?.[0]?.image?.[0]}`}
-                  alt={order?.productId?.[0]?.name}
-                  width={32}
-                  height={32}
-                  unoptimized
-                  className="w-32 h-32 rounded-md object-cover"
-                />
-                <div className="flex-1 sm:flex-none">
-                  <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
-                  <p className="m-2 text-gray-600 ml-4 sm:ml-0">
-                    ${order?.total}
-                    <span className="ml-5 rounded-lg bg-black text-white px-3 py-2 text-sm font-semibold">
-                      {order.orderStatus}
-                    </span>
-                  </p>
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          </div>
+        ) :
+          filteredOrders.length > 0 ? (
+            filteredOrders.map((order: any) => (
+              <div
+                key={order._id}
+                className="flex flex-col sm:flex-row items-center justify-between p-4 border rounded-lg shadow-md bg-white gap-4"
+              >
+                <div className="flex items-center space-x-4 w-full sm:w-auto">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order?.productId?.[0]?.image?.[0]}`}
+                    alt={order?.productId?.[0]?.name}
+                    width={32}
+                    height={32}
+                    unoptimized
+                    className="w-32 h-32 rounded-md object-cover"
+                  />
+                  <div className="flex-1 sm:flex-none">
+                    <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
+                    <p className="m-2 text-gray-600 ml-4 sm:ml-0">
+                      ${order?.total}
+                      <span className="ml-5 rounded-lg bg-black text-white px-3 py-2 text-sm font-semibold">
+                        {order.orderStatus}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Ongoing Tab: Cancel & Track Buttons */}
-              {activeTab === "Ongoing" && (
-                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-                  <button
-                    onClick={() => handleOpen(order)}
-                    className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg w-full sm:w-auto"
-                  >
-                    Cancel Order
-                  </button>
-                  <button
-                    onClick={() => handleTrack(order)}
-                    className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg w-full sm:w-auto"
-                  >
-                    Track Order
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-500">No orders in this category.</p>
-        )}
+                {/* Ongoing Tab: Cancel & Track Buttons */}
+                {activeTab === "Ongoing" && (
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                    <button
+                      onClick={() => handleOpen(order)}
+                      className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg w-full sm:w-auto"
+                    >
+                      Cancel Order
+                    </button>
+                    <button
+                      onClick={() => handleTrack(order)}
+                      className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg w-full sm:w-auto"
+                    >
+                      Track Order
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No orders in this category.</p>
+          )}
       </div>
 
       {/* Cancel Confirmation Modal */}
@@ -292,88 +323,81 @@ export default function MyOrders() {
               {/* Step 1 - Pending */}
               <div className="flex flex-col items-center">
                 <Package
-                  className={`w-10 h-10 ${
-                    selectedOrder?.orderStatus === "pending" ||
-                    selectedOrder?.orderStatus === "shipping" ||
-                    selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
+                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "pending" ||
+                      selectedOrder?.orderStatus === "shipping" ||
+                      selectedOrder?.orderStatus === "completed" ||
+                      selectedOrder?.orderStatus === "delivered" ||
+                      selectedOrder?.orderStatus === "ready-to-delivered"
                       ? "text-black"
                       : "text-gray-400"
-                  }`}
+                    }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Pending</span>
               </div>
 
               {/* Dotted Line */}
               <div
-                className={`border-t-2 border-dashed w-16 ${
-                  selectedOrder?.orderStatus === "shipping" ||
-                  selectedOrder?.orderStatus === "completed" ||
-                  selectedOrder?.orderStatus === "delivered" ||
-                  selectedOrder?.orderStatus === "ready-to-delivered"
+                className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "shipping" ||
+                    selectedOrder?.orderStatus === "completed" ||
+                    selectedOrder?.orderStatus === "delivered" ||
+                    selectedOrder?.orderStatus === "ready-to-delivered"
                     ? "border-black"
                     : "border-gray-400"
-                }`}
+                  }`}
               ></div>
 
               {/* Step 2 - Shipping */}
               <div className="flex flex-col items-center">
                 <Truck
-                  className={`w-10 h-10 ${
-                    selectedOrder?.orderStatus === "shipping" ||
-                    selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
+                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "shipping" ||
+                      selectedOrder?.orderStatus === "completed" ||
+                      selectedOrder?.orderStatus === "delivered" ||
+                      selectedOrder?.orderStatus === "ready-to-delivered"
                       ? "text-black"
                       : "text-gray-400"
-                  }`}
+                    }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Shipping</span>
               </div>
 
               {/* Dotted Line */}
               <div
-                className={`border-t-2 border-dashed w-16 ${
-                  selectedOrder?.orderStatus === "completed" ||
-                  selectedOrder?.orderStatus === "delivered" ||
-                  selectedOrder?.orderStatus === "ready-to-delivered"
+                className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "completed" ||
+                    selectedOrder?.orderStatus === "delivered" ||
+                    selectedOrder?.orderStatus === "ready-to-delivered"
                     ? "border-black"
                     : "border-gray-400"
-                }`}
+                  }`}
               ></div>
 
               {/* Step 3 - Ready to Deliver */}
               <div className="flex flex-col items-center">
                 <Users
-                  className={`w-10 h-10 ${
-                    selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
+                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "completed" ||
+                      selectedOrder?.orderStatus === "delivered" ||
+                      selectedOrder?.orderStatus === "ready-to-delivered"
                       ? "text-black"
                       : "text-gray-400"
-                  }`}
+                    }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Ready for Delivery</span>
               </div>
 
               {/* Dotted Line */}
               <div
-                className={`border-t-2 border-dashed w-16 ${
-                  selectedOrder?.orderStatus === "delivered"
+                className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "delivered"
                     ? "border-black"
                     : "border-gray-400"
-                }`}
+                  }`}
               ></div>
 
               {/* Step 4 - Delivered */}
               <div className="flex flex-col items-center">
                 <Archive
-                  className={`w-10 h-10 ${
-                    selectedOrder?.orderStatus === "delivered"
+                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "delivered"
                       ? "text-black"
                       : "text-gray-400"
-                  }`}
+                    }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Delivered</span>
               </div>

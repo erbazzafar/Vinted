@@ -108,7 +108,7 @@ const ProductPage = () => {
 
       const bumpedState = !bump
       const response = await axios.put (
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${loggedInUser}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
         {bump: bumpedState},
         {
           headers: {
@@ -139,7 +139,7 @@ const ProductPage = () => {
 
       const hiddenState = !hidden
       const response = await axios.put (
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/update/${loggedInUser}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
         {hidden: hiddenState},
         {
           headers: {
@@ -258,19 +258,19 @@ const ProductPage = () => {
             {/* Size Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Size:</label>
-              <span className=" text-gray-600">   {gettingProduct?.sizeId?.name || "None"}</span>
+              <span className=" text-gray-600">   {gettingProduct?.sizeId?.name || "N/A"}</span>
             </div>
 
             {/* Color Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Color:</label>
-              <span className=" text-gray-600">   {gettingProduct?.colorId?.[0].name || "None"}</span>
+              <span className=" text-gray-600">   {gettingProduct?.colorId?.[0].name || "N/A"}</span>
             </div>
 
             {/* Category Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Category:</label>
-              <span className=" text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length-1]?.name || "None"}</span>
+              <span className=" text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length-1]?.name || "other"}</span>
             </div>
 
 

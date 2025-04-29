@@ -29,15 +29,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white min-h-screen flex flex-col`}
       >
         <div className="absolute inset-0 -z-10">
           <Particles />
         </div>
-        <Toaster  
-            position="bottom-right" richColors /> {/* Ensures toast appears in bottom right */}
+        <Toaster position="bottom-right" richColors />
         <Navbar />
-        {children}
+        <main className="flex-1">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

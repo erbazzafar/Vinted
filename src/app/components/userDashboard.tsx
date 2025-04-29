@@ -70,9 +70,9 @@ const pages: PageType[] = [
         <section>
           <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
           <p className="text-gray-600 mb-4">
-            Welcome to Vinted. These terms and conditions outline the rules and regulations for the use of our e-commerce platform. 
+            Welcome to Affare Doro. These terms and conditions outline the rules and regulations for the use of our e-commerce platform. 
             By accessing this website and using our services, you accept these terms and conditions in full. 
-            Do not continue to use Vinted&apos;s website if you do not accept all of the terms and conditions stated on this page.
+            Do not continue to use Affare Doro&apos;s website if you do not accept all of the terms and conditions stated on this page.
           </p>
         </section>
 
@@ -114,11 +114,9 @@ const pages: PageType[] = [
         <section>
           <h2 className="text-2xl font-semibold mb-4">4. Payments & Pricing</h2>
           <div className="space-y-3 text-gray-600">
-            <p>We accept various payment methods including:</p>
+            <p>We accept payment method:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Major credit and debit cards</li>
-              <li>PayPal</li>
-              <li>Other supported payment methods</li>
             </ul>
             <p>All prices are in the displayed currency and include applicable taxes. Shipping costs are calculated at checkout.</p>
           </div>
@@ -128,7 +126,7 @@ const pages: PageType[] = [
           <h2 className="text-2xl font-semibold mb-4">5. Shipping & Delivery</h2>
           <div className="space-y-3 text-gray-600">
             <ul className="list-disc pl-6 space-y-2">
-              <li>Sellers must ship items within 3 business days of order confirmation</li>
+              <li>Sellers must ship items within 5 business days of order confirmation</li>
               <li>Shipping times vary based on location and selected shipping method</li>
               <li>Buyers are responsible for providing accurate shipping information</li>
               <li>Risk of loss transfers to buyer upon delivery</li>
@@ -217,7 +215,7 @@ const pages: PageType[] = [
           <h2 className="text-2xl font-semibold mb-4">12. Contact Information</h2>
           <p className="text-gray-600">
             For any questions or concerns regarding these terms, please contact our support team at:
-            support@vinted.com
+            support@affaredoro.com
           </p>
         </section>
       </div>
@@ -321,6 +319,11 @@ export default function Dashboard() {
       }
 
       toast.success(" Profile updated Successfully ")
+      if (profile.image) {
+        Cookies.set("photoType", "backend")
+        Cookies.set("photourl", response?.data?.data.image)
+      }
+
       
     } catch (error) {
       toast.error("Error updating the Profile")
@@ -483,7 +486,6 @@ export default function Dashboard() {
                       alt="Profile"
                       width={128}
                       height={128}
-                      unoptimized
                       className="w-full h-full object-cover"
                     />
                   ) : (

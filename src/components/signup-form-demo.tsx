@@ -53,7 +53,8 @@ export default function SignupFormDemo() {
       console.log("Response", response)
       Cookies.set('token', response.data.token)
       Cookies.set("userId", response.data.data._id)
-      Cookies.set("photoUrl", response.data.data?.image)
+      Cookies.set("photourl", response.data.data?.image)
+      Cookies.set("photoType", "dummy")
 
 
       router.push("/")
@@ -91,6 +92,8 @@ export default function SignupFormDemo() {
       Cookies.set("token", response.data.token)
       console.log("Token",response.data.token);
       Cookies.set("photourl", response.data.data?.image || "")
+      Cookies.set("googlePhoto", response.data.data.photoUrl)
+      Cookies.set("photoType", "google")
       Cookies.set("userId", response.data.data._id)
       
       router.push('/')
@@ -112,9 +115,9 @@ export default function SignupFormDemo() {
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
         Welcome to Affare Doro 
       </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
+      <p className="text-neutral-600 text-[12px] max-w-sm mt-2 dark:text-neutral-300">
         Already have an account, <span 
-          className="text-md text-gray-900 cursor-pointer hover:rounded-sm hover:bg-gray-500 hover:text-white hover:text-lg hover:px-3"
+          className="text-[13px] text-gray-900 cursor-pointer font-semibold underline hover:rounded-sm hover:bg-gray-200 hover:text-black hover:text-[13px] hover:px-3 hover:pb-1"
           onClick={() => {router.push("/login")}}> Login </span>
       </p>
 
