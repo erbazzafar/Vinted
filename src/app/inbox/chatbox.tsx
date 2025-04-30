@@ -368,7 +368,7 @@ const Chatbox = () => {
 
         {/* Chat Messages */}
         <div
-          className="bg-gray-50 pt-4 space-y-3 max-h-118 min-h-118 overflow-y-auto p-2 pb-[62px]">
+          className="bg-gray-50 pt-4 space-y-3 max-h-118 min-h-118 overflow-y-auto p-2 pb-[70lpx]">
           {messages.length > 0 ? (
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;

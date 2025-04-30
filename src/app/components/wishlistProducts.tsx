@@ -89,9 +89,8 @@ const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: strin
           </Link>
 
           <button
-            className={`text-[11px] transition-colors ${
-              isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
-            }`}
+            className={`text-[11px] transition-colors ${isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
+              }`}
             onClick={handleWishList}
           >
             <Heart size={17} fill={isWishlisted ? "red" : "none"} />
@@ -106,11 +105,16 @@ const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: strin
         <p className="text-[12px] text-gray-500">
           Category: {product.categoryId?.[product.categoryId.length - 1]?.name ?? "N/A"}
         </p>
-        <p className="text-[12px] font-semibold text-teal-600">
-          ${product.price}
-        </p>
-        <p className="text-[12px] font-semibold text-teal-600">
-          ${product.inclPrice} <span className="text-xs text-gray-400">incl.</span>
+        <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+          <Image
+            src={`/dirhamlogo.png`}
+            alt="dirham"
+            width={15}
+            height={15}
+            unoptimized
+          />
+          {product.inclPrice}
+          <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>
     </div>

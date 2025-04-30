@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
+import { RESPONSE_LIMIT_DEFAULT } from "next/dist/server/api-utils";
 
 interface DropdownOption {
   label: string;
@@ -82,6 +83,9 @@ const Navbar = () => {
   useEffect(() => {
     const getNotifications = async () => {
       try {
+        if (!token || !id) {
+          return
+        }
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/viewAll?userId=${id}`,
           {
@@ -96,10 +100,42 @@ const Navbar = () => {
 
       } catch (error) {
         toast.error("error")
+        return
       }
     }
     getNotifications()
-  }, [token])
+  }, [token, id])
+
+  const [counter, setCounter] = useState<any[]>([]);
+
+  useEffect(() => {
+    const unreadNotificationCounter = async () => {
+      try {
+        if (!id || !token) return;
+
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/countUnreadData?userId=${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status !== 200) {
+          toast.error("Error fetching notifications");
+          return;
+        }
+        console.log("counter notification response: ", response);
+        
+        setCounter(response.data.data); // must be an array
+      } catch (error) {
+        console.log("Notification error:", error);
+      }
+    };
+
+    unreadNotificationCounter();
+  }, [id, token]);
 
   // Updated hover behavior for profile dropdown
   const handleMouseEnter = () => setIsOpen(true);
@@ -179,13 +215,11 @@ const Navbar = () => {
                 onMouseEnter={handleNotifMouseEnter}
                 onMouseLeave={handleNotifMouseLeave}
               >
-                <button
-                  className="p-2 rounded-lg flex items-center gap-2 relative cursor-pointer"
-                >
+                <button className="p-2 rounded-lg flex items-center gap-2 relative cursor-pointer">
                   <Bell size={25} className="text-gray-700 dark:text-white mt-1" />
-                  {notifications.length > 0 && (
+                  {counter.length > 0 && (
                     <span className="absolute top-0 right-0 bg-red-400 text-white text-[8px] px-2 py-1 rounded-full">
-                      {notifications.length}
+                      {counter.length}
                     </span>
                   )}
                 </button>
@@ -245,26 +279,26 @@ const Navbar = () => {
                   {(() => {
                     const type = Cookies.get("photoType");
                     let img = ""
-                    if (type === "google"){
-                      if(photoURL.includes("uploads/*")) {
+                    if (type === "google") {
+                      if (photoURL.includes("uploads/*")) {
                         img = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}`
                       }
-                       img = Cookies.get("googlePhoto")
-                    } else if (type === "dummy"){
+                      img = Cookies.get("googlePhoto")
+                    } else if (type === "dummy") {
                       img = `/imageLogo2.jpg`
                     } else {
                       img = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}`
                     }
                     return (<Image
-                    src={img}
-                    alt={"profile"}
-                    width={10}
-                    height={10}
-                    unoptimized
-                    className="w-8 h-8 rounded-full object-cover"
-                  />)
+                      src={img}
+                      alt={"profile"}
+                      width={10}
+                      height={10}
+                      unoptimized
+                      className="w-8 h-8 rounded-full object-cover"
+                    />)
                   })()}
-                  
+
                 </button>
 
                 <AnimatePresence>

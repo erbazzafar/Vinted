@@ -100,6 +100,32 @@ const ProductPage = () => {
     router.push(`/inbox/${gettingProduct?._id}?id=${gettingProduct?._id}`);
   };
 
+  const [isBumpModalOpen, setIsBumpModalOpen] = useState(false)
+  const [bumpPrices, setBumpPrices] = useState("")
+  
+  useEffect( () => {
+    const getBump = async () => {
+      try {
+        if (!productId){
+          toast.error("Product not Found")
+          return
+        }
+        const response = await axios.get (
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/bump/viewAll`
+        )
+        if (response.status !== 200) {
+          toast.error("Error fetching the bump prices")
+          return
+        }
+      } catch (error) {
+        console.log("Error fetching the Bump Prices", error);
+        toast.error("Error fetching the Bump Prices")
+        return
+      }
+    }
+    getBump()
+  }, [productId])
+
   const handleBump = async () => {
     try {
       if (!loggedInUser || !token) {
@@ -323,6 +349,13 @@ const ProductPage = () => {
                   }}
                   sellerId={gettingProduct?.userId?._id}
                 />
+
+                {/*Following Modal*/}
+              <Modal open={isBumpModalOpen} onClose={() => setIsBumpModalOpen(false)}>
+                <Box className="bg-white p-6 rounded-lg shadow-lg w-128 max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  
+                </Box>
+              </Modal>
               </>
             ) : (
               <>
