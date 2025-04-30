@@ -171,9 +171,9 @@ const ProductPage = () => {
       <div className="container mx-auto sm:px-6 py-10 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-15 items-start">
           {/* Left: Product Images */}
-          <div className="flex gap-6">
-            {/* Thumbnail Images */}
-            <div className="flex flex-col gap-4 relative">
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Thumbnail Images - Below main image on mobile, to the left on desktop */}
+            <div className="flex flex-row md:flex-col gap-4 px-6 md:px-0 order-2 md:order-1">
               {gettingProduct?.image?.slice(0, 4)?.map((image: any, index: any) => (
                 <div key={index} className="relative">
                   <Image
@@ -184,9 +184,8 @@ const ProductPage = () => {
                     unoptimized
                     className={`object-contain rounded-lg cursor-pointer border ${mainImage === image ? "border-teal-500" : "border-gray-300"
                       }`}
-                    onClick={() => setMainImage(image)} // Change the mainImage on thumbnail click
+                    onClick={() => setMainImage(image)}
                   />
-                  {/* Plus Icon on 4th Thumbnail */}
                   {index === 3 && gettingProduct?.image?.length > 4 && (
                     <div
                       className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg cursor-pointer"
@@ -198,6 +197,19 @@ const ProductPage = () => {
                 </div>
               ))}
             </div>
+
+            {/* Main Image */}
+            <div className="w-full px-6 md:px-0 order-1 md:order-2">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mainImage}`}
+                alt={"Product"}
+                width={500}
+                height={600}
+                unoptimized
+                className="w-full h-[530px] object-cover rounded-lg shadow-lg"
+              />
+            </div>
+
             {/* Carousel Modal */}
             <Modal open={showCarousel} onClose={() => setShowCarousel(false)}>
               <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-0 rounded-lg shadow-lg w-[95%] md:w-[65%] max-w-xl h-[600px] overflow-hidden">
@@ -226,23 +238,10 @@ const ProductPage = () => {
                 </Carousel>
               </Box>
             </Modal>
-
-
-            {/* Main Image */}
-            <div className="w-full">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mainImage}`}
-                alt={"Product"}
-                width={500}
-                height={600}
-                unoptimized
-                className="w-full h-[530px] object-cover rounded-lg shadow-lg"
-              />
-            </div>
           </div>
 
           {/* Right: Product Details */}
-          <div className="bg-white space-y-1">
+          <div className="bg-white space-y-1 px-6 md:px-0">
             <h1 className="text-xl md:text-3xl font-bold text-gray-800">
               {gettingProduct.name}
             </h1>
@@ -257,24 +256,20 @@ const ProductPage = () => {
             <label className="text-md font-medium text-gray-600">Brand:</label>
             <span className="text-gray-600">   {gettingProduct?.brandId?.name || "None"}</span>
 
-            {/* Size Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Size:</label>
-              <span className=" text-gray-600">   {gettingProduct?.sizeId?.name || "N/A"}</span>
+              <span className="text-gray-600">   {gettingProduct?.sizeId?.name || "N/A"}</span>
             </div>
 
-            {/* Color Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Color:</label>
-              <span className=" text-gray-600">   {gettingProduct?.colorId?.[0].name || "N/A"}</span>
+              <span className="text-gray-600">   {gettingProduct?.colorId?.[0].name || "N/A"}</span>
             </div>
 
-            {/* Category Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Category:</label>
-              <span className=" text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length - 1]?.name || "other"}</span>
+              <span className="text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length - 1]?.name || "other"}</span>
             </div>
-
 
             <label className="text-md font-medium text-gray-600">Price:</label>
             <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
