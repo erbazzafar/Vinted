@@ -18,7 +18,7 @@ const CheckoutPage = () => {
     zipCode: '',
     phone: '',
     price: '',
-    inclPrice: '', 
+    inclPrice: '',
   })
   const [productInfo, setProductInfo] = useState<any>(null)
   const searchParams = useSearchParams()
@@ -36,24 +36,24 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     const storedData = localStorage.getItem('productsInfo');
-  
+
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
         setProductInfo(parsedData);
-  
+
         const bids = parsedData?.bid || [];
         const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
-  
+
         const finalPrice = matchedBid?.price || parsedData?.price;
         const finalInclPrice = matchedBid?.inclPrice || parsedData?.inclPrice;
-  
+
         setUserDetails((prevDetails) => ({
           ...prevDetails,
           price: finalPrice,
           inclPrice: finalInclPrice,
         }));
-  
+
         console.log("Matched Bid:", matchedBid);
         console.log("Final price used:", finalPrice);
         console.log("Parsed product info from localStorage:", parsedData);
@@ -81,18 +81,18 @@ const CheckoutPage = () => {
         total: matchedBid?.price || productInfo?.price,
         subTotal: matchedBid?.inclPrice || productInfo?.inclPrice,
       }
-        
-        setOrderFormData(payload);
-        return;
+
+      setOrderFormData(payload);
+      return;
     } catch (error) {
-        console.log("Error submitting order:", error);
-        toast.error("Error submitting order. Please try again.");
-        return
+      console.log("Error submitting order:", error);
+      toast.error("Error submitting order. Please try again.");
+      return
     }
   }
 
   console.log("orderFormData", orderFormData);
-  
+
   return (
     <div className="max-w-7xl mx-auto mt-15 py-10 px-5">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -101,8 +101,8 @@ const CheckoutPage = () => {
           <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
           <div className="space-y-4">
             <label htmlFor="fullName"
-                className='text-black text-md font-semibold'>
-                    Full Name
+              className='text-black text-md font-semibold'>
+              Full Name
             </label>
             <input
               type="text"
@@ -112,9 +112,9 @@ const CheckoutPage = () => {
               placeholder="Enter your Full Name"
               className="w-full border rounded-md px-4 py-2"
             />
-             <label htmlFor="email"
-                className='text-black text-md font-semibold'>
-                    Email
+            <label htmlFor="email"
+              className='text-black text-md font-semibold'>
+              Email
             </label>
             <input
               type="text"
@@ -125,8 +125,8 @@ const CheckoutPage = () => {
               className="w-full border rounded-md px-4 py-2"
             />
             <label htmlFor="Address"
-                className='text-black text-md font-semibold'>
-                    Address
+              className='text-black text-md font-semibold'>
+              Address
             </label>
             <input
               type="text"
@@ -136,38 +136,38 @@ const CheckoutPage = () => {
               placeholder="Enter your address"
               className="w-full border rounded-md px-4 py-2"
             />
-           <div className='grid grid-cols-2 gap-4'>
-            <div>
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
                 <label htmlFor="city" className='text-black text-md font-semibold'>
-                City
+                  City
                 </label>
                 <input
-                type="text"
-                name="city"
-                value={userDetails.city}
-                onChange={handleChange}
-                placeholder="Enter your City"
-                className="w-full border rounded-md px-4 py-2 mt-1"
+                  type="text"
+                  name="city"
+                  value={userDetails.city}
+                  onChange={handleChange}
+                  placeholder="Enter your City"
+                  className="w-full border rounded-md px-4 py-2 mt-1"
                 />
-            </div>
+              </div>
 
-            <div>
+              <div>
                 <label htmlFor="country" className='text-black text-md font-semibold'>
-                Country
+                  Country
                 </label>
                 <input
-                type="text"
-                name="country"
-                value={userDetails.country}
-                onChange={handleChange}
-                placeholder="Enter your Country"
-                className="w-full border rounded-md px-4 py-2 mt-1"
+                  type="text"
+                  name="country"
+                  value={userDetails.country}
+                  onChange={handleChange}
+                  placeholder="Enter your Country"
+                  className="w-full border rounded-md px-4 py-2 mt-1"
                 />
-            </div>
+              </div>
             </div>
             <label htmlFor="zipcode"
-                className='text-black text-md font-semibold'>
-                    Zip Code
+              className='text-black text-md font-semibold'>
+              Zip Code
             </label>
             <input
               type="text"
@@ -178,8 +178,8 @@ const CheckoutPage = () => {
               className="w-full border rounded-md px-4 py-2"
             />
             <label htmlFor="phone"
-                className='text-black text-md font-semibold'>
-                    Phone Number
+              className='text-black text-md font-semibold'>
+              Phone Number
             </label>
             <input
               type="text"
@@ -196,26 +196,41 @@ const CheckoutPage = () => {
         <div className=" grid-cols-2 p-6 rounded-xl shadow-sm">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
           <div className="flex flex-col mb-4">
-          {productInfo?.image?.[0] && (
-            <Image
-              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo.image[0]}`}
-              alt={productInfo?.name || "Product Image"}
-              width={200}
-              height={70}
-              unoptimized
-              className="w-118 h-70 object-cover rounded-md m-3"
-            />
-          )}
-        <div className="mt-4 ">
-            <h3 className="text-lg font-semibold">{productInfo?.name}</h3>
-            <p className="text-teal-600 text-lg font-semibold mt-2">
-              ${matchedBid?.price || productInfo?.price}
-            </p>
-            <p className="text-teal-600 text-lg font-semibold mb-2">
-              ${matchedBid?.inclPrice || productInfo?.inclPrice} incl.
-            </p>
-        </div>
-        </div>
+            {productInfo?.image?.[0] && (
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo.image[0]}`}
+                alt={productInfo?.name || "Product Image"}
+                width={200}
+                height={70}
+                unoptimized
+                className="w-118 h-70 object-contain rounded-md m-3"
+              />
+            )}
+            <div className="mt-4 ">
+              <h3 className="text-lg font-semibold">{productInfo?.name}</h3>
+              <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
+                <Image
+                  src={`/dirhamlogo.png`}
+                  alt="dirham"
+                  width={18}
+                  height={18}
+                  unoptimized
+                />
+                {matchedBid?.price || productInfo?.price}
+              </p>
+              <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
+                <Image
+                  src={`/dirhamlogo.png`}
+                  alt="dirham"
+                  width={18}
+                  height={18}
+                  unoptimized
+                />
+                {matchedBid?.inclPrice || productInfo?.inclPrice}
+                <span className="text-[12px] text-teal-600">incl.</span>
+              </p>
+            </div>
+          </div>
 
           <div className="mt-6 space-y-4">
             <button
@@ -234,11 +249,11 @@ const CheckoutPage = () => {
           </div>
           {/*add card modal*/}
           <Modal open={isCardModalOpen} onClose={() => setIsCardModalOpen(false)}>
-              <Box
-                className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                 >
-                <AddNewCardModal formData={orderFormData} />
-              </Box>
+            <Box
+              className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            >
+              <AddNewCardModal formData={orderFormData} />
+            </Box>
           </Modal>
         </div>
       </div>

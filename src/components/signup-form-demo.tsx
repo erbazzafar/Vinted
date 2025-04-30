@@ -12,6 +12,7 @@ import axios from "axios";
 import Cookies from "js-cookie"
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/firbaseConfig";
+import { toast } from "sonner";
 
 
 export default function SignupFormDemo() {
@@ -59,6 +60,9 @@ export default function SignupFormDemo() {
 
       router.push("/")
     } catch (error) {
+      if(error?.status === 409){
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      }
       console.log("SignUp failed", error);
     }
   };

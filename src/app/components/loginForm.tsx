@@ -50,14 +50,13 @@ export default function LoginFormDemo() {
       router.push("/")
 
     } catch (error) {
+      if (error.status === 401){
+        toast.error(error.response.data.message || "Login failed")
+      }
       console.log("Error while loggin in: ", error);
     }
     console.log("Form submitted");
   };
-
-  const handleSignUp = () => {
-    router.push('/signup')
-  }
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col items-center rounded-none md:rounded-2xl p-6 md:p-10 shadow-xl bg-white dark:bg-zinc-900 transition-all duration-300">

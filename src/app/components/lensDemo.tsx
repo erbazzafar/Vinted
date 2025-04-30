@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { px } from "framer-motion";
 
 interface Product {
   _id: string;
@@ -126,8 +127,15 @@ const ProductCard = ({ product }: { product: Product }) => {
 
         <p className="text-[12px] text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
         <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length - 1]?.name || "N/A"}</p>
-        <p className="mt-1 text-[12px] font-semibold text-teal-600">
-          ${product.inclPrice}{" "}
+        <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+          <Image
+            src={`/dirhamlogo.png`}
+            alt="dirham"
+            width={15}
+            height={15}
+            unoptimized
+          />
+          {product.inclPrice}
           <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>
@@ -162,20 +170,20 @@ const ProductList = () => {
 
   return (
     <div className="lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
-    {Array.isArray(products) && products.length > 0 ? (
-      <>
-        <h2 className="mt-5 text-3xl rounded-xl font-bold ">
-          Our Recent Products
-        </h2>
+      {Array.isArray(products) && products.length > 0 ? (
+        <>
+          <h2 className="mt-5 text-3xl rounded-xl font-bold ">
+            Our Recent Products
+          </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center mt-6">
-          {[...products].reverse().map((product, index) => (
-            <ProductCard key={product._id || index} product={product} />
-          ))}
-        </div>
-      </>
-    ) : null}
-  </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center mt-6">
+            {[...products].reverse().map((product, index) => (
+              <ProductCard key={product._id || index} product={product} />
+            ))}
+          </div>
+        </>
+      ) : null}
+    </div>
   );
 };
 

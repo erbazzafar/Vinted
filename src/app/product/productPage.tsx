@@ -26,31 +26,31 @@ const ProductPage = () => {
   const loggedInUser = Cookies.get("userId")
 
 
-  const {id: productId} = useParams()
+  const { id: productId } = useParams()
   console.log("product id: ", productId)
 
   useEffect(() => {
     const fetchingProduct = async () => {
       try {
-        if(!productId){
+        if (!productId) {
           toast.error("Product id not Found")
           return
         }
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
           {
-            headers:{
+            headers: {
               Authorization: `Bearer ${token}`
             }
           }
         )
-        if (response.status !== 200){
+        if (response.status !== 200) {
           toast.error("Error fetching the Product, please try later")
           return
         }
         console.log("Fetching product response: ", response);
         setGettingProduct(response.data.data)
 
-        
+
       } catch (error) {
         console.log("Error fetching that Product");
         return
@@ -81,7 +81,7 @@ const ProductPage = () => {
   };
 
   const handleBuyNow = () => {
-    if(!token) {
+    if (!token) {
       toast.error("Please login to buy the product")
       return
     }
@@ -90,7 +90,7 @@ const ProductPage = () => {
   };
 
   const handleChat = () => {
-    if(!token) {
+    if (!token) {
       toast.error("Please login to chat with the seller")
       return
     }
@@ -102,65 +102,68 @@ const ProductPage = () => {
 
   const handleBump = async () => {
     try {
-      if(!loggedInUser || !token){
+      if (!loggedInUser || !token) {
         return
       }
 
-      const bumpedState = !bump
-      const response = await axios.put (
+      const formData = new FormData()
+      formData.append('bump', 'true');
+      const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
-        {bump: bumpedState},
+        formData,
         {
           headers: {
-            Authorization: `Bearer ${token}` 
+            Authorization: `Bearer ${token}`
           }
         }
       )
 
-      if(response.status !== 200){
+      if (response.status !== 200) {
         toast.error("unable to hide the item")
         return
       }
 
-      setBump(bumpedState)
-      toast.success(bumpedState ? "Item Bumped" : "Bump Expire");
+      const wasBumped = response.data?.bump || true; // fallback to true if not returned
+      setBump(wasBumped);
+      toast.success(wasBumped ? "Item Bumped" : "Bump Expired");
     } catch (error) {
       console.log("Unable to hide the product Right Now", error)
       toast.error("Unable to hide the Item. Try again later")
       return
     }
   }
+
 
   const handleHide = async () => {
     try {
-      if(!loggedInUser || !token){
-        return
-      }
+      if (!loggedInUser || !token) return;
 
-      const hiddenState = !hidden
-      const response = await axios.put (
+      const formData = new FormData();
+      formData.append("hidden", (!hidden).toString());
+
+      const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
-        {hidden: hiddenState},
+        formData,
         {
           headers: {
-            Authorization: `Bearer ${token}` 
+            Authorization: `Bearer ${token}`
           }
         }
-      )
+      );
 
-      if(response.status !== 200){
-        toast.error("unable to hide the item")
-        return
+      if (response.status !== 200) {
+        toast.error("Unable to update item visibility");
+        return;
       }
 
-      setHidden(hiddenState)
-      toast.success(hiddenState ? "Item hidden" : "Item is now visible");
+      const wasHidden = response.data.data?.hidden;
+      setHidden(wasHidden);
+      toast.success(wasHidden ? "Item hidden" : "Item is now visible");
     } catch (error) {
-      console.log("Unable to hide the product Right Now", error)
-      toast.error("Unable to hide the Item. Try again later")
-      return
+      console.log("Unable to update product visibility", error);
+      toast.error("Unable to update item. Try again later");
     }
-  }
+  };
 
 
   return (
@@ -171,7 +174,7 @@ const ProductPage = () => {
           <div className="flex gap-6">
             {/* Thumbnail Images */}
             <div className="flex flex-col gap-4 relative">
-              {gettingProduct?.image?.slice(0,4)?.map((image: any, index: any) => (
+              {gettingProduct?.image?.slice(0, 4)?.map((image: any, index: any) => (
                 <div key={index} className="relative">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
@@ -179,9 +182,8 @@ const ProductPage = () => {
                     width={80}
                     height={80}
                     unoptimized
-                    className={`object-contain rounded-lg cursor-pointer border ${
-                      mainImage === image ? "border-teal-500" : "border-gray-300"
-                    }`}
+                    className={`object-contain rounded-lg cursor-pointer border ${mainImage === image ? "border-teal-500" : "border-gray-300"
+                      }`}
                     onClick={() => setMainImage(image)} // Change the mainImage on thumbnail click
                   />
                   {/* Plus Icon on 4th Thumbnail */}
@@ -251,7 +253,7 @@ const ProductPage = () => {
             </div>
 
             <p className="text-gray-600">{gettingProduct.description}</p>
-            
+
             <label className="text-md font-medium text-gray-600">Brand:</label>
             <span className="text-gray-600">   {gettingProduct?.brandId?.name || "None"}</span>
 
@@ -270,83 +272,98 @@ const ProductPage = () => {
             {/* Category Selector */}
             <div>
               <label className="text-md font-medium text-gray-600">Category:</label>
-              <span className=" text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length-1]?.name || "other"}</span>
+              <span className=" text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length - 1]?.name || "other"}</span>
             </div>
 
 
             <label className="text-md font-medium text-gray-600">Price:</label>
-            <p className="text-lg font-semibold text-teal-600">
-              ${gettingProduct?.price}
+            <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
+              <Image
+                src={`/dirhamlogo.png`}
+                alt="dirham"
+                width={18}
+                height={18}
+                unoptimized
+              />
+              {gettingProduct.price}
             </p>
 
             <label className="text-md font-medium text-gray-600">Price:</label>
-            <p className="text-2xl font-semibold text-teal-600">
-              ${gettingProduct?.inclPrice}
-              <span className="text-xs text-teal-600"> (incl. of tax)  </span> 
+            <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
+              <Image
+                src={`/dirhamlogo.png`}
+                alt="dirham"
+                width={18}
+                height={18}
+                unoptimized
+              />
+              {gettingProduct.inclPrice}
+              <span className="text-[10px] text-teal-600">incl.</span>
             </p>
 
             {/* Contact Seller Button */}
             {gettingProduct?.userId?._id === loggedInUser ? (
               <>
                 <button
-                className="text-lg mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                onClick={handleBump}
-              >
-                <span>{bump? "bumped" : "Bump"}</span>
-              </button>
+                  className="text-lg mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                  onClick={handleBump}
+                >
+                  <span>{bump ? "bumped" : "Bump"}</span>
+                </button>
 
-              <button
-                className="text-lg mt-2 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                onClick={handleHide}
-              >
-                 <span>{hidden ? "Unhide" : "Hide"}</span>
-              </button>
+
+                <button
+                  className="text-lg mt-2 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                  onClick={handleHide}
+                >
+                  <span>{hidden ? "Unhide" : "Hide"}</span>
+                </button>
+                
+                <SellerButton
+                  seller={{
+                    username: gettingProduct?.userId?.username,
+                    profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
+                    rating: gettingProduct?.userId?.rating,
+                    reviews: gettingProduct?.userId?.reviews,
+                  }}
+                  sellerId={gettingProduct?.userId?._id}
+                />
+              </>
+            ) : (
+              <>
+                <button
+                  className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                  onClick={handleBuyNow}
+                >
+                  <span>Buy Now</span>
+                </button>
+
+                <button
+                  className="text-xl mt-3 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                  onClick={handleChat}
+                >
+                  <span>Chat with Seller</span>
+                  <MessageCircle size={20} className="shrink-0" />
+                </button>
 
                 <SellerButton
-                seller={{
-                  username: gettingProduct?.userId?.username,
-                  profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
-                  rating: gettingProduct?.userId?.rating,
-                  reviews: gettingProduct?.userId?.reviews,
-                }}
-                sellerId={gettingProduct?.userId?._id}
-              />
-            </>
-            ) : (
-            <>
-              <button
-                className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                onClick={handleBuyNow}
-              >
-                <span>Buy Now</span>
-              </button>
-
-              <button
-                className="text-xl mt-3 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                onClick={handleChat}
-              >
-                <span>Chat with Seller</span>
-                <MessageCircle size={20} className="shrink-0" />
-              </button>
-
-              <SellerButton
-                seller={{
-                  username: gettingProduct?.userId?.username,
-                  profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
-                  rating: gettingProduct?.userId?.rating,
-                  reviews: gettingProduct?.userId?.reviews,
-                }}
-                sellerId={gettingProduct?.userId?._id}
-              />
-            </>
+                  seller={{
+                    username: gettingProduct?.userId?.username,
+                    profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
+                    rating: gettingProduct?.userId?.rating,
+                    reviews: gettingProduct?.userId?.reviews,
+                  }}
+                  sellerId={gettingProduct?.userId?._id}
+                />
+              </>
             )}
-            
+
           </div>
         </div>
       </div>
 
       <div className="mt-12">
-        <ProductCarousel/>
+        <ProductCarousel />
       </div>
     </div>
   );

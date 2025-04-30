@@ -38,10 +38,10 @@ const ProductCard = ({ product }: { product: any }) => {
 
   const handleWishList = async () => {
     if (!product._id) return;
-  
+
     // Optimistic UI update: set the new like state before API call
     setIsWishlisted(prevState => !prevState);
-  
+
     try {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/toggleLike`,
@@ -52,12 +52,12 @@ const ProductCard = ({ product }: { product: any }) => {
           },
         }
       );
-  
+
       if (response.status !== 200) {
         toast.error("Error adding to wishlist");
         return;
       }
-  
+
       // If successful, show success message and update the state accordingly
       toast.success(response.data.message);
     } catch (error) {
@@ -101,9 +101,8 @@ const ProductCard = ({ product }: { product: any }) => {
             {product?.name}
           </Link>
           <button
-            className={`mr-3 transition-colors cursor-pointer ${
-              isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
-            }`}
+            className={`mr-3 transition-colors cursor-pointer ${isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
+              }`}
             onClick={() => handleWishList()}
           >
             <Heart size={20} fill={isWishlisted ? "red" : "none"} />
@@ -112,9 +111,17 @@ const ProductCard = ({ product }: { product: any }) => {
 
         <div className="ml-2 flex items-center gap-1 mt-1">{getStarRating(product?.rating)}</div>
         <p className="ml-2 text-[12px] text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="ml-2 text-[12px] text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length-1]?.name ?? "N/A"}</p>
-        <p className="mt-1 ml-2 text-[12px] font-semibold text-teal-600">
-          ${product?.inclPrice} <span className="text-xs text-gray-400">incl.</span>
+        <p className="ml-2 text-[12px] text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length - 1]?.name ?? "N/A"}</p>
+        <p className="mt-1 ml-1.5 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+          <Image
+            src={`/dirhamlogo.png`}
+            alt="dirham"
+            width={15}
+            height={15}
+            unoptimized
+          />
+          {product.inclPrice}
+          <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>
     </div>
@@ -181,7 +188,7 @@ const ProductCarousel = () => {
         containerClass="carousel-container overflow-hidden"
         itemClass="p-2 gap-x-4"
       >
-        {products.slice(0,11).map((product, index) => (
+        {products.slice(0, 11).map((product, index) => (
           <ProductCard key={index} product={product} />
         ))}
       </Carousel>

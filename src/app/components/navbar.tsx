@@ -83,7 +83,7 @@ const Navbar = () => {
     const getNotifications = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/viewAll`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/viewAll?userId=${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`
