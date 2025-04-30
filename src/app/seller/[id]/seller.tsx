@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
+import { reauthenticateWithRedirect } from "firebase/auth";
 
 const SellerProfile = () => {
 
@@ -63,7 +64,7 @@ const SellerProfile = () => {
   useEffect(() => {
     const alreadyFollower = async () => {
       try {
-        if (!loggedInUserId || !token || !sellerId || loggedInUserId === sellerId){
+        if (!loggedInUserId || !token || !sellerId || loggedInUserId === sellerId) {
           return
         }
         const response = await axios.get(
@@ -114,7 +115,7 @@ const SellerProfile = () => {
         toast.success(updatedState ? "Followed successfully" : "Unfollowed successfully");
         return updatedState;
       });
-      
+
       getFollowerList()
 
     } catch (error) {
@@ -125,10 +126,6 @@ const SellerProfile = () => {
 
   const getFollowerList = async () => {
     try {
-      if (!token || !sellerId) {
-        toast.error("You should be log in to see the follower's list")
-        return
-      }
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/viewUser/${sellerId}`
       )
@@ -199,8 +196,8 @@ const SellerProfile = () => {
                 {!isOwnProfile ? (
                   <button
                     className={`px-8 md:px-12 py-2 rounded-lg transition cursor-pointer ${isFollowing
-                        ? "bg-gray-600 hover:bg-gray-500"
-                        : "bg-gray-800 hover:bg-gray-600"
+                      ? "bg-gray-600 hover:bg-gray-500"
+                      : "bg-gray-800 hover:bg-gray-600"
                       } text-white w-full md:w-auto`}
                     onClick={handleFollow}
                   >
@@ -247,12 +244,28 @@ const SellerProfile = () => {
                   <Rss size={20} />
                   <span>
                     <span
-                      onClick={() => setIsFollowerModalOpen(true)}
+                      onClick={() => {
+                        if (token){
+                          setIsFollowerModalOpen(true)
+                          return
+                        } else {
+                          toast.error("Login first to view the Follower's list")
+                          return
+                        }
+                      }}
                       className="text-blue-600 cursor-pointer">
-                      {followerList.length} followers
+                      {seller.follow.length} followers
                     </span>
-                    ,<span
-                      onClick={() => setIsFollowingModalOpen(true)}
+                    , <span
+                      onClick={() => {
+                        if (token) {
+                          setIsFollowingModalOpen(true)
+                          return
+                        } else{
+                          toast.error("Login first to view the following list")
+                          return
+                        }
+                      }}
                       className="cursor-pointer">
                       {Array.isArray(seller.following) ? seller.following.length : 0} following
                     </span>
@@ -273,10 +286,10 @@ const SellerProfile = () => {
                         <li key={index} className="border p-2 rounded shadow-sm">
                           <div className="flex items-center space-x-3">
                             <Image
-                              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user?.image}`|| "/default-avatar.png"} 
+                              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user?.image}` || "/default-avatar.png"}
                               alt="User"
                               width={10}
-                              height={10} 
+                              height={10}
                               className="w-10 h-10 rounded-full " />
                             <span className="font-medium">{user?.username || user?.fullName || "Unnamed User"}</span>
                           </div>
@@ -299,10 +312,10 @@ const SellerProfile = () => {
                         <li key={index} className="border p-2 rounded shadow-sm">
                           <div className="flex items-center space-x-3">
                             <Image
-                              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user?.image}`|| "/default-avatar.png"} 
+                              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user?.image}` || "/default-avatar.png"}
                               alt="User"
                               width={10}
-                              height={10} 
+                              height={10}
                               className="w-10 h-10 rounded-full " />
                             <span className="font-medium">{user?.username || user?.fullName || "Unnamed User"}</span>
                           </div>
