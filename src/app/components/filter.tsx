@@ -251,15 +251,19 @@ function Filter() {
   return (
     <div className="bg-white mt-15 w-[90%] m-auto sm:w-full lg:px-[50px] ">
       <div className="container mx-auto max-w-screen-2xl">
-        <div className="w-full h-[200px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl">
+        <div className="w-full h-[200px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl relative">
           <Image
-            src="/st.jpg"
+            src="/category-banner.webp"
             alt="Slider Image"
             width={1920}
             height={1080}
             unoptimized
             className="w-full h-full object-cover rounded-lg"
           />
+          <div className="absolute inset-0 bg-black opacity-70"></div>
+          <h1 className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 mx-auto w-fit items-center justify-center text-white text-[30px] sm:text-[40px] md:text-[40px] lg:text-[55px] font-bold text-center z-10 after:content-[''] after:block after:w-[100%] after:h-[3px] after:bg-gray-500 after:mt-2">
+            {categoryName}
+          </h1>
         </div>
 
         <h1 className="text-2xl font-bold my-6 py-4 border-b-4">
