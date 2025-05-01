@@ -266,9 +266,9 @@ function Filter() {
           <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 mx-auto w-fit items-center justify-center z-10 after:content-['']">
             <p className='text-white text-[30px] sm:text-[40px] md:text-[40px] lg:text-[55px] font-bold text-center after:block after:w-[100%] after:h-[3px] after:bg-gray-500 after:mt-2'>{hierarcy?.length === 0 ? categoryName : hierarcy?.[0]?.name}</p>
             <div className='flex gap-2 mt-[10px] text-[14px] justify-center text-gray-300'>
-              {hierarcy?.map((i: any) => {
+              {hierarcy?.map((i: any, index:number) => {
                 return (
-                  <p>{i?.name} /</p>
+                  <p key={index}>{i?.name} /</p>
                 )
               })}
               {hierarcy?.length > 0 && categoryName}
@@ -277,9 +277,9 @@ function Filter() {
         </div>
 
         <div className='flex gap-2 mt-[30px] text-[18px] font-[700]'>
-          {hierarcy?.map((i: any) => {
+          {hierarcy?.map((i: any, index:number) => {
             return (
-              <p>{i?.name} /</p>
+              <p key={index}>{i?.name} /</p>
             )
           })}
           {categoryName}
