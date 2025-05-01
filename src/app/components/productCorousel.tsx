@@ -176,7 +176,7 @@ const ProductCarousel = () => {
   }, []);
 
   return (
-    <div className="lg:px-[50px] px-1 py-10 max-w-screen-2xl mx-auto">
+    <div className="lg:px-[50px] px-1 max-w-screen-2xl mx-auto ">
       <Carousel
         responsive={responsive}
         infinite
@@ -186,7 +186,7 @@ const ProductCarousel = () => {
         arrows={false}
         customButtonGroup={<ButtonGroup />}
         containerClass="carousel-container overflow-hidden"
-        itemClass="p-2 gap-x-4"
+        itemClass="p-1 gap-x-4"
       >
         {products.slice(0, 11).map((product, index) => (
           <ProductCard key={index} product={product} />

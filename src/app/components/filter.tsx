@@ -253,7 +253,7 @@ function Filter() {
       <div className="container mx-auto max-w-screen-2xl">
         <div className="w-full h-[200px] sm:h-[500px] md:h-[550px] lg:h-[600px] overflow-hidden rounded-xl">
           <Image
-            src="/wallpaperflare.com_wallpaper (27).jpg"
+            src="/st.jpg"
             alt="Slider Image"
             width={1920}
             height={1080}

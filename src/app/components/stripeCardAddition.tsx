@@ -144,7 +144,7 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
                 <button
                     onClick={handleSubmitCard}
                     disabled={isLoading}
-                    className="w-full h-[48px] bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
+                    className="cursor-pointer w-full h-[48px] bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
                 >
                     {isLoading ? 'Processing...' : 'Place Order'}
                 </button>
@@ -153,7 +153,7 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
                     <div className="flex items-start gap-2">
                         <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                         <p className="text-xs text-gray-700">
-                            By confirming your subscription, you allow Affari Doro to charge you for future payments in accordance with their terms.
+                            By confirming your subscription, you allow Affare Doro to charge you for future payments in accordance with their terms.
                             You can always cancel your subscription.
                         </p>
                     </div>
