@@ -1,11 +1,12 @@
-import React from 'react'
-import BumpCheckOut from '../components/bumpCheckOut'
+import React, { Suspense } from 'react';
+import BumpCheckOut from '../components/bumpCheckOut';
 
 function BumpPage() {
-
     return (
-        <BumpCheckOut/>        
-    )
+        <Suspense fallback={<div>Loading...</div>}>
+            <BumpCheckOut />
+        </Suspense>
+    );
 }
 
-export default BumpPage
+export default BumpPage;

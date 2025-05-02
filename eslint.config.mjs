@@ -27,6 +27,7 @@ const eslintConfig = [
       // Disable React Hooks rules
       "react-hooks/exhaustive-deps": "off",
       "react-hooks/rules-of-hooks": "off",
+      'react/no-unescaped-entities': 'off',
     },
   },
 ];

@@ -1,264 +1,169 @@
-import React from 'react';
+'use client';
+import { motion } from 'framer-motion';
+import {
+    Shirt,
+    Truck,
+    Wallet,
+    ShoppingBag,
+    Heart,
+    BadgeEuro,
+    Send,
+    ShieldCheck,
+    Undo2,
+    Store,
+    PackageCheck,
+} from 'lucide-react';
+import Link from 'next/link';
 
-import { ArrowRight, Box, Camera, CheckCircle, Share, ShoppingCart, Star, Tags, Truck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+export default function HowItWorks() {
+    const colors = {
+        vintedGreen: '#1DBF73',
+        vintedPurple: '#9B4DFF',
+        vintedPink: '#FF4D73',
+        vintedBlue: '#2D9CDB',
+        vintedBeige: '#F5F5F5',
+    };
 
-const HowItWorks = () => {
-  return (
-    <div className="w-full font-vinted">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-vinted-light-green to-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            How <span className="text-vinted-green">Vinted</span> Works
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Join millions of people buying and selling pre-loved fashion in our community.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button className="bg-vinted-green hover:bg-vinted-dark-green text-white px-8 py-6 rounded-full text-lg">
-              Start Selling
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button variant="outline" className="border-vinted-green text-vinted-green hover:bg-vinted-green/5 px-8 py-6 rounded-full text-lg">
-              Start Shopping
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
+    const sellingSteps = [
+        {
+            icon: <Shirt size={36} className="text-[colors.vintedGreen]" />,
+            title: 'List Your Item',
+            description: 'Upload photos, write a detailed description, and set your own price.',
+        },
+        {
+            icon: <Store size={36} className="text-[colors.vintedPurple]" />,
+            title: 'Manage Listings',
+            description: 'Organize your items, edit prices, and mark items as sold.',
+        },
+        {
+            icon: <PackageCheck size={36} className="text-[colors.vintedPink]" />,
+            title: 'Sell & Ship',
+            description: 'Once sold, use our prepaid label and ship the item easily.',
+        },
+        {
+            icon: <Wallet size={36} className="text-[colors.vintedBlue]" />,
+            title: 'Get Paid',
+            description: 'Receive payments securely after buyer confirmation.',
+        },
+    ];
 
-      {/* Steps Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">Selling is simple</h2>
-          <p className="text-center text-gray-700 max-w-3xl mx-auto mb-16">
-            List your items in minutes and start selling to our community of over 50 million people.
-          </p>
+    const buyingSteps = [
+        {
+            icon: <ShoppingBag size={36} className="text-[colors.vintedGreen]" />,
+            title: 'Explore',
+            description: 'Browse thousands of items from verified sellers.',
+        },
+        {
+            icon: <Heart size={36} className="text-[colors.vintedPink]" />,
+            title: 'Save Favorites',
+            description: 'Shortlist your favorite items to view or buy later.',
+        },
+        {
+            icon: <BadgeEuro size={36} className="text-[colors.vintedPurple]" />,
+            title: 'Checkout',
+            description: 'Pay securely using Vinted’s protected checkout system.',
+        },
+        {
+            icon: <ShieldCheck size={36} className="text-[colors.vintedBlue]" />,
+            title: 'Buy with Confidence',
+            description: 'Buy knowing your money is protected until item delivery.',
+        },
+    ];
 
-          <div className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-8 md:space-y-0 md:space-x-4">
-            <div className="step-item">
-              <div className="step-circle animate-float">
-                <Camera className="h-10 w-10 text-vinted-green" />
-              </div>
-              <h3 className="mt-4 text-xl font-medium">Upload</h3>
-              <p className="mt-2 text-gray-600 text-center">Take photos and create your listing</p>
-            </div>
-            
-            <div className="step-item">
-              <div className="step-circle animate-float" style={{ animationDelay: "1s" }}>
-                <Tags className="h-10 w-10 text-vinted-green" />
-              </div>
-              <h3 className="mt-4 text-xl font-medium">Sell</h3>
-              <p className="mt-2 text-gray-600 text-center">Set your price and wait for offers</p>
-            </div>
-            
-            <div className="step-item">
-              <div className="step-circle animate-float" style={{ animationDelay: "2s" }}>
-                <Box className="h-10 w-10 text-vinted-green" />
-              </div>
-              <h3 className="mt-4 text-xl font-medium">Ship</h3>
-              <p className="mt-2 text-gray-600 text-center">Package and send your items</p>
-            </div>
-            
-            <div className="step-item">
-              <div className="step-circle animate-float" style={{ animationDelay: "3s" }}>
-                <CheckCircle className="h-10 w-10 text-vinted-green" />
-              </div>
-              <h3 className="mt-4 text-xl font-medium">Get Paid</h3>
-              <p className="mt-2 text-gray-600 text-center">Receive your payment securely</p>
-            </div>
-          </div>
-          
-          <div className="text-center mt-12">
-            <Button className="bg-vinted-green hover:bg-vinted-dark-green text-white px-8 py-6 rounded-full text-lg">
-              Start Selling Now
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
+    const shippingSteps = [
+        {
+            icon: <Send size={36} className="text-[colors.vintedPink]" />,
+            title: 'Shipping Made Easy',
+            description: 'Use pre-paid labels, just print and ship from nearby drop-offs.',
+        },
+        {
+            icon: <Truck size={36} className="text-[colors.vintedGreen]" />,
+            title: 'Track Your Package',
+            description: 'Follow your item every step of the way with real-time tracking.',
+        },
+    ];
 
-      {/* Shopping Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-vinted-beige">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">Shopping is easy</h2>
-          <p className="text-center text-gray-700 max-w-3xl mx-auto mb-16">
-            Find unique pieces at great prices directly from sellers.
-          </p>
+    const refundSteps = [
+        {
+            icon: <Undo2 size={36} className="text-[colors.vintedPurple]" />,
+            title: 'Refund Eligibility',
+            description: 'Request refunds if item is not as described or never arrives.',
+        },
+        {
+            icon: <Truck size={36} className="text-[colors.vintedBlue]" />,
+            title: 'Easy Returns',
+            description: 'Return process guided by our support team for hassle-free experience.',
+        },
+    ];
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
-              <div className="w-16 h-16 bg-vinted-light-green rounded-full flex items-center justify-center mx-auto mb-6">
-                <ShoppingCart className="h-8 w-8 text-vinted-green" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Browse & Buy</h3>
-              <p className="text-gray-600">Find your favorite brands or discover new ones from our community.</p>
+    const renderSection = (title, steps, color) => (
+        <section className="mb-16">
+            <h2 className={`text-3xl font-bold mb-8 text-center`} style={{ color: colors[color] }}>
+                {title}
+            </h2>
+            <div className=" grid gap-8 sm:grid-cols-2 lg:grid-cols-4 ">
+                {steps.map((step, index) => (
+                    <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="bg-white p-6 rounded-xl shadow-lg border group hover:shadow-xl transition duration-300 text-center relative"
+                    >
+                        <div
+                            className={`absolute inset-0 bg-gradient-to-r from-[colors.vintedGreen] to-[colors.vintedBlue] opacity-20 rounded-xl group-hover:opacity-30 transition duration-300`}
+                        ></div>
+                        <div className="relative z-10 mb-4">{step.icon}</div>
+                        <h4 className="text-xl font-semibold text-gray-800 group-hover:text-[colors.vintedPink] transition-colors duration-300">{step.title}</h4>
+                        <p className="text-gray-600 mt-2 group-hover:text-[colors.vintedBlue] transition-colors duration-300">{step.description}</p>
+                    </motion.div>
+                ))}
             </div>
-            
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
-              <div className="w-16 h-16 bg-vinted-light-green rounded-full flex items-center justify-center mx-auto mb-6">
-                <Truck className="h-8 w-8 text-vinted-green" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Fast Delivery</h3>
-              <p className="text-gray-600">Get your new treasures delivered safely and quickly to your door.</p>
-            </div>
-            
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
-              <div className="w-16 h-16 bg-vinted-light-green rounded-full flex items-center justify-center mx-auto mb-6">
-                <Star className="h-8 w-8 text-vinted-green" />
-              </div>
-              <h3 className="text-xl font-semibold mb-3">Rate & Review</h3>
-              <p className="text-gray-600">Let others know about your experience with sellers and items.</p>
-            </div>
-          </div>
-          
-          <div className="text-center mt-12">
-            <Button className="bg-vinted-green hover:bg-vinted-dark-green text-white px-8 py-6 rounded-full text-lg">
-              Start Shopping Now
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
+    );
 
-      {/* Benefits Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">Why choose Vinted?</h2>
-          
-          <div className="grid md:grid-cols-2 gap-12 mt-12">
-            <div className="rounded-2xl bg-gradient-to-br from-vinted-light-green to-white p-6 md:p-10">
-              <h3 className="text-2xl font-semibold mb-4">For sellers</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-green mr-3 flex-shrink-0 mt-0.5" />
-                  <span>It's <strong>free to list</strong> items - no upfront fees</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-green mr-3 flex-shrink-0 mt-0.5" />
-                  <span>Reach <strong>millions of buyers</strong> across the globe</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-green mr-3 flex-shrink-0 mt-0.5" />
-                  <span><strong>Secure payments</strong> processed through our platform</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-green mr-3 flex-shrink-0 mt-0.5" />
-                  <span><strong>Easy shipping</strong> with pre-paid labels</span>
-                </li>
-              </ul>
-              <Button className="mt-8 bg-vinted-green hover:bg-vinted-dark-green text-white px-6 py-2 rounded-full">
-                Start Selling
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-            
-            <div className="rounded-2xl bg-gradient-to-br from-vinted-beige to-white p-6 md:p-10">
-              <h3 className="text-2xl font-semibold mb-4">For buyers</h3>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-orange mr-3 flex-shrink-0 mt-0.5" />
-                  <span>Find <strong>unique items</strong> and your favorite brands</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-orange mr-3 flex-shrink-0 mt-0.5" />
-                  <span>Save <strong>up to 70%</strong> off retail prices</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-orange mr-3 flex-shrink-0 mt-0.5" />
-                  <span><strong>Buyer protection</strong> on every purchase</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-6 w-6 text-vinted-orange mr-3 flex-shrink-0 mt-0.5" />
-                  <span><strong>Shop sustainably</strong> and reduce fashion waste</span>
-                </li>
-              </ul>
-              <Button className="mt-8 bg-vinted-orange hover:bg-vinted-orange/80 text-white px-6 py-2 rounded-full">
-                Start Shopping
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+    return (
+        <main style={{ backgroundColor: colors.vintedBeige }} className="min-h-screen text-gray-600 px-4 py-10 sm:px-6 lg:px-24">
+            {/* Catchy Phrase Section */}
+            <section className="bg-gray-700 p-12 rounded-xl mb-16">
+                <motion.h1
+                    initial={{ opacity: 0, y: -30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-5xl sm:text-6xl font-bold text-white text-center mb-8"
+                >
+                    Discover, Buy, and Sell with Confidence
+                </motion.h1>
+                <p className="text-lg sm:text-xl text-white text-center max-w-2xl mx-auto">
+                    Join our platform to buy and sell amazing items with ease. Whether you're looking for unique fashion, gadgets, or collectibles,
+                    our secure system ensures a smooth transaction every time.
+                </p>
+            </section>
 
-      {/* Community Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-vinted-light-green">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Join our community</h2>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Over 50 million people are already buying and selling on Vinted.
-          </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-4xl font-bold text-vinted-green mb-2">50M+</h3>
-              <p className="text-gray-600">Community members</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-4xl font-bold text-vinted-green mb-2">300M+</h3>
-              <p className="text-gray-600">Items for sale</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-4xl font-bold text-vinted-green mb-2">15+</h3>
-              <p className="text-gray-600">Countries worldwide</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-4xl font-bold text-vinted-green mb-2">4.8/5</h3>
-              <p className="text-gray-600">Average rating</p>
-            </div>
-          </div>
-          
-          <div className="flex justify-center space-x-6">
-            <Button className="bg-vinted-green hover:bg-vinted-dark-green text-white px-8 py-6 rounded-full text-lg">
-              Download the App
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button className="bg-white text-vinted-green hover:bg-gray-50 border border-vinted-green px-8 py-6 rounded-full text-lg">
-              Share with Friends
-              <Share className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to get started?</h2>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Join the circular fashion movement today and be part of the solution.
-          </p>
-          
-          <div className="bg-gradient-to-r from-vinted-green to-vinted-dark-green p-1 rounded-2xl">
-            <div className="bg-white rounded-2xl p-8 md:p-12">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="text-center md:text-left">
-                  <h3 className="text-2xl font-semibold mb-4">Sell your unused items</h3>
-                  <p className="text-gray-600 mb-6">Clear your closet and make money from clothes you no longer wear.</p>
-                  <Button className="bg-vinted-green hover:bg-vinted-dark-green text-white px-6 py-2 rounded-full">
+            {renderSection('Selling on Affare Doro', sellingSteps, 'vintedGreen')}
+            <div className="text-center mb-16">
+                <Link
+                    href="/sell"
+                    className="rounded-md inline-block mt-4 px-6 py-3 text-white group group hover:bg-[colors.vintedGreen] transition-colors duration-300"
+                    style={{ backgroundColor: colors.vintedPurple }}
+                >
                     Start Selling
-                  </Button>
-                </div>
-                
-                <div className="text-center md:text-left">
-                  <h3 className="text-2xl font-semibold mb-4">Find unique pieces</h3>
-                  <p className="text-gray-600 mb-6">Discover second-hand treasures at affordable prices.</p>
-                  <Button className="bg-vinted-orange hover:bg-vinted-orange/80 text-white px-6 py-2 rounded-full">
-                    Start Shopping
-                  </Button>
-                </div>
-              </div>
+                </Link>
             </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-};
 
-export default HowItWorks;
+            {renderSection('Buying on Affare Doro', buyingSteps, 'vintedPink')}
+            <div className="text-center mb-16">
+                <Link
+                    href="/"
+                    className="rounded-md inline-block mt-4 px-6 py-3 text-white group hover:bg-[colors.vintedPink] transition-colors duration-300"
+                    style={{ backgroundColor: colors.vintedBlue }}
+                >
+                    Start Shopping
+                </Link>
+            </div>
+
+            {renderSection('Shipping Process', shippingSteps, 'vintedBlue')}
+            {renderSection('Refunds & Returns', refundSteps, 'vintedPurple')}
+        </main>
+    );
+}
