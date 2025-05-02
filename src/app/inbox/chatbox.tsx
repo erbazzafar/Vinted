@@ -239,7 +239,7 @@ const Chatbox = () => {
 
 
   return (
-    <div className="flex w-full max-w-6xl mx-auto bg-red-600 border rounded-xl shadow-md mt-10 h-[600px]">
+    <div className="flex w-full max-w-6xl mx-auto border rounded-xl shadow-md mt-10 h-[600px]">
       {/* Sidebar */}
       <div
         className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${isMobileChatOpen ? "hidden" : "block"
