@@ -6,14 +6,13 @@ import axios from "axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import Image from "next/image";
-import { px } from "framer-motion";
 
 interface Product {
   _id: string;
   name: string;
   image: string[];
   price: number;
-  inclPrice: number;
+  totalPrice: number;
   rating: number;
   sizeId?: { name: string };
   categoryId?: { name: string }[];
@@ -135,7 +134,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             height={15}
             unoptimized
           />
-          {product.inclPrice}
+          {product.totalPrice}
           <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>

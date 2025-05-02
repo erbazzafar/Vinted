@@ -13,17 +13,17 @@ import Cookies from "js-cookie";
 import SellerButton from "../components/routeSellerButton";
 import ProductCarousel from "../components/productCorousel";
 
-
 const ProductPage = () => {
   const [showCarousel, setShowCarousel] = useState(false);
   const [gettingProduct, setGettingProduct] = useState<any>("")
   const router = useRouter();
 
   const [hidden, setHidden] = useState(false)
-  const [bump, setBump] = useState(false)
 
   const token = Cookies.get("token")
   const loggedInUser = Cookies.get("userId")
+  const [bump, setBump] = useState(false);
+  const [bumpDayCheck, setBumpDayCheck] = useState(0)
 
 
   const { id: productId } = useParams()
@@ -49,6 +49,9 @@ const ProductPage = () => {
         }
         console.log("Fetching product response: ", response);
         setGettingProduct(response.data.data)
+        setBump(response.data.data.bump)
+        setBumpDayCheck(response.data.data.bumpDay)
+        setHidden(response.data.data.hidden)
 
 
       } catch (error) {
@@ -100,72 +103,54 @@ const ProductPage = () => {
     router.push(`/inbox/${gettingProduct?._id}?id=${gettingProduct?._id}`);
   };
 
-  const [isBumpModalOpen, setIsBumpModalOpen] = useState(false)
-  const [bumpPrices, setBumpPrices] = useState("")
-  
-  useEffect( () => {
+  const [isBumpModalOpen, setIsBumpModalOpen] = useState(false);
+  const [bumpDays, setBumpDays] = useState<Array<{ _id: string; day: string; percentage: string }>>([]);
+  const [selectedBumpDays, setSelectedBumpDays] = useState<{ _id: string; day: string; percentage: string } | null>(null);
+
+  useEffect(() => {
     const getBump = async () => {
       try {
-        if (!productId){
-          toast.error("Product not Found")
-          return
+        if (!productId) {
+          toast.error("Product not Found");
+          return;
         }
-        const response = await axios.get (
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/bump/viewAll`
-        )
+
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/bump/viewAll`);
+
         if (response.status !== 200) {
-          toast.error("Error fetching the bump prices")
-          return
+          toast.error("Error fetching the bump prices");
+          return;
         }
+
+        setBumpDays(response.data.data);
       } catch (error) {
         console.log("Error fetching the Bump Prices", error);
-        toast.error("Error fetching the Bump Prices")
-        return
+        toast.error("Error fetching the Bump Prices");
       }
-    }
-    getBump()
-  }, [productId])
+    };
 
-  const handleBump = async () => {
-    try {
-      if (!loggedInUser || !token) {
-        return
-      }
+    getBump();
+  }, [productId, token, loggedInUser]);
 
-      const formData = new FormData()
-      formData.append('bump', 'true');
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
-
-      if (response.status !== 200) {
-        toast.error("unable to hide the item")
-        return
-      }
-
-      const wasBumped = response.data?.bump || true; // fallback to true if not returned
-      setBump(wasBumped);
-      toast.success(wasBumped ? "Item Bumped" : "Bump Expired");
-    } catch (error) {
-      console.log("Unable to hide the product Right Now", error)
-      toast.error("Unable to hide the Item. Try again later")
-      return
-    }
-  }
+  const handleBump = async (selectedDays: string) => {
+    localStorage.setItem("bumpDays", selectedDays)
+    localStorage.setItem("percentage", selectedBumpDays.percentage)
+    router.push(`/bump?id=${productId}`)
+  };
 
 
   const handleHide = async () => {
     try {
-      if (!loggedInUser || !token) return;
+      if (!loggedInUser || !token || !productId) {
+        toast.error("Missing user credentials or product ID");
+        return;
+      }
+
+      // Use the *intended* new value before calling API
+      const newHiddenValue = !hidden;
 
       const formData = new FormData();
-      formData.append("hidden", (!hidden).toString());
+      formData.append("hidden", newHiddenValue.toString());
 
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
@@ -177,17 +162,18 @@ const ProductPage = () => {
         }
       );
 
-      if (response.status !== 200) {
-        toast.error("Unable to update item visibility");
+      if (response.status !== 200 || !response.data?.data) {
+        toast.error("Failed to update visibility");
         return;
       }
 
-      const wasHidden = response.data.data?.hidden;
-      setHidden(wasHidden);
-      toast.success(wasHidden ? "Item hidden" : "Item is now visible");
+      const updatedHidden = response.data.data.hidden;
+      setHidden(updatedHidden);
+
+      toast.success(updatedHidden ? "Item hidden" : "Item is now visible");
     } catch (error) {
-      console.log("Unable to update product visibility", error);
-      toast.error("Unable to update item. Try again later");
+      console.error("Error updating product visibility:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -268,78 +254,129 @@ const ProductPage = () => {
 
           {/* Right: Product Details */}
           <div className="bg-white space-y-1 px-6 md:px-0">
-            <h1 className="text-xl md:text-3xl font-bold text-gray-800">
-              {gettingProduct.name}
-            </h1>
+            <div className=" border-b border-gray-200 pb-3">
+              <h1 className="text-[14px] md:text-[14px] font-bold text-gray-800">
+                {gettingProduct.name}
+              </h1>
 
-            <div className="flex items-center space-x-2">
-              {getStarRating(gettingProduct.ratings)}
-              <span className="text-gray-500 text-sm">{gettingProduct.ratings}  (Reviews)</span>
+              <div className="flex items-center space-x-2 mt-1">
+                {getStarRating(gettingProduct.ratings)}
+                <span className="text-[12px] text-gray-500">{gettingProduct.ratings} (Reviews)</span>
+              </div>
+              <p className="text-[12px] text-gray-600">{gettingProduct.description}</p>
             </div>
 
-            <p className="text-gray-600">{gettingProduct.description}</p>
+            {/* === Set 2: Description, Brand, Size, Color, Category === */}
+            <div className=" border-b border-gray-200 pb-2">
 
-            <label className="text-md font-medium text-gray-600">Brand:</label>
-            <span className="text-gray-600">   {gettingProduct?.brandId?.name || "None"}</span>
+              <div>
+                <label className="text-[13px] font-medium text-gray-600">Brand:</label>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "None"}</span>
+              </div>
 
-            <div>
-              <label className="text-md font-medium text-gray-600">Size:</label>
-              <span className="text-gray-600">   {gettingProduct?.sizeId?.name || "N/A"}</span>
+              <div>
+                <label className="text-[13px] font-medium text-gray-600">Size:</label>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "N/A"}</span>
+              </div>
+
+              <div>
+                <label className="text-[13px] font-medium text-gray-600">Color:</label>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0].name || "N/A"}</span>
+              </div>
+
+              <div>
+                <label className="text-[13px] font-medium text-gray-600">Category:</label>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.categoryId?.[gettingProduct?.categoryId.length - 1]?.name || "Other"}</span>
+              </div>
             </div>
 
-            <div>
-              <label className="text-md font-medium text-gray-600">Color:</label>
-              <span className="text-gray-600">   {gettingProduct?.colorId?.[0].name || "N/A"}</span>
+            {/* === Set 3: Pricing Section === */}
+            <div className="space-y-2">
+              {/* Product Price */}
+              <div className="flex items-center gap-2">
+                <label className="text-[14px] font-medium text-gray-600">Product Price:</label>
+                <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
+                  <Image 
+                    src="/dirhamlogo.png" 
+                    alt="dirham" 
+                    width={15} 
+                    height={15} 
+                    unoptimized />
+                  <span>{gettingProduct.price}</span>
+                </div>
+              </div>
+
+              {/* Shipping Cost */}
+              <div className="flex items-center gap-2">
+                <label className="text-[14px] font-medium text-gray-600">Shipping Cost:</label>
+                <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
+                  <Image 
+                    src="/dirhamlogo.png" 
+                    alt="dirham" 
+                    width={15} 
+                    height={15} 
+                    unoptimized />
+                  <span>{gettingProduct.shipPrice}</span>
+                </div>
+              </div>
+
+              {/* Protection Fee */}
+              <div className="flex items-center gap-2">
+                <label className="text-[14px] font-medium text-gray-600">Protection Fee:</label>
+                <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
+                  <Image 
+                    src="/dirhamlogo.png" 
+                    alt="dirham" 
+                    width={15} 
+                    height={15} 
+                    unoptimized />
+                  <span>{gettingProduct.inclPrice}</span>
+                </div>
+              </div>
+
+              {/* Total Price */}
+              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-300">
+                <label className="text-[16px] font-bold text-gray-700">Total Price:</label>
+                <div className="flex items-center gap-1 text-[18px] font-bold text-green-700">
+                  <Image 
+                    src="/dirhamlogo.png" 
+                    alt="dirham" 
+                    width={17} 
+                    height={17} 
+                    unoptimized />
+                  <span>{gettingProduct.totalPrice}</span>
+                </div>
+              </div>
             </div>
-
-            <div>
-              <label className="text-md font-medium text-gray-600">Category:</label>
-              <span className="text-gray-600">   {gettingProduct?.categoryId?.[gettingProduct?.categoryId.length - 1]?.name || "other"}</span>
-            </div>
-
-            <label className="text-md font-medium text-gray-600">Price:</label>
-            <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
-              <Image
-                src={`/dirhamlogo.png`}
-                alt="dirham"
-                width={18}
-                height={18}
-                unoptimized
-              />
-              {gettingProduct.price}
-            </p>
-
-            <label className="text-md font-medium text-gray-600">Price:</label>
-            <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
-              <Image
-                src={`/dirhamlogo.png`}
-                alt="dirham"
-                width={18}
-                height={18}
-                unoptimized
-              />
-              {gettingProduct.inclPrice}
-              <span className="text-[10px] text-teal-600">incl.</span>
-            </p>
 
             {/* Contact Seller Button */}
             {gettingProduct?.userId?._id === loggedInUser ? (
               <>
                 <button
-                  className="text-lg mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                  onClick={handleBump}
-                >
-                  <span>{bump ? "bumped" : "Bump"}</span>
-                </button>
+                  className={`text-lg mt-4 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition
+                    ${bump && bumpDayCheck > 0 ? "bg-gray-300 text-green-600 cursor-not-allowed" : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer"}
+  `               }
+                  disabled={bump && bumpDayCheck > 0}
+                  onClick={() => {
+                    if (bump && bumpDayCheck > 0) return; // already bumped, do nothing
 
+                    if (token) {
+                      setIsBumpModalOpen(true);
+                    } else {
+                      toast.error("Login first to Bump product");
+                    }
+                  }}
+                >
+                  <span>{bump && bumpDayCheck > 0 ? "Bumped ✅" : "Bump"}</span>
+                </button>
 
                 <button
                   className="text-lg mt-2 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
                   onClick={handleHide}
                 >
-                  <span>{hidden ? "Unhide" : "Hide"}</span>
+                  <span>{hidden ? "Unhide Product" : "Hide"}</span>
                 </button>
-                
+
                 <SellerButton
                   seller={{
                     username: gettingProduct?.userId?.username,
@@ -350,12 +387,72 @@ const ProductPage = () => {
                   sellerId={gettingProduct?.userId?._id}
                 />
 
-                {/*Following Modal*/}
-              <Modal open={isBumpModalOpen} onClose={() => setIsBumpModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-128 max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  
-                </Box>
-              </Modal>
+                {/*Bump Modal*/}
+                <Modal open={isBumpModalOpen} onClose={() => setIsBumpModalOpen(false)}>
+                  <Box className="bg-white p-6 rounded-lg shadow-lg w-full max-w-[500px] max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <h2 className="text-[13px] font-semibold mb-4">Select how many days you want to bump your product</h2>
+
+                    {/* Horizontal bump day options */}
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                      {Array.isArray(bumpDays) &&
+                        bumpDays.map((option) => {
+                          const isSelected = selectedBumpDays?.day === option.day;
+                          const bumpPrice = ((Number(option.percentage) / 100) * Number(gettingProduct?.price || 0)).toFixed(2);
+
+                          return (
+                            <button
+                              key={option._id}
+                              className={`cursor-pointer min-w-[140px] flex items-center justify-center gap-2 text-[13px] px-3 py-2 rounded-lg border whitespace-nowrap transition-colors duration-200 ${isSelected
+                                ? 'bg-gray-800 text-white border-gray-900'
+                                : 'bg-gray-100 text-black border-gray-300'
+                                }`}
+                              onClick={() => setSelectedBumpDays(option)}
+                            >
+                              {option.day} days  –
+                              <div className="flex items-center gap-1">
+                                <Image
+                                  src="/dirhamlogo.png"
+                                  alt="dirham"
+                                  height={15}
+                                  width={15}
+                                />
+                                <span>{bumpPrice}</span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="mt-6 flex justify-end gap-4">
+                      <button
+                        className="cursor-pointer bg-gray-300 text-[13px] text-black px-4 py-2 rounded hover:bg-gray-400"
+                        onClick={() => setIsBumpModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        disabled={bump || !selectedBumpDays}
+                        className={`cursor-pointer text-[13px] px-4 py-2 rounded ${bump
+                          ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                          }`}
+                        onClick={async () => {
+                          if (bump) {
+                            toast.error("This product is already bumped");
+                            return;
+                          }
+
+                          await handleBump(selectedBumpDays.day);
+                          setIsBumpModalOpen(false);
+                        }}
+                      >
+                        {bump ? "Already Bumped" : "Confirm Bump"}
+                      </button>
+                    </div>
+                  </Box>
+                </Modal>
               </>
             ) : (
               <>

@@ -73,7 +73,7 @@ const Chatbox = () => {
 
   const getChatFunc = async (firstChat: any, updateNewChat: Boolean) => {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/viewAll?userId=${firstChat?.userId?._id}&adminUser=${firstChat?.adminUser?._id}&productId=["${firstChat?.productId?.[0]?._id}"]`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/viewAll2?userId=${firstChat?.userId?._id}&adminUser=${firstChat?.adminUser?._id}&productId=["${firstChat?.productId?.[0]?._id}"]`
     )
     if (response.status !== 200) {
       toast.error("Error in fetching the Chat")
@@ -239,7 +239,7 @@ const Chatbox = () => {
 
 
   return (
-    <div className="flex w-full max-w-6xl mx-auto bg-white border rounded-xl shadow-md mt-10">
+    <div className="flex w-full max-w-6xl mx-auto bg-red-600 border rounded-xl shadow-md mt-10 h-[600px]">
       {/* Sidebar */}
       <div
         className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${isMobileChatOpen ? "hidden" : "block"
@@ -290,7 +290,7 @@ const Chatbox = () => {
                       alt="Product"
                       width={40}
                       height={40}
-                      className=" object-cover"
+                      className=" object-contain"
                     />
                   </div>
                 ))}
@@ -302,7 +302,7 @@ const Chatbox = () => {
 
       {/* Chatbox */}
       <div
-        className={`w-full  md:w-3/4 relative ${isMobileChatOpen ? "block" : "hidden"
+        className={`w-full md:w-3/4 relative ${isMobileChatOpen ? "block" : "hidden"
           } md:block`}
       >
         <button
@@ -373,8 +373,8 @@ const Chatbox = () => {
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
               const senderImage = isSentByCurrentUser
-                ? (msg?.userId?.image ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId.image}` : `/imageLogo2.jpg`)
-                : (msg?.adminUser?.image ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : `/imageLogo2.jpg`);
+                ? (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId.image}` : msg?.userId?.image || `/imageLogo2.jpg`)
+                : (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`);
 
 
               return (

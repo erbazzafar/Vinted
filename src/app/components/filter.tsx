@@ -291,7 +291,7 @@ function Filter() {
               <li key={cat._id}>
                 <button
                   onClick={() => { handleCategoryClick(cat._id); setSelectedName(cat?.name) }}
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 hover:underline cursor-pointer"
                 >
                   {cat.name}
                 </button>

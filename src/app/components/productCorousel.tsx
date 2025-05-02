@@ -120,7 +120,7 @@ const ProductCard = ({ product }: { product: any }) => {
             height={15}
             unoptimized
           />
-          {product.inclPrice}
+          {product.totalPrice}
           <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>
@@ -152,26 +152,24 @@ const ButtonGroup = ({ next, previous }: any) => {
 // Product Carousel Component
 const ProductCarousel = () => {
   const [products, setProducts] = useState([]);
+  const getSellerProducts = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/getRecomend`
+      );
 
-  useEffect(() => {
-    const getSellerProducts = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/getRecomend`
-        );
-
-        if (response.status !== 200) {
-          toast.error("Cannot find any products");
-          return;
-        }
-
-        setProducts(response.data.data);
-      } catch (error) {
-        toast.error("Error fetching the products");
-        console.error("Error fetching the products", error);
+      if (response.status !== 200) {
+        toast.error("Cannot find any products");
+        return;
       }
-    };
 
+      setProducts(response.data.data);
+    } catch (error) {
+      toast.error("Error fetching the products");
+      console.error("Error fetching the products", error);
+    }
+  };
+  useEffect(() => {
     getSellerProducts();
   }, []);
 

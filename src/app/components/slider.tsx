@@ -9,6 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 export function ImagesSliderDemo() {
   // For demonstration, using the same image three times
   const images = [
+    "/slider1.jpg",
     "/st.jpg",
     "/banner-2.jpg",
     "/banner-4.jpg",
@@ -65,7 +66,7 @@ export function ImagesSliderDemo() {
                     alt={`Slider Image ${index + 1}`}
                     width={1920}
                     height={1080}
-                    className="w-full h-full object-contain sm:object-cover rounded-lg"
+                    className="w-full h-full object-contain sm:object-cover rounded-lg max-h-full"
                     priority={index === 0}
                   />
                 </div>

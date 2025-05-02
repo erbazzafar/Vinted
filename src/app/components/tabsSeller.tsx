@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, TrendingUpIcon } from "lucide-react";
 import Image from "next/image";
 import Cookies from "js-cookie";
 
@@ -24,6 +24,7 @@ const getStarRating = (rating: number) => {
 const TabsComponent = ({ sellerId }: any) => {
   const [product, setProduct] = useState([]);
   const [showTab, setShowTab] = useState("Products");
+  const userId = Cookies.get("userId")
   const [reviews, setReviews] = useState([
     { id: 1, user: "John Doe", rating: 5, comment: "Amazing seller, highly recommended!" },
     { id: 2, user: "Jane Smith", rating: 4, comment: "Good experience, but shipping took time." },
@@ -33,7 +34,7 @@ const TabsComponent = ({ sellerId }: any) => {
 
   const [wishlistState, setWishlistState] = useState<{ [key: string]: boolean }>({});
   const token = Cookies.get("token")
-  
+
   const handleWishList = async (product: any) => {
     if (!product._id) return;
 
@@ -93,7 +94,7 @@ const TabsComponent = ({ sellerId }: any) => {
           return;
         }
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?userId=${sellerId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?userId=${sellerId}&admin=${userId === sellerId ? true : false}`
         );
 
         if (response.status !== 200) {
@@ -137,13 +138,13 @@ const TabsComponent = ({ sellerId }: any) => {
       </div>
 
       {/* Display Content Based on Selected Tab */}
-      <div className="mt-6">
+      <div className="mt-2">
         {showTab === "Products" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 ">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {product.map((product: any) => (
               <div
                 key={product._id}
-                className="bg-white shadow-md rounded-xl overflow-hidden p-3 relative w-full max-w-[250px] mx-auto"
+                className=" shadow-md rounded-xl overflow-hidden p-3 relative w-full max-w-[250px] mx-auto"
               >
                 <div className="relative">
                   <Image
@@ -155,7 +156,7 @@ const TabsComponent = ({ sellerId }: any) => {
                   />
                 </div>
 
-                <div className="mt-3">
+                <div >
                   <div className="flex justify-between items-center">
                     <Link
                       href={`/product/${product._id}`}
@@ -168,7 +169,7 @@ const TabsComponent = ({ sellerId }: any) => {
                       className={`mr-3 transition-colors ${wishlistState[product._id] ? "text-red-500" : "text-gray-500 hover:text-red-500"}`}
                       onClick={() => handleWishList(product)}
                     >
-                      <Heart size={20} fill={wishlistState[product._id] ? "red" : "none"} />
+                      <Heart size={18} fill={wishlistState[product._id] ? "red" : "none"} />
                     </button>
                   </div>
 
@@ -182,13 +183,16 @@ const TabsComponent = ({ sellerId }: any) => {
                   <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product?.categoryId?.length - 1]?.name ?? "N/A"}</p>
 
                   {/* Prices */}
-                  <p className="text-[12px] font-semibold text-teal-600">
-                    {product?.price}
-                  </p>
-
-                  <p className="text-[12px] font-semibold text-teal-600">
-                    {product?.inclPrice}{" "}
-                    <span className="text-[10px] text-gray-400">incl.</span>
+                  <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+                    <Image
+                      src={`/dirhamlogo.png`}
+                      alt="dirham"
+                      width={15}
+                      height={15}
+                      unoptimized
+                    />
+                    {product.totalPrice}
+                    <span className="text-[10px] text-teal-600">incl.</span>
                   </p>
                 </div>
               </div>

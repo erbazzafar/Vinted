@@ -12,8 +12,6 @@ const Footer = () => {
             <h3 className="font-semibold text-gray-800">AffariDoro</h3>
             <ul className="mt-2 space-y-2">
               <li><Link href="/about">About us</Link></li>
-              <li><Link href="/jobs">Jobs</Link></li>
-              <li><Link href="/sustainability">Sustainability</Link></li>
               <li><Link href="/press">Press</Link></li>
               <li><Link href="/advertising">Advertising</Link></li>
             </ul>
@@ -60,18 +58,18 @@ const Footer = () => {
           <div className="flex items-right space-x-2">
             <Link href="https://www.apple.com/app-store/" target="_blank">
               <Image 
-                src="/iplay.png" 
+                src="/appstorelogo.jpg" 
                 alt="App Store"
-                width={32}
+                width={30}
                 height={9} 
                 unoptimized
                 className="h-9 w-32" />
             </Link>
             <Link href="https://play.google.com/store" target="_blank">
               <Image 
-                src="/iplay.png" 
+                src="/googleplaylogo.jpg" 
                 alt="Google Play"
-                width={32}
+                width={30}
                 height={9} 
                 unoptimized
                 className="h-9 w-32" />
@@ -86,9 +84,10 @@ const Footer = () => {
             <Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link>
             <Link href="/cookie-policy" className="hover:underline">Cookie Policy</Link>
             <Link href="/cookie-settings" className="hover:underline">Cookie Settings</Link>
-            <Link href="/terms-and-conditions" className="hover:underline">Terms & Conditions</Link>
+            <Link href="/terms-and-condition" className="hover:underline">Terms & Conditions</Link>
           </div>
         </div>
+        <p className="mt-6 border-t pt-4 text-center">© 2025 Netrex. All rights reserved.</p>
       </div>
     </footer>
   );

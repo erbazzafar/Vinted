@@ -9,7 +9,8 @@ import axios from "axios";
 import { toast } from "sonner";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import { reauthenticateWithRedirect } from "firebase/auth";
+import Link from "next/link";
+
 
 const SellerProfile = () => {
 
@@ -147,6 +148,8 @@ const SellerProfile = () => {
     }
   }
 
+
+
   useEffect(() => {
     getFollowerList()
   }, [sellerId])
@@ -171,7 +174,7 @@ const SellerProfile = () => {
   return (
     <div>
       {seller ? (
-        <div className="mt-0 md:mt-16 max-w-screen-2xl mx-auto px-4 lg:px-[50px]">
+        <div className="mt-0 md:mt-16 max-w-screen-2xl mx-auto lg:px-[50px]">
           {/* Seller Profile Section */}
           <div className="flex flex-col md:flex-row items-center md:items-start bg-white py-13 mb-10">
             {/* Seller Image (Centered on mobile, aligned with "Brand" in Navbar on desktop) */}
@@ -245,7 +248,7 @@ const SellerProfile = () => {
                   <span>
                     <span
                       onClick={() => {
-                        if (token){
+                        if (token) {
                           setIsFollowerModalOpen(true)
                           return
                         } else {
@@ -261,7 +264,7 @@ const SellerProfile = () => {
                         if (token) {
                           setIsFollowingModalOpen(true)
                           return
-                        } else{
+                        } else {
                           toast.error("Login first to view the following list")
                           return
                         }
@@ -276,7 +279,7 @@ const SellerProfile = () => {
 
               {/*Following Modal*/}
               <Modal open={isFollowingModalOpen} onClose={() => setIsFollowingModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-128 max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <h2 className="text-xl font-semibold mb-4">Following List</h2>
                   {followingList?.length === 0 ? (
                     <p className="text-gray-600">No following users found.</p>
@@ -291,7 +294,12 @@ const SellerProfile = () => {
                               width={10}
                               height={10}
                               className="w-10 h-10 rounded-full " />
-                            <span className="font-medium">{user?.username || user?.fullName || "Unnamed User"}</span>
+                            <Link
+                              href={`/seller/${user._id}`}
+                              className="text-[13px] font-semibold text-gray-800 hover:underline"
+                            >
+                              {user.fullName}
+                            </Link>
                           </div>
                         </li>
                       ))}
@@ -302,7 +310,7 @@ const SellerProfile = () => {
 
               {/*Follower Modal*/}
               <Modal open={isFollowerModalOpen} onClose={() => setIsFollowerModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-128 max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <h2 className="text-xl font-semibold mb-4">Followers List</h2>
                   {followerList?.length === 0 ? (
                     <p className="text-gray-600">No Follower found.</p>
@@ -317,7 +325,12 @@ const SellerProfile = () => {
                               width={10}
                               height={10}
                               className="w-10 h-10 rounded-full " />
-                            <span className="font-medium">{user?.username || user?.fullName || "Unnamed User"}</span>
+                            <Link
+                              href={`/seller/${user._id}`}
+                              className="text-[13px] font-semibold text-gray-800 hover:underline"
+                            >
+                              {user.fullName}
+                            </Link>
                           </div>
                         </li>
                       ))}

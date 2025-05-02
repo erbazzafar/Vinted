@@ -7,7 +7,7 @@ const SellerButton = ({ seller, sellerId } : any) => {
 
   return (
     <div
-      className="mt-5 flex items-center justify-between bg-[#EBEBEB] p-2 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition"
+      className="mt-6 flex items-center justify-between bg-[#EBEBEB] p-2 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition"
       onClick={() => router.push(`/seller/${sellerId}`)}
     >
       {/* Profile Image & Info */}
