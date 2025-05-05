@@ -267,11 +267,11 @@ const Chatbox = () => {
                 src={
                   chatMessage?.adminUser?._id === loggedInUser
                     ? (chatMessage?.userId?.image
-                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage.userId.image}`
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.userId?.image}`
                       : `/imageLogo2.jpg`
                     )
                     : (chatMessage?.adminUser?.image
-                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage.adminUser.image}`
+                      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${chatMessage?.adminUser?.image}`
                       : `/imageLogo2.jpg`
                     )
                 }
@@ -332,7 +332,7 @@ const Chatbox = () => {
               </h3>
               {(() => {
                 const product = newChat ? newChat : selectedChat?.productId?.[0]
-                const userBid = product?.bid?.find((bidProduct: any) => bidProduct.userId === selectedChat?.userId?._id);
+                const userBid = product?.bid?.find((bidProduct: any) => bidProduct?.userId === selectedChat?.userId?._id);
 
                 return userBid ? (
                   <>
@@ -345,7 +345,7 @@ const Chatbox = () => {
                         height={15}
                         unoptimized
                       />
-                      {userBid.totalPrice}
+                      {userBid?.totalPrice}
                     </p>
                   </>
                 ) : (
@@ -358,7 +358,7 @@ const Chatbox = () => {
                         height={15}
                         unoptimized
                       />
-                      {product.totalPrice}
+                      {product?.totalPrice}
                     </p>
                   </>
                 );
@@ -394,8 +394,8 @@ const Chatbox = () => {
                     unoptimized
                     className="w-8 h-8 object-cover rounded-full"
                   />
-                  <div className={`p-1.5 rounded-md border max-w-[75%] ${msg.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "text-[12px] bg-gray-200"}`}>
-                    {msg.message && <p className="mb-1">{msg.message}</p>}
+                  <div className={`p-1.5 rounded-md border max-w-[75%] ${msg?.bidPrice ? "bg-gray-100 text-gray-800 font-semibold" : "text-[12px] bg-gray-200"}`}>
+                    {msg.message && <p className="mb-1">{msg?.message}</p>}
                     {msg.image && (
                       <Image
                         src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.image}` || `/imageLogo2.jpg`}
@@ -433,7 +433,7 @@ const Chatbox = () => {
                           )
                         ) : msg.bidStatus === "Decline" ? (
                           // Show Rejected status to everyone
-                          <p className="text-red-500 font-medium">Offer is Declined</p>
+                          <p className="text-red-500 font-medium text-sm">Offer is Declined</p>
                         ) : isSentByCurrentUser ? (
                           // Pending view for buyer
                           <p className="text-[12px] text-gray-500 text-right">{msg.bidStatus || "Pending"}</p>
