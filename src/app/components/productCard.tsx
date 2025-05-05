@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, color } from "framer-motion"
 import { toast } from "sonner"
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -400,7 +400,7 @@ const ProductCard = () => {
 
   const handleUploadProduct = async () => {
     try {
-      if (!title || !price || !description || !brand) {
+      if (!title || !description || !price || !brand || !color || !material || !size || !path) {
         toast.error("Please fill all the fields.");
         return;
       }

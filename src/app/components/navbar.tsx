@@ -3,13 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Heart, Inbox, Search, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, setDragLock } from "framer-motion";
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
-import { RESPONSE_LIMIT_DEFAULT } from "next/dist/server/api-utils";
 
 interface DropdownOption {
   label: string;
@@ -127,7 +126,7 @@ const Navbar = () => {
           return;
         }
         console.log("counter notification response: ", response);
-        
+
         setCounter(response.data.data); // must be an array
       } catch (error) {
         console.log("Notification error:", error);
@@ -169,6 +168,43 @@ const Navbar = () => {
     }
   }
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [result, setResult] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchQuery.trim()) {
+        searchProduct();
+      } else {
+        setResult([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery]);
+
+  const searchProduct = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/getProductsByName?name=${searchQuery}`
+      );
+
+      if (response.status !== 200) {
+        toast.error("Error finding the Product");
+        return;
+      }
+
+      setResult(response.data.data);
+    } catch (error) {
+      console.log("Error Finding the Product", error);
+      toast.error("Search failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative overflow-visible">
       <div className="lg:px-[50px] container mx-auto max-w-screen-2xl flex items-center justify-between">
@@ -183,14 +219,53 @@ const Navbar = () => {
           />
         </Link>
 
-        {/* Search Bar (Hidden on Mobile) */}
+        {/* Search Bar */}
         <div className="relative w-[42%] xl:w-[52%] hidden md:block">
           <input
             type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white w-full py-2 pl-10 border border-gray-400 dark:border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
             placeholder="Search..."
           />
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 cursor-pointer" />
+
+          {/* Search Result Dropdown */}
+          {searchQuery.length > 0 && (
+            <div className="absolute z-50 top-full left-0 right-0 bg-white dark:bg-gray-800 shadow-lg rounded-md mt-2 max-h-60 overflow-y-auto">
+              {loading ? (
+                <p className="p-2 text-center text-gray-500">Loading...</p>
+              ) : result.length > 0 ? (
+                result.map((product) => (
+                  <div
+                    key={product._id}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={() => {
+                      setSearchQuery("");   // reset input
+                      setResult([]);        // reset results
+                      router.push(`/product/${product._id}`);
+                    }}
+                  >
+                    <div className="flex items-center gap-3  rounded-lg transition cursor-pointer">
+                      <div className="w-[35px] h-[35px] flex items-center justify-center overflow-hidden rounded-md bg-white shadow-sm">
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                          alt={product.name}
+                          width={40}
+                          height={40}
+                          unoptimized
+                          className="object-contain w-full h-full rounded-full"
+                        />
+                      </div>
+                      <span className="font-medium text-gray-800 dark:text-white">{product.name}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="p-2 text-center text-gray-500">No products found</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Desktop Menu */}

@@ -208,6 +208,7 @@ const CheckoutPage = () => {
             )}
             <div className="mt-4 ">
               <h3 className="text-lg font-semibold">{productInfo?.name}</h3>
+              <h3 className="mt-3 text-md font-semibold">Total Price</h3>
               <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
                 <Image
                   src={`/dirhamlogo.png`}

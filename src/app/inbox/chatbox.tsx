@@ -123,7 +123,7 @@ const Chatbox = () => {
     }
 
     if (offerPrice !== "") {
-      formData.append("bidStatus", "pending");
+      formData.append("bidStatus", "Pending");
       formData.append("bidPrice", offerPrice);
     }
     try {
@@ -422,14 +422,14 @@ const Chatbox = () => {
                         {/* Bid Status: Accepted */}
                         {msg.bidStatus === "Accepted" ? (
                           // Only show Buy Now if current user is the original offer sender (buyer)
-                          msg.userId === loggedInUser ? (
+                          msg.userId?._id === loggedInUser ? (
                             <button
                               onClick={() => handleBuyNow(msg._id)}
                               className="text-[13px] px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer">
                               Buy Now
                             </button>
                           ) : (
-                            <p className="text-sm text-green-500">You accepted the offer</p> // for seller
+                            <p className="text-sm text-green-500">Offer is Accepted</p> // for seller
                           )
                         ) : msg.bidStatus === "Decline" ? (
                           // Show Rejected status to everyone
