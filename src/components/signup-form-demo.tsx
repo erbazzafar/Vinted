@@ -96,7 +96,7 @@ export default function SignupFormDemo() {
       Cookies.set("token", response.data.token)
       console.log("Token",response.data.token);
       Cookies.set("photourl", response.data.data?.image || "")
-      Cookies.set("googlePhoto", response.data.data.photoUrl)
+      Cookies.set("googlePhoto", data?.user?.photoURL)
       Cookies.set("photoType", "google")
       Cookies.set("userId", response.data.data._id)
       

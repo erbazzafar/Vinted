@@ -180,7 +180,11 @@ const SellerProfile = () => {
             {/* Seller Image (Centered on mobile, aligned with "Brand" in Navbar on desktop) */}
             <div className="w-32 h-32 md:w-68 md:h-68 rounded-full overflow-hidden mb-4 md:mb-0">
               <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${seller.image}`}
+                src={
+                  seller?.image
+                    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${seller.image}`
+                    : Cookies.get("googlePhoto") || "/default-profile.png"
+                }
                 alt={seller?.username}
                 className="w-full h-full object-cover"
                 width={68}

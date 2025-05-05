@@ -282,8 +282,9 @@ const Navbar = () => {
                     if (type === "google") {
                       if (photoURL.includes("uploads/*")) {
                         img = `${process.env.NEXT_PUBLIC_BACKEND_URL}/${photoURL}`
+                      } else {
+                        img = Cookies.get("googlePhoto")
                       }
-                      img = Cookies.get("googlePhoto")
                     } else if (type === "dummy") {
                       img = `/imageLogo2.jpg`
                     } else {

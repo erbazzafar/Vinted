@@ -256,14 +256,14 @@ const ProductPage = () => {
           <div className="bg-white space-y-1 px-6 md:px-0">
             <div className=" border-b border-gray-200 pb-3">
               <h1 className="text-[14px] md:text-[14px] font-bold text-gray-800">
-                {gettingProduct.name}
+                {gettingProduct?.name}
               </h1>
 
               <div className="flex items-center space-x-2 mt-1">
                 {getStarRating(gettingProduct.ratings)}
-                <span className="text-[12px] text-gray-500">{gettingProduct.ratings} (Reviews)</span>
+                <span className="text-[12px] text-gray-500">{gettingProduct?.ratings} (Reviews)</span>
               </div>
-              <p className="text-[12px] text-gray-600">{gettingProduct.description}</p>
+              <p className="text-[12px] text-gray-600">{gettingProduct?.description}</p>
             </div>
 
             {/* === Set 2: Description, Brand, Size, Color, Category === */}
@@ -296,13 +296,13 @@ const ProductPage = () => {
               <div className="flex items-center gap-2">
                 <label className="text-[14px] font-medium text-gray-600">Product Price:</label>
                 <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
-                  <Image 
-                    src="/dirhamlogo.png" 
-                    alt="dirham" 
-                    width={15} 
-                    height={15} 
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={15}
+                    height={15}
                     unoptimized />
-                  <span>{gettingProduct.price}</span>
+                  <span>{gettingProduct?.price}</span>
                 </div>
               </div>
 
@@ -310,11 +310,11 @@ const ProductPage = () => {
               <div className="flex items-center gap-2">
                 <label className="text-[14px] font-medium text-gray-600">Shipping Cost:</label>
                 <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
-                  <Image 
-                    src="/dirhamlogo.png" 
-                    alt="dirham" 
-                    width={15} 
-                    height={15} 
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={15}
+                    height={15}
                     unoptimized />
                   <span>{gettingProduct.shipPrice}</span>
                 </div>
@@ -324,11 +324,11 @@ const ProductPage = () => {
               <div className="flex items-center gap-2">
                 <label className="text-[14px] font-medium text-gray-600">Protection Fee:</label>
                 <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
-                  <Image 
-                    src="/dirhamlogo.png" 
-                    alt="dirham" 
-                    width={15} 
-                    height={15} 
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={15}
+                    height={15}
                     unoptimized />
                   <span>{gettingProduct.inclPrice}</span>
                 </div>
@@ -338,11 +338,11 @@ const ProductPage = () => {
               <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-300">
                 <label className="text-[16px] font-bold text-gray-700">Total Price:</label>
                 <div className="flex items-center gap-1 text-[18px] font-bold text-green-700">
-                  <Image 
-                    src="/dirhamlogo.png" 
-                    alt="dirham" 
-                    width={17} 
-                    height={17} 
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={17}
+                    height={17}
                     unoptimized />
                   <span>{gettingProduct.totalPrice}</span>
                 </div>
@@ -354,7 +354,9 @@ const ProductPage = () => {
               <>
                 <button
                   className={`text-lg mt-4 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition
-                    ${bump && bumpDayCheck > 0 ? "bg-gray-300 text-green-600 cursor-not-allowed" : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer"}
+                    ${bump && bumpDayCheck > 0 ? 
+                      "bg-gray-300 text-green-600 cursor-not-allowed" : 
+                      "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer"}
   `               }
                   disabled={bump && bumpDayCheck > 0}
                   onClick={() => {
@@ -371,7 +373,11 @@ const ProductPage = () => {
                 </button>
 
                 <button
-                  className="text-lg mt-2 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
+                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
+                    ${hidden ? 
+                      "bg-gray-400 text-gray-950" : 
+                      "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
+                    }`}
                   onClick={handleHide}
                 >
                   <span>{hidden ? "Unhide Product" : "Hide"}</span>

@@ -26,7 +26,6 @@ const Chatbox = () => {
   const [image, setImage] = useState<File[]>([]);
   const [newChat, setNewChat] = useState<any>(null)
   const [showOffer, setShowOffer] = useState(false)
-  const photoURL = Cookies.get("photourl")
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -170,6 +169,7 @@ const Chatbox = () => {
       }
       console.log("offer accept response", response);
       getChatFunc(selectedChat, true)
+      alert("bid not responding")
       const responseforBID = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/updateBid?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&price=${bidPrice}`
       )
@@ -333,25 +333,32 @@ const Chatbox = () => {
               {(() => {
                 const product = newChat ? newChat : selectedChat?.productId?.[0]
                 const userBid = product?.bid?.find((bidProduct: any) => bidProduct.userId === selectedChat?.userId?._id);
-                console.log("bid price: ", userBid?.price);
-
 
                 return userBid ? (
                   <>
-                    <p className="text-gray-600 text-[12px]">
-                      ${userBid.price}
-                    </p>
-                    <p className="text-teal-700 text-[12px]">
-                      ${userBid.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
+
+                    <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+                      <Image
+                        src={`/dirhamlogo.png`}
+                        alt="dirham"
+                        width={15}
+                        height={15}
+                        unoptimized
+                      />
+                      {userBid.totalPrice}
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="text-gray-600 text-[12px]">
-                      ${product?.price}
-                    </p>
-                    <p className="text-teal-700 text-[12px]">
-                      ${product?.inclPrice} <span className="text-teal-800"> incl. of Tax</span>
+                    <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+                      <Image
+                        src={`/dirhamlogo.png`}
+                        alt="dirham"
+                        width={15}
+                        height={15}
+                        unoptimized
+                      />
+                      {product.totalPrice}
                     </p>
                   </>
                 );
@@ -368,7 +375,7 @@ const Chatbox = () => {
 
         {/* Chat Messages */}
         <div
-          className="bg-gray-50 pt-4 space-y-3 max-h-118 min-h-118 overflow-y-auto p-2 pb-[70lpx]">
+          className="bg-gray-50 pt-4 space-y-3 h-[472px] min-h-118 overflow-y-auto p-2 pb-[70px]">
           {messages.length > 0 ? (
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
@@ -400,7 +407,17 @@ const Chatbox = () => {
                     )}
                     {msg.bidPrice && (
                       <div className="mt-2 flex flex-col gap-2">
-                        <p className="text-[12px] text-teal-600 font-semibold">Offer: ${msg.bidPrice}</p>
+                        <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+                          offer:
+                          <Image
+                            src={`/dirhamlogo.png`}
+                            alt="dirham"
+                            width={15}
+                            height={15}
+                            unoptimized
+                          />
+                          {msg.bidPrice}
+                        </p>
 
                         {/* Bid Status: Accepted */}
                         {msg.bidStatus === "Accepted" ? (

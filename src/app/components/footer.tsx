@@ -4,13 +4,24 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="mt-15 bg-[#EBEBEB] shadow-md rounded-xl overflow-hidden py-6 px-6 text-gray-600 text-md">
+    <footer className="mt-15 bg-[#EBEBEB] shadow-md rounded-xl overflow-hidden py-3 px-6 text-gray-600 text-md">
       <div className="max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-8 text-left border-b-2">
-          {/* Vinted Section */}
+          {/* affare doro Section */}
           <div>
-            <h3 className="font-semibold text-gray-800">Affare Doro</h3>
-            <ul className="mt-2 space-y-2">
+            <h3 className="font-semibold text-gray-800">
+              <Link  href="/">
+                <Image
+                  src={"/darkLogo.png"}
+                  alt="Affare Doro"
+                  height={80}
+                  width={60}
+                  unoptimized
+                  className="object-contain"
+                  />
+                </Link>
+            </h3>
+            <ul className="mt-2 mb-2 space-y-2">
               <li><Link href="/about">About us</Link></li>
               <li><Link href="/press">Press</Link></li>
               <li><Link href="/advertising">Advertising</Link></li>
@@ -40,7 +51,7 @@ const Footer = () => {
         </div>
 
        {/* Social Icons and App Store Links */}
-        <div className="mt-6 flex justify-between space-x-6 flex-wrap ">
+        <div className=" mt-4 mb-[-7px] flex justify-between space-x-2 flex-wrap ">
           {/* Social Icons */}
           <div className="flex space-x-4">
             <Link href="https://facebook.com" target="_blank" className="text-gray-500 hover:text-blue-600">

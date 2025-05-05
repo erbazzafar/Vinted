@@ -198,7 +198,7 @@ const CheckoutPage = () => {
           <div className="flex flex-col mb-4">
             {productInfo?.image?.[0] && (
               <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo.image[0]}`}
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo?.image[0]}`}
                 alt={productInfo?.name || "Product Image"}
                 width={200}
                 height={70}
@@ -216,18 +216,7 @@ const CheckoutPage = () => {
                   height={18}
                   unoptimized
                 />
-                {matchedBid?.price || productInfo?.price}
-              </p>
-              <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
-                <Image
-                  src={`/dirhamlogo.png`}
-                  alt="dirham"
-                  width={18}
-                  height={18}
-                  unoptimized
-                />
-                {matchedBid?.inclPrice || productInfo?.inclPrice}
-                <span className="text-[12px] text-teal-600">incl.</span>
+                {matchedBid?.inclPrice || productInfo?.totalPrice}
               </p>
             </div>
           </div>

@@ -121,7 +121,6 @@ const ProductCard = ({ product }: { product: any }) => {
             unoptimized
           />
           {product.totalPrice}
-          <span className="text-[10px] text-teal-600">incl.</span>
         </p>
       </div>
     </div>
@@ -167,7 +166,7 @@ const ProductCarousel = () => {
     } catch (error) {
       toast.error("Error fetching the products");
       console.error("Error fetching the products", error);
-    }
+    } 
   };
   useEffect(() => {
     getSellerProducts();

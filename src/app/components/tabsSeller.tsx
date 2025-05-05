@@ -192,7 +192,6 @@ const TabsComponent = ({ sellerId }: any) => {
                       unoptimized
                     />
                     {product.totalPrice}
-                    <span className="text-[10px] text-teal-600">incl.</span>
                   </p>
                 </div>
               </div>
