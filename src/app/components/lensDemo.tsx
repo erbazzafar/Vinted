@@ -124,8 +124,8 @@ const ProductCard = ({ product }: { product: Product }) => {
         </div>
 
 
-        <p className="text-[12px] text-gray-500">Size: {product?.sizeId?.name || "None"}</p>
-        <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length - 1]?.name || "N/A"}</p>
+        <p className="text-[12px] text-gray-500">Size: {product?.sizeId?.name || "Other"}</p>
+        <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length - 1]?.name || "Other"}</p>
         <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
           <Image
             src={`/dirhamlogo.png`}

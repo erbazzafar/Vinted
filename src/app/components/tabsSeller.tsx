@@ -174,13 +174,13 @@ const TabsComponent = ({ sellerId }: any) => {
                   </div>
 
                   {/* Star Rating */}
-                  <div className="flex items-center gap-1 mt-1">{getStarRating(product.rating)}</div>
+                  <div className="flex items-center gap-1 mt-1">{getStarRating(product?.rating)}</div>
 
                   {/* Size */}
-                  <p className="text-[12px] text-gray-500">Size: {product.sizeId?.name ?? "N/A"}</p>
+                  <p className="text-[12px] text-gray-500">Size: {product.sizeId?.name ?? "Other"}</p>
 
                   {/* Category */}
-                  <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product?.categoryId?.length - 1]?.name ?? "N/A"}</p>
+                  <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product?.categoryId?.length - 1]?.name ?? "Other"}</p>
 
                   {/* Prices */}
                   <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">

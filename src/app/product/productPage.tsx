@@ -406,12 +406,12 @@ const ProductPage = () => {
 
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Brand:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "Other"}</span>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "Other "}</span>
               </div>
 
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Size:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "Other"}</span>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "Other "}</span>
               </div>
 
               <div>

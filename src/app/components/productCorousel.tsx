@@ -110,8 +110,8 @@ const ProductCard = ({ product }: { product: any }) => {
         </div>
 
         <div className="ml-2 flex items-center gap-1 mt-1">{getStarRating(product?.rating)}</div>
-        <p className="ml-2 text-[12px] text-gray-500">Size: {product?.sizeId?.name || "Other"}</p>
-        <p className="ml-2 text-[12px] text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length - 1]?.name ?? "Other"}</p>
+        <p className="ml-2 text-[12px] text-gray-500">Size: {product?.sizeId?.name || "Other  "}</p>
+        <p className="ml-2 text-[12px] text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length - 1]?.name ?? "Other "}</p>
         <p className="mt-1 ml-1.5 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
           <Image
             src={`/dirhamlogo.png`}
