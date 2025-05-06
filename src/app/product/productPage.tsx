@@ -403,21 +403,24 @@ const ProductPage = () => {
 
             {/* === Set 2: Description, Brand, Size, Color, Category === */}
             <div className=" border-b border-gray-200 pb-2">
-
+              {gettingProduct?.brandId?.name && (
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Brand:</label>
                 <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "Other "}</span>
               </div>
-
+              )}
+              {gettingProduct?.sizeId?.name && (
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Size:</label>
                 <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "Other "}</span>
               </div>
-
+              )}
+              {gettingProduct?.colorId?.[0]?.name && (
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Color:</label>
                 <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0]?.name || "Other"}</span>
               </div>
+              )}
 
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Category:</label>
@@ -542,14 +545,14 @@ const ProductPage = () => {
                 </button> */}
 
                 {/*Sold Modal*/}
-                <Modal open={isSoldModalOpen} onClose={() => setIsSoldModalOpen(false)}>
+                {/* <Modal open={isSoldModalOpen} onClose={() => setIsSoldModalOpen(false)}>
                   <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[80vh] overflow-hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <h2 className="text-xl font-semibold mb-4 text-center">Users List</h2>
                     {allUsers?.length === 0 ? (
                       <p className="text-gray-600 text-center">No User found.</p>
                     ) : (
                       <ul className="space-y-3 overflow-y-auto max-h-[55vh] pr-2">
-                        {allUsers.map((user: any, index: number) => (
+                        {allUsers?.map((user: any, index: number) => (
                           <li key={index} className="border p-3 rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition">
                             <div className="flex items-center gap-4">
                               <Image
@@ -566,7 +569,7 @@ const ProductPage = () => {
                       </ul>
                     )}
                   </Box>
-                </Modal>
+                </Modal> */}
 
                 {/* <button
                   className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
@@ -641,7 +644,7 @@ const ProductPage = () => {
                     {/* Horizontal bump day options */}
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {Array.isArray(bumpDays) &&
-                        bumpDays.map((option) => {
+                        bumpDays?.map((option) => {
                           const isSelected = selectedBumpDays?.day === option.day;
                           const bumpPrice = ((Number(option.percentage) / 100) * Number(gettingProduct?.price || 0)).toFixed(2);
 
