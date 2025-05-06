@@ -451,7 +451,7 @@ const ProductPage = () => {
                     width={15}
                     height={15}
                     unoptimized />
-                  <span>{gettingProduct.shipPrice}</span>
+                  <span>{gettingProduct?.shipPrice}</span>
                 </div>
               </div>
 
@@ -465,7 +465,7 @@ const ProductPage = () => {
                     width={15}
                     height={15}
                     unoptimized />
-                  <span>{gettingProduct.inclPrice}</span>
+                  <span>{gettingProduct?.inclPrice}</span>
                 </div>
               </div>
 
@@ -479,7 +479,7 @@ const ProductPage = () => {
                     width={17}
                     height={17}
                     unoptimized />
-                  <span>{gettingProduct.totalPrice}</span>
+                  <span>{gettingProduct?.totalPrice}</span>
                 </div>
               </div>
             </div>
