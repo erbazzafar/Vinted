@@ -283,13 +283,13 @@ const SellerProfile = () => {
 
               {/*Following Modal*/}
               <Modal open={isFollowingModalOpen} onClose={() => setIsFollowingModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[80vh] overflow-hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <h2 className="text-xl font-semibold mb-4">Following List</h2>
                   {followingList?.length === 0 ? (
                     <p className="text-gray-600">No following users found.</p>
                   ) : (
-                    <ul className="space-y-2">
-                      {followingList?.map((user: any, index: number) => (
+                    <ul className="space-y-2 overflow-y-auto max-h-[50vh] pr-2">
+                      {followingList.map((user: any, index: number) => (
                         <li key={index} className="border p-2 rounded shadow-sm">
                           <div className="flex items-center space-x-3">
                             <Image
@@ -297,7 +297,8 @@ const SellerProfile = () => {
                               alt="User"
                               width={10}
                               height={10}
-                              className="w-10 h-10 rounded-full " />
+                              className="w-10 h-10 rounded-full"
+                            />
                             <Link
                               href={`/seller/${user._id}`}
                               className="text-[13px] font-semibold text-gray-800 hover:underline"
@@ -311,16 +312,16 @@ const SellerProfile = () => {
                   )}
                 </Box>
               </Modal>
-
+              
               {/*Follower Modal*/}
               <Modal open={isFollowerModalOpen} onClose={() => setIsFollowerModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[80vh] overflow-hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <h2 className="text-xl font-semibold mb-4">Followers List</h2>
                   {followerList?.length === 0 ? (
                     <p className="text-gray-600">No Follower found.</p>
                   ) : (
-                    <ul className="space-y-2">
-                      {followerList?.map((user: any, index: number) => (
+                    <ul className="space-y-2 overflow-y-auto max-h-[50vh] pr-2">
+                      {followerList.map((user: any, index: number) => (
                         <li key={index} className="border p-2 rounded shadow-sm">
                           <div className="flex items-center space-x-3">
                             <Image
@@ -328,7 +329,8 @@ const SellerProfile = () => {
                               alt="User"
                               width={10}
                               height={10}
-                              className="w-10 h-10 rounded-full " />
+                              className="w-10 h-10 rounded-full"
+                            />
                             <Link
                               href={`/seller/${user._id}`}
                               className="text-[13px] font-semibold text-gray-800 hover:underline"

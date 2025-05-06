@@ -19,6 +19,8 @@ const ProductPage = () => {
   const router = useRouter();
 
   const [hidden, setHidden] = useState(false)
+  const [sold, setSold] = useState(false)
+  const [reserve, setReserved] = useState(false)
 
   const token = Cookies.get("token")
   const loggedInUser = Cookies.get("userId")
@@ -52,6 +54,8 @@ const ProductPage = () => {
         setBump(response.data.data.bump)
         setBumpDayCheck(response.data.data.bumpDay)
         setHidden(response.data.data.hidden)
+        setSold(response.data.data.sold)
+        setReserved(response.data.data.reserved)
 
 
       } catch (error) {
@@ -175,7 +179,139 @@ const ProductPage = () => {
       console.error("Error updating product visibility:", error);
       toast.error("Something went wrong. Please try again.");
     }
+  }
+
+
+  const [isSoldModalOpen, setIsSoldModalOpen] = useState(false)
+  const [selectedUserForSold, setSelectedUserForSold] = useState(null)
+  const [allUsers, setAllUsers] = useState(null)
+
+  const handleSold = async () => {
+    try {
+      if (!loggedInUser || !token || !productId) {
+        toast.error("Missing user credentials or product ID");
+        return;
+      }
+
+      const userList = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/getAll`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      if (userList.status !== 200) {
+        toast.error("Error fetching the Users")
+        return
+      }
+
+      setAllUsers(userList.data.data)
+
+
+      // Use the *intended* new value before calling API
+      const newSoldValue = !sold;
+
+      // const formData = new FormData();
+      // formData.append("sold", newSoldValue.toString());
+
+      // const response = await axios.put(
+      //   `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
+      //   formData,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`
+      //     }
+      //   }
+      // );
+
+      // if (response.status !== 200 || !response.data?.data) {
+      //   toast.error("Failed to update visibility");
+      //   return;
+      // }
+
+      // const updatedSold = response.data.data.sold;
+      // setSold(updatedSold);
+
+      // toast.success(updatedSold ? "Item marked as sold" : "sold unmarked");
+    } catch (error) {
+      console.error("Error updating product visibility:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
   };
+
+  const handleReserved = async () => {
+    try {
+      if (!loggedInUser || !token || !productId) {
+        toast.error("Missing user credentials or product ID");
+        return;
+      }
+
+      // Use the *intended* new value before calling API
+      const newReservedValue = !reserve
+
+      const formData = new FormData();
+      formData.append("reserved", newReservedValue.toString());
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.status !== 200 || !response.data?.data) {
+        toast.error("Failed to update visibility");
+        return;
+      }
+
+      const updatedReserved = response.data.data.reserved;
+      setReserved(updatedReserved);
+
+      toast.success(updatedReserved ? "Item is Reserved" : "Item is not reserved anymore");
+    } catch (error) {
+      console.error("Error updating product visibility:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+
+  const handleProductEdit = () => {
+    router.push(`/sell?id=${productId}`)
+  }
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  const handleProductDelete = async () => {
+    try {
+      if (!productId) {
+        toast.error("Cannot find Product")
+        return
+      }
+
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/delete/${productId}`
+      )
+
+      if (response.status !== 200) {
+        toast.error("Error deleting the Product")
+        return
+      }
+
+      console.log("Product Delete Response: ", response);
+      setIsDeleteModalOpen(false)
+      router.push('/')
+      toast.success("Product Deleted Successfully")
+
+    } catch (error) {
+      console.log("Error deleting the Product", error);
+      toast.error("Error deleting the Product")
+      return
+    }
+  }
 
 
   return (
@@ -256,11 +392,10 @@ const ProductPage = () => {
           <div className="bg-white space-y-1 px-6 md:px-0">
             <div className=" border-b border-gray-200 pb-3">
               <h1 className="text-[14px] md:text-[14px] font-bold text-gray-800">
-                {gettingProduct?.name}
+                {gettingProduct?.name || "no name"}
               </h1>
 
               <div className="flex items-center space-x-2 mt-1">
-                {getStarRating(gettingProduct.ratings)}
                 <span className="text-[12px] text-gray-500">{gettingProduct?.ratings} (Reviews)</span>
               </div>
               <p className="text-[12px] text-gray-600">{gettingProduct?.description}</p>
@@ -281,7 +416,7 @@ const ProductPage = () => {
 
               <div>
                 <label className="text-[13px] font-medium text-gray-600">Color:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0].name || "N/A"}</span>
+                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0]?.name || "N/A"}</span>
               </div>
 
               <div>
@@ -354,8 +489,8 @@ const ProductPage = () => {
               <>
                 <button
                   className={`text-lg mt-4 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition
-                    ${bump && bumpDayCheck > 0 ? 
-                      "bg-gray-300 text-green-600 cursor-not-allowed" : 
+                    ${bump && bumpDayCheck > 0 ?
+                      "bg-gray-300 text-green-600 cursor-not-allowed" :
                       "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer"}
   `               }
                   disabled={bump && bumpDayCheck > 0}
@@ -374,14 +509,119 @@ const ProductPage = () => {
 
                 <button
                   className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
-                    ${hidden ? 
-                      "bg-gray-400 text-gray-950" : 
+                    ${hidden ?
+                      "bg-gray-400 text-gray-950" :
                       "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
                     }`}
-                  onClick={handleHide}
+                  onClick={() => {
+                    if (token) {
+                      handleHide()
+                    } else {
+                      toast.error("Login First to hide the Product")
+                    }
+                  }}
                 >
                   <span>{hidden ? "Unhide Product" : "Hide"}</span>
                 </button>
+
+                {/* <button
+                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
+                    ${sold ?
+                      "bg-gray-400 text-gray-950" :
+                      "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
+                    }`}
+                  onClick={() => {
+                    if (token) {
+                      setIsSoldModalOpen(true)
+                    } else {
+                      toast.error("Login First to hide the Product")
+                    }
+                  }}
+                >
+                  <span>{sold ? "Mark as Unsold" : "Mark as Sold ✅"}</span>
+                </button> */}
+
+                {/*Sold Modal*/}
+                <Modal open={isSoldModalOpen} onClose={() => setIsSoldModalOpen(false)}>
+                  <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[80vh] overflow-hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <h2 className="text-xl font-semibold mb-4 text-center">Users List</h2>
+                    {allUsers?.length === 0 ? (
+                      <p className="text-gray-600 text-center">No User found.</p>
+                    ) : (
+                      <ul className="space-y-3 overflow-y-auto max-h-[55vh] pr-2">
+                        {allUsers.map((user: any, index: number) => (
+                          <li key={index} className="border p-3 rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition">
+                            <div className="flex items-center gap-4">
+                              <Image
+                                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user?.image}` || "/default-avatar.png"}
+                                alt="User"
+                                width={40}
+                                height={40}
+                                className="rounded-full object-cover w-10 h-10"
+                              />
+                              <span className="text-[14px] sm:text-[15px] font-medium text-gray-800">{user.fullName}</span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </Box>
+                </Modal>
+
+                {/* <button
+                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
+                    ${reserve ?
+                      "bg-gray-400 text-gray-950" :
+                      "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
+                    }`}
+                  onClick={() => {
+                    if (token) {
+                      handleReserved()
+                    } else {
+                      toast.error("Login first to reserve the Product")
+                    }
+                  }}
+                >
+                  <span>{reserve ? "Reserved" : "Mark as Reserve"}</span>
+                </button> */}
+
+                {/* <button
+                  className="`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
+                  onClick={() => {
+                    if (token) {
+                      handleProductEdit()
+                    } else {
+                      toast.error("Login first to Edit your Product")
+                    }
+                  }}>
+                  Edit
+                </button> */}
+
+                <button
+                  className="`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer bg-red-800 hover:bg-red-500 hover:text-white"
+                  onClick={() => {
+                    if (token) {
+                      setIsDeleteModalOpen(true)
+                    } else {
+                      toast.error("Login first to Delete your Product")
+                    }
+                  }}>
+                  Delete
+                </button>
+
+                {/* Delete Modal */}
+                <Modal open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                  <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <h3 className="text-lg text-center font-semibold mb-4">Are you sure you want to delete Your Product</h3>
+                    <button
+                      className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full cursor-pointer"
+                      onClick={handleProductDelete}
+                    >
+                      Delete Product
+                    </button>
+                  </Box>
+                </Modal>
+
 
                 <SellerButton
                   seller={{

@@ -7,9 +7,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Modal from "@mui/material/Modal";
-import Box from "@mui/material/Box";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import { useSearchParams } from "next/navigation";
 
 interface Category {
   _id: string;
@@ -51,6 +51,9 @@ const ProductCard = () => {
   const [selectedBrand, setSelectedBrand] = useState("")
   const [isBrandOpen, setIsBrandOpen] = useState(false);
   const [selectedBrandId, setSelectedBrandId] = useState("")
+
+  const searchParam = useSearchParams()
+  const productId = searchParam.get('id')
 
   {/*Brand Fetching API Call */ }
   useEffect(() => {
@@ -177,7 +180,6 @@ const ProductCard = () => {
     setPath(newPath);
     setIsLoading(true)
 
-
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${category._id}`
     );
@@ -195,8 +197,10 @@ const ProductCard = () => {
       setIsCategoryOpen(false);
       toast.success(`Selected Category: ${newPath.map((c) => c.name).join(" / ")}`);
     }
+
+    await conditionRendering(category._id)
     setIsLoading(false);
-  };
+  };  
 
   const handleGoBack = () => {
     const newPath = [...path];
@@ -362,9 +366,6 @@ const ProductCard = () => {
     setIsPackageSizeOpen(false);
   }
 
-  console.log("Selected Package Size: ", selectedPackageSizeId);
-
-
   const handleQualitySelect = (quality: { name: string; description: string, _id: string }) => {
     setSelectedQuality(quality.name);
     setSelectedQualityId(quality._id)
@@ -397,6 +398,93 @@ const ProductCard = () => {
     const updatedImages = images.filter((_, i) => i !== index); // Remove the image at the given index
     setImages(updatedImages); // Update the state with the new images array
   };
+
+  // useEffect(() => {
+  //   const getProductToUpdate = async () => {
+  //     try {
+  //       if (!productId) {
+  //         return
+  //       }
+  //       const response = await axios.get(
+  //         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${Cookies.get("token")}`
+  //           }
+  //         }
+  //       )
+
+  //       if (response.status !== 200) {
+  //         toast.error("Error in fetching the Product to Edit")
+  //         return
+  //       }
+
+  //       console.log("getProductToUpdate ==> ", response);
+  //       const toBeUpdatedProduct = response.data.data;
+  //       setBrand(toBeUpdatedProduct.brandId.name)
+  //       setTitle(toBeUpdatedProduct.name)
+  //       setDescription(toBeUpdatedProduct.description)
+  //       setPrice(toBeUpdatedProduct.price)
+  //       setImages(toBeUpdatedProduct.image)
+  //       setColors(toBeUpdatedProduct.colorId.map(color => color.name))
+  //       setCategoryIdsPath(toBeUpdatedProduct.categoryId.map(category => category.name))
+  //       setPackageSize(toBeUpdatedProduct.packageSizeId.name)
+  //       setMaterial(toBeUpdatedProduct.materialId.map(material => material.name))
+  //       setQuality(toBeUpdatedProduct.conditionId.name)
+  //       setSize(toBeUpdatedProduct.sizeId.name)
+
+  //     } catch (error) {
+  //       console.log("Error Editing the Product Details", error);
+  //       toast.error("Error Updating the Product")
+  //       return
+  //     }
+  //   }
+  //   getProductToUpdate()
+  // }, [productId])
+
+  console.log("Parent ID: ",parentId)
+
+  const [condtionFlags, setConditionFlags] = useState({
+    hasBrand: false,
+    hasSize: false,
+    hasCondition: false,
+    hasColor: false,
+    hasMaterial: false
+  })
+
+  const conditionRendering = async (categoryId: string) => {
+    try {
+      if (!categoryId) {
+        console.log("A category is not selected");
+        return
+      }
+      
+      console.log("Final Category Id: ", categoryId);
+      const response = await axios.get (
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/get/${categoryId}`
+      )
+      if (response.status !== 200){
+        toast.error("The category not found")
+        return
+      }
+
+      const allConditions = response.data.data
+
+      setConditionFlags(prev => ({
+        ...prev,
+        hasBrand: allConditions.hasBrand,
+        hasColor: allConditions.hasColor,
+        hasCondition: allConditions.hasCondition,
+        hasMaterial: allConditions.hasMaterial,
+        hasSize: allConditions.hasSize
+      }))
+
+    } catch (error) {
+      console.log("Error fetching the conditions", error);
+      return
+      
+    }
+  }
 
   const handleUploadProduct = async () => {
     try {
@@ -431,23 +519,34 @@ const ProductCard = () => {
       formData.append("name", title);
       formData.append("price", price);
       formData.append("description", description)
-      formData.append("brandId", selectedBrandId);
+      if (condtionFlags.hasBrand) {
+        formData.append("brandId", selectedBrandId);
+      }
       formData.append("packageSizeId", selectedPackageSizeId);
-      formData.append("conditionId", selectedQualityId);
-      formData.append("sizeId", selectedSizeId);
+      if (condtionFlags.hasCondition){
+        formData.append("conditionId", selectedQualityId);
+      }
+      if (condtionFlags.hasSize) {
+        formData.append("sizeId", selectedSizeId);
+      }
+      
       formData.append("userId", id || "")
 
       // 🔹 Append array values
       formData.append("categoryId", parentId); // Send the category ID path as a JSON string
-      selectedColors.map((color) => {
-        formData.append("colorId", color._id); // Append each selected color ID
-      })
+      if (condtionFlags.hasColor) {
+        selectedColors.map((color) => {
+          formData.append("colorId", color._id); // Append each selected color ID
+        })
+      }
 
       // formData.append("colorId", selectedColors.map((color) => color._id));
       //@ts-ignore
-      selectedMaterial.map((mat) => {
-        formData.append("materialId", mat._id)
-      })
+      if (condtionFlags.hasMaterial) {
+        selectedMaterial.map((mat) => {
+          formData.append("materialId", mat._id)
+        })
+      }
       // formData.append("materialId", selectedMaterial.map((mat) => mat._id));
 
 
@@ -457,16 +556,29 @@ const ProductCard = () => {
       });
 
       // 🟢 Make PUT request with FormData
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/create`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${Cookies.get("token")}`,
-          },
-        }
-      );
+      let response = null
+      if (!productId) {
+        response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/create`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${Cookies.get("token")}`,
+            },
+          }
+        )
+      } else {
+        response = axios.put(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${Cookies.get("token")}`,
+            },
+          })
+      }
 
       if (response.status !== 200) {
         toast.error("Error uploading product, please try again later.");
@@ -697,235 +809,246 @@ const ProductCard = () => {
         </div>
 
         {/* Color Selection */}
-        <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Product Colors</label>
+        {condtionFlags.hasColor && (
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Product Colors</label>
 
-          <div
-            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
-            onClick={() => setIsColorOpen(!isColorOpen)}
-          >
-            <span className="text-gray-700">
-              {selectedColors.length ? selectedColors.map((color) => color.name).join(", ") : "Select up to 2 colors"}
-            </span>
-            {isColorOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-          </div>
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
+              onClick={() => setIsColorOpen(!isColorOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedColors.length ? selectedColors.map((color) => color.name).join(", ") : "Select up to 2 colors"}
+              </span>
+              {isColorOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
 
-          <AnimatePresence>
-            {isColorOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`w-full p-2 border rounded-lg bg-white mt-2 ${colors.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
-              >
-                {colors.map((color) => (
-                  <motion.div
+            <AnimatePresence>
+              {isColorOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`w-full p-2 border rounded-lg bg-white mt-2 ${colors.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
+                >
+                  {colors.map((color) => (
+                    <motion.div
+                      key={color._id}
+                      className={`p-2 hover:bg-gray-100 flex justify-between items-center ${selectedColors.some((c) => c._id === color._id)
+                        ? "text-blue-600 font-semibold"
+                        : "cursor-pointer"
+                        }`}
+                      onClick={() => handleColorSelect(color)}
+                    >
+                      {color.name}
+                      {selectedColors.some((c) => c._id === color._id) && <span className="text-xs">✓</span>}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Show selected color tags */}
+            {selectedColors.length > 0 && (
+              <div className="flex gap-2 mt-3 flex-wrap">
+                {selectedColors.map((color) => (
+                  <div
                     key={color._id}
-                    className={`p-2 hover:bg-gray-100 flex justify-between items-center ${selectedColors.some((c) => c._id === color._id)
-                      ? "text-blue-600 font-semibold"
-                      : "cursor-pointer"
-                      }`}
-                    onClick={() => handleColorSelect(color)}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
                   >
                     {color.name}
-                    {selectedColors.some((c) => c._id === color._id) && <span className="text-xs">✓</span>}
-                  </motion.div>
+                    <X
+                      size={14}
+                      className="cursor-pointer"
+                      onClick={() => handleRemoveColor(color)}
+                    />
+                  </div>
                 ))}
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
-
-          {/* Show selected color tags */}
-          {selectedColors.length > 0 && (
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {selectedColors.map((color) => (
-                <div
-                  key={color._id}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
-                >
-                  {color.name}
-                  <X
-                    size={14}
-                    className="cursor-pointer"
-                    onClick={() => handleRemoveColor(color)}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Material Selection */}
-        <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Product Material</label>
+        {condtionFlags.hasMaterial && (
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Product Material</label>
 
-          <div
-            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
-            onClick={() => setIsMaterialOpen(!isMaterialOpen)}
-          >
-            <span className="text-gray-700">
-              {selectedMaterial.length
-                ? selectedMaterial.map((m) => m.name).join(", ")
-                : "Select up to 3 Materials"}
-            </span>
-            {isMaterialOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-          </div>
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
+              onClick={() => setIsMaterialOpen(!isMaterialOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedMaterial.length
+                  ? selectedMaterial.map((m) => m.name).join(", ")
+                  : "Select up to 3 Materials"}
+              </span>
+              {isMaterialOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
 
-          <AnimatePresence>
-            {isMaterialOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`w-full p-2 border rounded-lg bg-white mt-2 ${material.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
-              >
-                {material.map((m) => (
-                  <motion.div
+            <AnimatePresence>
+              {isMaterialOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`w-full p-2 border rounded-lg bg-white mt-2 ${material.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
+                >
+                  {material.map((m) => (
+                    <motion.div
+                      key={m._id}
+                      className={`p-2 hover:bg-gray-100 flex justify-between items-center ${selectedMaterial.some((sm) => sm._id === m._id)
+                        ? "text-blue-600 font-semibold"
+                        : "cursor-pointer"
+                        }`}
+                      onClick={() => handleMaterialSelect(m)}
+                    >
+                      {m.name}
+                      {selectedMaterial.some((sm) => sm._id === m._id) && <span className="text-xs">✓</span>}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Show selected Material tags */}
+            {selectedMaterial.length > 0 && (
+              <div className="flex gap-2 mt-3 flex-wrap">
+                {selectedMaterial.map((m) => (
+                  <div
                     key={m._id}
-                    className={`p-2 hover:bg-gray-100 flex justify-between items-center ${selectedMaterial.some((sm) => sm._id === m._id)
-                      ? "text-blue-600 font-semibold"
-                      : "cursor-pointer"
-                      }`}
-                    onClick={() => handleMaterialSelect(m)}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
                   >
                     {m.name}
-                    {selectedMaterial.some((sm) => sm._id === m._id) && <span className="text-xs">✓</span>}
-                  </motion.div>
+                    <X
+                      size={14}
+                      className="cursor-pointer"
+                      onClick={() => handleRemoveMaterial(m)}
+                    />
+                  </div>
                 ))}
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
+          </div>
+        )}
 
-          {/* Show selected Material tags */}
-          {selectedMaterial.length > 0 && (
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {selectedMaterial.map((m) => (
-                <div
-                  key={m._id}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
-                >
-                  {m.name}
-                  <X
-                    size={14}
-                    className="cursor-pointer"
-                    onClick={() => handleRemoveMaterial(m)}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* Product Quality */}
-        <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
+        {condtionFlags.hasCondition &&( 
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
 
-          <div
-            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <span className="text-gray-700">
-              {selectedQuality || "Select Quality"}
-            </span>
-            {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedQuality || "Select Quality"}
+              </span>
+              {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="w-full p-2 border rounded-lg bg-white mt-2"
+                >
+                  {quality.map((q: any) => (
+                    <motion.div
+                      key={q.name}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => handleQualitySelect(q)}
+                    >
+                      <strong>{q.name}</strong>
+                      <p className="text-sm text-gray-600">{q.description}</p>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="w-full p-2 border rounded-lg bg-white mt-2"
-              >
-                {quality.map((q: any) => (
-                  <motion.div
-                    key={q.name}
-                    className="cursor-pointer p-2 hover:bg-gray-100"
-                    onClick={() => handleQualitySelect(q)}
-                  >
-                    <strong>{q.name}</strong>
-                    <p className="text-sm text-gray-600">{q.description}</p>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        )}
 
         {/* Brands Name */}
-        <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Brand</label>
-          <div
-            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsBrandOpen(!isBrandOpen)}
-          >
-            <span className="text-gray-700">
-              {selectedBrand || "Select Brand"}
-            </span>
-            {isBrandOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        {condtionFlags.hasBrand && (
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Brand</label>
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+              onClick={() => setIsBrandOpen(!isBrandOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedBrand || "Select Brand"}
+              </span>
+              {isBrandOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            <AnimatePresence>
+              {isBrandOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`w-full p-2 border rounded-lg bg-white mt-2 ${brand.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
+                >
+                  {brand.map((brandName, index) => (
+                    <motion.div
+                      key={`${brandName}-${index}`}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => handleBrandSelect(brandName)}
+                    >
+                      <strong>{brandName.name}</strong>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <AnimatePresence>
-            {isBrandOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`w-full p-2 border rounded-lg bg-white mt-2 ${brand.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
-              >
-                {brand.map((brandName, index) => (
-                  <motion.div
-                    key={`${brandName}-${index}`}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    className="cursor-pointer p-2 hover:bg-gray-100"
-                    onClick={() => handleBrandSelect(brandName)}
-                  >
-                    <strong>{brandName.name}</strong>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        )}
 
         {/* Product size list */}
-        <div className="p-4">
-          <label className="block text-gray-600 font-medium mb-1">Product Size</label>
-          <div
-            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-            onClick={() => setIsSizeOpen(!isSizeOpen)}
-          >
-            <span className="text-gray-700">
-              {selectedSize || "Select Product Size"}
-            </span>
-            {isSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        {condtionFlags.hasSize && (
+          <div className="p-4">
+            <label className="block text-gray-600 font-medium mb-1">Product Size</label>
+            <div
+              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+              onClick={() => setIsSizeOpen(!isSizeOpen)}
+            >
+              <span className="text-gray-700">
+                {selectedSize || "Select Product Size"}
+              </span>
+              {isSizeOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            <AnimatePresence>
+              {isSizeOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="w-full p-2 border rounded-lg bg-white mt-2"
+                >
+                  {size.map((productSize, index) => (
+                    <motion.div
+                      key={`${productSize.name}-${index}`}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => handleSizeSelect(productSize)}
+                    >
+                      <strong>{productSize.name}</strong>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <AnimatePresence>
-            {isSizeOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="w-full p-2 border rounded-lg bg-white mt-2"
-              >
-                {size.map((productSize, index) => (
-                  <motion.div
-                    key={`${productSize.name}-${index}`}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    className="cursor-pointer p-2 hover:bg-gray-100"
-                    onClick={() => handleSizeSelect(productSize)}
-                  >
-                    <strong>{productSize.name}</strong>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        )}
 
         {/* Package Size */}
         <div className="p-4">
@@ -983,7 +1106,7 @@ const ProductCard = () => {
         onClick={handleUploadProduct}
         className="text-xl mt-6 w-full bg-gray-800 text-white py-3 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 cursor-pointer"
       >
-        {isUpload ? "Uploading..." : "Upload Product"}
+        {isUpload ? (productId ? "Updating..." : "Uploading...") : (productId ? "Update Product" : "Upload Product")}
       </button>
     </div>
   );
