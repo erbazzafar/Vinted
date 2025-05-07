@@ -174,22 +174,33 @@ const ProductCarousel = () => {
 
   return (
     <div className="lg:px-[50px] px-1 max-w-screen-2xl mx-auto ">
-      <Carousel
-        responsive={responsive}
-        infinite
-        autoPlay={true}
-        keyBoardControl
-        showDots={false}
-        arrows={false}
-        customButtonGroup={<ButtonGroup />}
-        containerClass="carousel-container overflow-hidden"
-        itemClass="p-1 gap-x-4"
-      >
-        {products.slice(0, 11).map((product, index) => (
-          <ProductCard key={index} product={product} />
-        ))}
-      </Carousel>
-    </div>
+      {Array.isArray(products) && products.length > 0 ? (
+        <>
+          {/* Display "Featured Products" heading */}
+          <h2 className="mt-2 mb-6 text-3xl rounded-xl font-bold">Featured Products</h2>
+
+          {/* Carousel for the products */}
+          <div className="mt-6">
+            <Carousel
+              responsive={responsive}
+              infinite
+              autoPlay={true}
+              keyBoardControl
+              showDots={false}
+              arrows={false}
+              customButtonGroup={<ButtonGroup />}
+              containerClass="carousel-container overflow-hidden"
+              itemClass="p-1 gap-x-4"
+            >
+              {/* Map products to carousel items */}
+              {products.slice(0, 11).map((product, index) => (
+                <ProductCard key={product._id || index} product={product} />
+              ))}
+            </Carousel>
+          </div>
+        </>
+      ) : null}
+    </div>  
   );
 };
 
