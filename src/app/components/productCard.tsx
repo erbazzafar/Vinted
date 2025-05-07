@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence, color } from "framer-motion"
 import { toast } from "sonner"
@@ -200,7 +200,7 @@ const ProductCard = () => {
 
     await conditionRendering(category._id)
     setIsLoading(false);
-  };  
+  };
 
   const handleGoBack = () => {
     const newPath = [...path];
@@ -442,7 +442,7 @@ const ProductCard = () => {
   //   getProductToUpdate()
   // }, [productId])
 
-  console.log("Parent ID: ",parentId)
+  console.log("Parent ID: ", parentId)
 
   const [condtionFlags, setConditionFlags] = useState({
     hasBrand: false,
@@ -458,12 +458,12 @@ const ProductCard = () => {
         console.log("A category is not selected");
         return
       }
-      
+
       console.log("Final Category Id: ", categoryId);
-      const response = await axios.get (
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/category/get/${categoryId}`
       )
-      if (response.status !== 200){
+      if (response.status !== 200) {
         toast.error("The category not found")
         return
       }
@@ -482,7 +482,7 @@ const ProductCard = () => {
     } catch (error) {
       console.log("Error fetching the conditions", error);
       return
-      
+
     }
   }
 
@@ -523,13 +523,13 @@ const ProductCard = () => {
         formData.append("brandId", selectedBrandId);
       }
       formData.append("packageSizeId", selectedPackageSizeId);
-      if (condtionFlags.hasCondition){
+      if (condtionFlags.hasCondition) {
         formData.append("conditionId", selectedQualityId);
       }
       if (condtionFlags.hasSize) {
         formData.append("sizeId", selectedSizeId);
       }
-      
+
       formData.append("userId", id || "")
 
       // 🔹 Append array values
@@ -630,6 +630,14 @@ const ProductCard = () => {
     `/comp4.PNG`,
     `/comp5.PNG`,
   ]
+
+  const [searchBrand, setSearchBrand] = useState("");
+
+  const filteredSortedBrands = useMemo(() => {
+    return brand
+      .filter((b) => b.name.toLowerCase().includes(searchBrand.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [brand, searchBrand]);
 
 
   return (
@@ -934,7 +942,7 @@ const ProductCard = () => {
 
 
         {/* Product Quality */}
-        {condtionFlags.hasCondition &&( 
+        {condtionFlags.hasCondition && (
           <div className="p-4">
             <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
 
@@ -985,6 +993,7 @@ const ProductCard = () => {
               </span>
               {isBrandOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
             </div>
+
             <AnimatePresence>
               {isBrandOpen && (
                 <motion.div
@@ -993,9 +1002,19 @@ const ProductCard = () => {
                   exit={{ opacity: 0, y: -10 }}
                   className={`w-full p-2 border rounded-lg bg-white mt-2 ${brand.length > 6 ? 'max-h-60 overflow-y-auto' : ''}`}
                 >
-                  {brand.map((brandName, index) => (
+                  {/* Search Input */}
+                  <input
+                    type="text"
+                    placeholder="Search brand..."
+                    value={searchBrand}
+                    onChange={(e) => setSearchBrand(e.target.value)}
+                    className="w-full mb-2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  />
+
+                  {/* Filtered and Sorted Brands */}
+                  {filteredSortedBrands.map((brandName, index) => (
                     <motion.div
-                      key={`${brandName}-${index}`}
+                      key={`${brandName.name}-${index}`}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
@@ -1010,7 +1029,6 @@ const ProductCard = () => {
             </AnimatePresence>
           </div>
         )}
-
         {/* Product size list */}
         {condtionFlags.hasSize && (
           <div className="p-4">
