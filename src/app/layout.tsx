@@ -4,7 +4,9 @@ import "./globals.css";
 import Navbar from "./components/navbar";
 import { Particles } from "@/components/magicui/particles";
 import Footer from "./components/footer";
-import { Toaster } from "sonner";
+import { Toaster } from "sonner"; // 👈 Import ThemeProvider
+import { ThemeProvider } from "./components/theme-provider";
+import WhatsappFloatButton from "./components/whatsAppFloatButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,19 +29,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white min-h-screen flex flex-col`}
       >
-        <div className="absolute inset-0 -z-10">
-          <Particles />
-        </div>
-        <Toaster position="bottom-right" richColors />
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="default"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="absolute inset-0 -z-10">
+            <Particles />
+          </div>
+          <Toaster position="bottom-right" richColors />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <WhatsappFloatButton/>
+        </ThemeProvider>
       </body>
     </html>
   );

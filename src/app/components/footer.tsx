@@ -1,4 +1,4 @@
-import { Facebook, Linkedin, Instagram } from "lucide-react";
+import { Facebook, Linkedin, Instagram, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,19 +10,20 @@ const Footer = () => {
           {/* affare doro Section */}
           <div>
             <h3 className="font-semibold text-gray-800">
-              <Link  href="/">
+              <Link href="/">
                 <Image
                   src={"/darkLogo.png"}
                   alt="Affare Doro"
-                  height={80}
-                  width={60}
+                  height={90}
+                  width={90}
                   unoptimized
                   className="object-contain"
-                  />
-                </Link>
+                />
+              </Link>
             </h3>
             <ul className="mt-2 mb-2 space-y-2">
               <li><Link href="/about">About us</Link></li>
+              <li><Link href="/privacy-policy">Privacy Policy</Link></li>
               <li><Link href="/press">Press</Link></li>
               <li><Link href="/advertising">Advertising</Link></li>
             </ul>
@@ -40,17 +41,20 @@ const Footer = () => {
 
           {/* Help Section */}
           <div>
-            <h3 className="font-semibold text-gray-800">Help</h3>
+            <h3 className="font-semibold text-gray-800">Contact</h3>
             <ul className="mt-2 space-y-2">
-              <li><Link href="/help-center">Help Center</Link></li>
+              <li className="flex items-center gap-2">
+                <a href="mailto:contact@affaredoro.com" className="hover:underline text-gray-600">
+                  Contact Us
+                </a>
+              </li>
               {/* <li><Link href="/selling">Selling</Link></li>
               <li><Link href="/buying">Buying</Link></li> */}
-              <li><Link href="/privacy-policy">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
 
-       {/* Social Icons and App Store Links */}
+        {/* Social Icons and App Store Links */}
         <div className=" mt-4 mb-[-7px] flex justify-between space-x-2 flex-wrap ">
           {/* Social Icons */}
           <div className="flex space-x-4">
@@ -68,27 +72,27 @@ const Footer = () => {
           {/* App Store Links */}
           <div className="flex items-right space-x-2">
             <Link href="https://www.apple.com/app-store/" target="_blank">
-              <Image 
-                src="/appstorelogo.jpg" 
+              <Image
+                src="/appstorelogo.jpg"
                 alt="App Store"
                 width={30}
-                height={9} 
+                height={9}
                 unoptimized
                 className="h-9 w-32" />
             </Link>
             <Link href="https://play.google.com/store" target="_blank">
-              <Image 
-                src="/googleplaylogo.jpg" 
+              <Image
+                src="/googleplaylogo.jpg"
                 alt="Google Play"
                 width={30}
-                height={9} 
+                height={9}
                 unoptimized
                 className="h-9 w-32" />
             </Link>
           </div>
         </div>
 
-        
+
         {/* Bottom Section */}
         <div className="mt-6 border-t pt-4 flex flex-col md:flex-row justify-between items-center text-center">
           <div className="flex space-x-4">
