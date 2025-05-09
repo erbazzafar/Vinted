@@ -942,29 +942,30 @@ const ProductCard = () => {
 
 
         {/* Product Quality */}
-        {condtionFlags.hasCondition && (
-          <div className="p-4">
-            <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
+        <div className="p-4">
+          <label className="block text-gray-600 font-medium mb-1">Product Quality</label>
 
-            <div
-              className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <span className="text-gray-700">
-                {selectedQuality || "Select Quality"}
-              </span>
-              {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </div>
+          <div
+            className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center focus:ring-2 focus:ring-gray-300"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <span className="text-gray-700">
+              {selectedQuality || "Select Quality"}
+            </span>
+            {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
 
-            <AnimatePresence>
-              {isOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="w-full p-2 border rounded-lg bg-white mt-2"
-                >
-                  {quality.map((q: any) => (
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="w-full p-2 border rounded-lg bg-white mt-2"
+              >
+                {quality.map((q: any, i:number) => {
+                    if(!condtionFlags.hasCondition && i > 0) return;
+                    return (
                     <motion.div
                       key={q.name}
                       className="cursor-pointer p-2 hover:bg-gray-100"
@@ -973,12 +974,11 @@ const ProductCard = () => {
                       <strong>{q.name}</strong>
                       <p className="text-sm text-gray-600">{q.description}</p>
                     </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
+                  )})}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Brands Name */}
         {condtionFlags.hasBrand && (

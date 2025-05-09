@@ -138,7 +138,7 @@ const TabsComponent = ({ sellerId }: any) => {
       </div>
 
       {/* Display Content Based on Selected Tab */}
-      <div className="mt-2">
+      <div className="mt-2 mb-10">
         {showTab === "Products" ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {product.map((product: any) => (

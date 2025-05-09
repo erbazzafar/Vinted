@@ -180,7 +180,7 @@ const ProductCarousel = () => {
           <h2 className="mt-2 mb-6 text-3xl rounded-xl font-bold">Featured Products</h2>
 
           {/* Carousel for the products */}
-          <div className="mt-6">
+          <div className="mt-6 mb-10">
             <Carousel
               responsive={responsive}
               infinite
