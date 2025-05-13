@@ -147,13 +147,16 @@ const TabsComponent = ({ sellerId }: any) => {
                 className=" shadow-md rounded-xl overflow-hidden p-3 relative w-full max-w-[250px] mx-auto"
               >
                 <div className="relative">
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`} // Assuming the first image in the array
-                    alt={product.name}
-                    height={300}
-                    width={300}
-                    className="w-full h-[200px] object-contain rounded-lg"
-                  />
+                  <Link
+                    href={`/product/${product._id}`}>
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`} // Assuming the first image in the array
+                      alt={product.name}
+                      height={300}
+                      width={300}
+                      className="w-full h-[200px] object-contain rounded-lg"
+                    />
+                  </Link>
                 </div>
 
                 <div >

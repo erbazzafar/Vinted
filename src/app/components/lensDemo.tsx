@@ -91,14 +91,17 @@ const ProductCard = ({ product }: { product: Product }) => {
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px]">
       <div className="relative">
-        <Image
-          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
-          alt={product.name}
-          height={200}
-          width={10}
-          unoptimized
-          className="w-full h-[200px] object-contain rounded-lg"
-        />
+        <Link 
+          href={`/product/${product._id}`}>
+          <Image
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
+            alt={product.name}
+            height={200}
+            width={10}
+            unoptimized
+            className="w-full h-[200px] object-contain rounded-lg"
+          />
+        </Link>
       </div>
 
       <div className="mt-3 px-3">

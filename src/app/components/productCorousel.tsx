@@ -82,14 +82,17 @@ const ProductCard = ({ product }: { product: any }) => {
   return (
     <div className="bg-white py-2 shadow-md rounded-xl overflow-hidden w-full max-w-[250px] mx-auto">
       <div className="relative">
-        <Image
-          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
-          alt={product?.name}
-          height={250}
-          width={300}
-          unoptimized
-          className="w-full h-[200px] object-contain rounded-lg"
-        />
+        <Link
+          href={`/product/${product._id}`}>
+          <Image
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+            alt={product?.name}
+            height={250}
+            width={300}
+            unoptimized
+            className="w-full h-[200px] object-contain rounded-lg"
+          />
+        </Link>
       </div>
 
       <div className="mt-3">
@@ -166,7 +169,7 @@ const ProductCarousel = () => {
     } catch (error) {
       toast.error("Error fetching the products");
       console.error("Error fetching the products", error);
-    } 
+    }
   };
   useEffect(() => {
     getSellerProducts();
@@ -200,7 +203,7 @@ const ProductCarousel = () => {
           </div>
         </>
       ) : null}
-    </div>  
+    </div>
   );
 };
 

@@ -17,8 +17,9 @@ const CheckoutPage = () => {
     country: '',
     zipCode: '',
     phone: '',
-    price: '',
-    inclPrice: '',
+    price: 0,
+    totalPrice: 0,
+    vat: 0
   })
   const [productInfo, setProductInfo] = useState<any>(null)
   const searchParams = useSearchParams()
@@ -46,16 +47,24 @@ const CheckoutPage = () => {
         const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
 
         const finalPrice = matchedBid?.price || parsedData?.price;
-        const finalInclPrice = matchedBid?.inclPrice || parsedData?.inclPrice;
+        const finalTotalPrice = matchedBid?.inclPrice || parsedData?.totalPrice;
+        const vat = finalPrice * 0.05;
+        const finalInclPrice = vat + finalTotalPrice;
+
+        console.log("vat Price ==> ", vat);
+        console.log("Final price ==> ", finalTotalPrice);
 
         setUserDetails((prevDetails) => ({
           ...prevDetails,
           price: finalPrice,
-          inclPrice: finalInclPrice,
+          totalPrice: finalInclPrice,
+          vat: vat
         }));
 
+        console.log("total price in API call: ", userDetails.totalPrice);
+
+
         console.log("Matched Bid:", matchedBid);
-        console.log("Final price used:", finalPrice);
         console.log("Parsed product info from localStorage:", parsedData);
       } catch (error) {
         console.error("Error parsing product info from localStorage:", error);
@@ -78,8 +87,9 @@ const CheckoutPage = () => {
         country: userDetails.country,
         zipCode: userDetails.zipCode,
         phone: userDetails.phone,
-        total: matchedBid?.price || productInfo?.price,
-        subTotal: matchedBid?.inclPrice || productInfo?.inclPrice,
+        vat: userDetails.vat,
+        total: userDetails.price,
+        subTotal: userDetails.totalPrice,
       }
 
       setOrderFormData(payload);
@@ -94,7 +104,7 @@ const CheckoutPage = () => {
   console.log("orderFormData", orderFormData);
 
   return (
-    <div className="max-w-7xl mx-auto mt-15 py-10 px-5">
+    <div className="max-w-7xl mx-auto mt-8 py-10 px-5">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Left Side: Address Form */}
         <div className="bg-white p-6 rounded-xl shadow-md">
@@ -206,19 +216,36 @@ const CheckoutPage = () => {
                 className="w-118 h-70 object-contain rounded-md m-3"
               />
             )}
-            <div className="mt-4 ">
+            <div className="mt-4">
               <h3 className="text-lg font-semibold">{productInfo?.name}</h3>
-              <h3 className="mt-3 text-md font-semibold">Total Price</h3>
-              <p className="mt-1 text-md font-semibold text-teal-600 flex items-center gap-1">
-                <Image
-                  src={`/dirhamlogo.png`}
-                  alt="dirham"
-                  width={18}
-                  height={18}
-                  unoptimized
-                />
-                {matchedBid?.inclPrice || productInfo?.totalPrice}
-              </p>
+
+              <div className="flex items-center gap-2 mt-3">
+                <h3 className="text-md font-semibold">VAT (5%):</h3>
+                <div className="flex items-center gap-1 text-md font-semibold text-teal-600">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={18}
+                    height={18}
+                    unoptimized
+                  />
+                  <span>{userDetails.vat?.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-3">
+                <h3 className="text-md font-semibold">Total Price:</h3>
+                <div className="flex items-center gap-1 text-md font-semibold text-teal-600">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={18}
+                    height={18}
+                    unoptimized
+                  />
+                  <span>{userDetails.totalPrice?.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
 

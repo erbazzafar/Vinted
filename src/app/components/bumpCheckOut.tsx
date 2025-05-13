@@ -8,11 +8,13 @@ import Image from 'next/image'
 import AddNewCardModal from './bumpPayment'
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
+import { log } from 'console'
 
 interface Bump {
     bump: boolean,
     bumpDays: string
-    percentage: string
+    percentage: string,
+    bumpDate: string
 }
 
 interface Product {
@@ -24,10 +26,15 @@ interface Product {
 
 function BumpCheckOut() {
 
+
+    const now = new Date()
+    const currentDate = now.toISOString()
+
     const [bumpInformation, setBumpInformation] = useState<Bump>({
         bump: false,
         bumpDays: "",
-        percentage: ""
+        percentage: "",
+        bumpDate: "",
     })
 
     const [product, setProduct] = useState<Product>()
@@ -99,6 +106,7 @@ function BumpCheckOut() {
           const formData = new FormData();
           formData.append("bump", "true");
           formData.append("bumpDay", String(bumpInformation.bumpDays));
+          formData.append("bumpDate", currentDate);
       
           setBumpData(formData);
         } catch (error) {

@@ -239,7 +239,7 @@ export default function MyOrders() {
                   <div className="flex-1 sm:flex-none">
                     <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
                     <p className="m-2 text-gray-600 ml-4 sm:ml-0">
-                      ${order?.total}
+                      ${order?.subTotal}
                       <span className="ml-5 rounded-lg bg-black text-white px-3 py-2 text-sm font-semibold">
                         {order.orderStatus}
                       </span>
