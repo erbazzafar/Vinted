@@ -499,6 +499,28 @@ const ProductCard = () => {
         return
       }
 
+      if (condtionFlags.hasSize && !selectedSizeId) {
+        toast.error("Please select a size.");
+        return;
+      }
+      if (condtionFlags.hasBrand && !selectedBrandId) {
+        toast.error("Please select a brand.");
+        return;
+      }
+      if (condtionFlags.hasMaterial && selectedMaterial.length < 1) {
+        toast.error("Please select a material.");
+        return;
+      }
+      if (condtionFlags.hasColor && selectedColors.length < 1) {
+        toast.error("Please select a color.");
+        return;
+      }
+
+      if (condtionFlags.hasCondition && !selectedQualityId) {
+        toast.error("Please select a quality.");
+        return;
+      }
+
       if (images.length < 1) {
         toast.error("Please upload minimum of 1 Product Picture.");
         return
