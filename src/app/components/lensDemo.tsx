@@ -178,7 +178,7 @@ const ProductList = () => {
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center mt-6">
-            {[...products].reverse().map((product, index) => (
+            {products.map((product, index) => (
               <ProductCard key={product._id || index} product={product} />
             ))}
           </div>
