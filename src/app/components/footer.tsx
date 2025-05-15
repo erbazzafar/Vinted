@@ -23,7 +23,7 @@ const Footer = () => {
 
         {/* Explore */}
         <div className="w-fit">
-          <h3 className="font-semibold mb-2">Explore</h3>
+          <h3 className="text-[15px] font-[700] mb-2">Explore</h3>
           <ul className="space-y-2">
             <li><Link href="/about">About us</Link></li>
             <li><Link href="/privacy-policy">Privacy Policy</Link></li>
@@ -33,7 +33,7 @@ const Footer = () => {
 
         {/* Discover */}
         <div className="w-fit">
-          <h3 className="font-semibold mb-2">Discover</h3>
+          <h3 className="text-[15px] font-[700] mb-2">Discover</h3>
           <ul className="space-y-2">
             <li><Link href="/how-it-works">How it works</Link></li>
           </ul>
@@ -41,7 +41,7 @@ const Footer = () => {
 
         {/* Contact */}
         <div className="w-fit">
-          <h3 className="font-semibold mb-2">Contact</h3>
+          <h3 className="text-[15px] font-[700] mb-2">Contact</h3>
           <ul className="space-y-2">
             <li>
               <a href="mailto:contact@affaredoro.com">Help Center</a>

@@ -312,6 +312,7 @@ const ProductCard = () => {
       }
       setSelectedMaterial((prev) => [...prev, material]);
     }
+    setIsMaterialOpen(false); // Close the dropdown after selection
   };
 
   const handleRemoveMaterial = (material: { name: string, _id: string }) => {
@@ -356,6 +357,7 @@ const ProductCard = () => {
       }
       setSelectedColors((prev) => [...prev, color]);
     }
+    setIsColorOpen(false); // Close the dropdown after selection
   };
 
   const handleRemoveColor = (color: { name: string, _id: string }) => {

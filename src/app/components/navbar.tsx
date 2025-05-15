@@ -30,6 +30,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const photoURL = Cookies.get("photourl")
   const isLoggedIn = Cookies.get("token") ? true : false
@@ -153,6 +154,10 @@ const Navbar = () => {
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setIsNotifOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchQuery("");  // Clear search query
+        setResult([]);       // Clear results
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -220,7 +225,7 @@ const Navbar = () => {
         </Link>
 
         {/* Search Bar */}
-        <div className="relative w-[42%] xl:w-[52%] hidden md:block">
+        <div className="relative w-[42%] xl:w-[52%] hidden md:block" ref={searchRef}>
           <input
             type="text"
             value={searchQuery}

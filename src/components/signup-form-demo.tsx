@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import {
   IconBrandFacebook,
   IconBrandGoogle,
+  IconEye,
+  IconEyeOff,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -22,6 +24,7 @@ export default function SignupFormDemo() {
   const [password, setPassword] = useState("")
   const [firstname, setFirstname] = useState("")
   const [lastname, setLastname] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,10 +154,26 @@ export default function SignupFormDemo() {
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
-          <Input 
-             value={password}
-             onChange={(e) => setPassword(e.target.value)}
-            id="password" placeholder="••••••••" type="password" />
+          <div className="relative">
+            <Input 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              id="password" 
+              placeholder="••••••••" 
+              type={showPassword ? "text" : "password"} 
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              {showPassword ? (
+                <IconEyeOff className="h-4 w-4" />
+              ) : (
+                <IconEye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </LabelInputContainer>
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"

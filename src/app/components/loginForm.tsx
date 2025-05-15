@@ -7,10 +7,12 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
 export default function LoginFormDemo() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -84,13 +86,26 @@ export default function LoginFormDemo() {
 
         <LabelInputContainer>
           <Label htmlFor="password">Password</Label>
-          <Input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            id="password"
-            placeholder="••••••••"
-            type="password"
-          />
+          <div className="relative">
+            <Input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              id="password"
+              placeholder="••••••••"
+              type={showPassword ? "text" : "password"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              {showPassword ? (
+                <IconEyeOff className="h-4 w-4" />
+              ) : (
+                <IconEye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </LabelInputContainer>
 
         <div className="flex flex-col gap-3 pt-2">
