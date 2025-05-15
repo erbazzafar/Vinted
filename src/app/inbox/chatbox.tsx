@@ -169,7 +169,6 @@ const Chatbox = () => {
       }
       console.log("offer accept response", response);
       getChatFunc(selectedChat, true)
-      alert("bid not responding")
       const responseforBID = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/updateBid?productId=${selectedChat?.productId?.[0]?._id}&userId=${selectedChat?.userId?._id}&price=${bidPrice}`
       )
@@ -246,7 +245,7 @@ const Chatbox = () => {
           } md:block`}
       >
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
-        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(8 * 72px)' }}>
+        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(7.5 * 72px)' }}>
           {chat?.map((chatMessage: any) => (
             <li
               key={chatMessage._id}
@@ -345,7 +344,7 @@ const Chatbox = () => {
                         height={15}
                         unoptimized
                       />
-                      {userBid?.totalPrice}
+                      {userBid?.price}
                     </p>
                   </>
                 ) : (
@@ -358,7 +357,7 @@ const Chatbox = () => {
                         height={15}
                         unoptimized
                       />
-                      {product?.totalPrice}
+                      {product?.price}
                     </p>
                   </>
                 );

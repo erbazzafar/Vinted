@@ -47,7 +47,7 @@ const CheckoutPage = () => {
         const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
 
         const finalPrice = matchedBid?.price || parsedData?.price;
-        const finalTotalPrice = matchedBid?.inclPrice || parsedData?.totalPrice;
+        const finalTotalPrice = matchedBid?.price || parsedData?.totalPrice;
         const vat = finalPrice * 0.05;
         const finalInclPrice = vat + finalTotalPrice;
 

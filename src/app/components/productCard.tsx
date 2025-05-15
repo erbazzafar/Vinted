@@ -9,7 +9,7 @@ import Image from "next/image";
 import Modal from "@mui/material/Modal";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 interface Category {
   _id: string;
@@ -19,6 +19,8 @@ interface Category {
 
 
 const ProductCard = () => {
+
+  const router = useRouter()
 
   const id = Cookies.get("userId")
 
@@ -635,6 +637,8 @@ const ProductCard = () => {
 
         toast.success("Product uploaded successfully!");
       }, 1000);
+
+      router.push(`/seller/${id}`)
 
 
     } catch (error) {
