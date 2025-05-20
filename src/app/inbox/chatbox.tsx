@@ -97,6 +97,8 @@ const Chatbox = () => {
         if (existingChat) {
           setSelectedChat(existingChat);
           getChatFunc(existingChat, true);
+          // Ensure mobile view is properly set for new chats
+          setIsMobileChatOpen(true);
         } else {
           // No matching chat — fallback logic (if needed)
           setSelectedChat(chat[0]);
@@ -109,6 +111,13 @@ const Chatbox = () => {
       }
     }
   }, [chat, newChat]);
+
+  // Add a new useEffect to handle mobile view for new chats
+  useEffect(() => {
+    if (newChat) {
+      setIsMobileChatOpen(true);
+    }
+  }, [newChat]);
 
   const handleMessageSend = async () => {
     const formData = new FormData();
@@ -135,9 +144,11 @@ const Chatbox = () => {
         if (newChat) {
           const newFirstChat = chatConResponse?.data?.data?.[0];
           setSelectedChat(newFirstChat);
-          await getChatFunc(newFirstChat, false);
+          await getChatFunc(newFirstChat, true);
           setNewChat(null);
-          router.replace(pathname)
+          router.replace(pathname);
+          // Ensure mobile view is properly set
+          setIsMobileChatOpen(true);
         } else {
           getChatFunc(selectedChat, true);
         }
@@ -304,15 +315,17 @@ const Chatbox = () => {
         className={`w-full md:w-3/4 relative ${isMobileChatOpen ? "block" : "hidden"
           } md:block`}
       >
-        <button
-          className="md:hidden p-2 text-gray-500"
-          onClick={() => setIsMobileChatOpen(false)}
-        >
-          <ChevronsLeft size={30} className="cursor-pointer" />
-        </button>
-        <h2 className="p-2 text-lg border-b-2 font-semibold text-gray-800 mb-4 text-center">
-          {newChat ? newChat?.userId?.username : selectedChat?.adminUser?._id === loggedInUser ? selectedChat?.userId?.username : selectedChat?.adminUser?.username}
-        </h2>
+        <div className="flex items-center border-b p-2">
+          <button
+            className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-full"
+            onClick={() => setIsMobileChatOpen(false)}
+          >
+            <ChevronsLeft size={24} className="cursor-pointer" />
+          </button>
+          <h2 className="p-2 text-lg font-semibold text-gray-800 text-center flex-1">
+            {newChat ? newChat?.userId?.username : selectedChat?.adminUser?._id === loggedInUser ? selectedChat?.userId?.username : selectedChat?.adminUser?.username}
+          </h2>
+        </div>
 
         {/* Product Details */}
         <div className="px-3 flex justify-between items-center border-b pb-2">
