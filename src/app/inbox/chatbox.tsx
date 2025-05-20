@@ -392,8 +392,8 @@ const Chatbox = () => {
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
               const senderImage = isSentByCurrentUser
-                ? (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId.image}` : msg?.userId?.image || `/imageLogo2.jpg`)
-                : (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`);
+                ? (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser?.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`)
+                : (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId.image}` : msg?.userId?.image || `/imageLogo2.jpg`);
 
 
               return (
