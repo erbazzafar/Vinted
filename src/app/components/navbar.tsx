@@ -216,7 +216,7 @@ const Navbar = () => {
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
           <Image
-            src="/darkLogo.png"
+            src="/Affre Doro Dark Logo-min.png"
             alt="AffariDoro"
             width={100}
             height={50}
