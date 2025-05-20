@@ -40,6 +40,9 @@ const Navbar = () => {
     console.log("user Logged out");
     Cookies.remove("photourl")
     Cookies.remove("token")
+    Cookies.remove("userId")
+    Cookies.remove("googlePhoto")
+    Cookies.remove("photoType")
     router.push('/')
   }
 
@@ -129,6 +132,9 @@ const Navbar = () => {
         console.log("counter notification response: ", response);
 
         setCounter(response.data.data); // must be an array
+
+        console.log("counter: ", counter.length);
+        
       } catch (error) {
         console.log("Notification error:", error);
       }

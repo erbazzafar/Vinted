@@ -249,7 +249,7 @@ const Chatbox = () => {
 
 
   return (
-    <div className="flex w-full max-w-6xl mx-auto border rounded-xl shadow-md mt-10 h-[600px]">
+    <div className="flex w-full max-w-6xl mx-auto border rounded-xl shadow-md mt-10 h-[600px] mb-10">
       {/* Sidebar */}
       <div
         className={`w-full md:w-1/4 text-gray-800 p-4 rounded-l-xl border-r-2 ${isMobileChatOpen ? "hidden" : "block"
@@ -322,13 +322,13 @@ const Chatbox = () => {
           >
             <ChevronsLeft size={24} className="cursor-pointer" />
           </button>
-          <h2 className="p-2 text-lg font-semibold text-gray-800 text-center flex-1">
+          <h2 className=" text-lg font-semibold text-gray-800 text-center flex-1">
             {newChat ? newChat?.userId?.username : selectedChat?.adminUser?._id === loggedInUser ? selectedChat?.userId?.username : selectedChat?.adminUser?.username}
           </h2>
         </div>
 
         {/* Product Details */}
-        <div className="px-3 flex justify-between items-center border-b pb-2">
+        <div className="px-3 mt-2 flex justify-between items-center border-b pb-2">
           <div className="flex items-center gap-3">
             <Image
               className="w-12 h-12 object-cover rounded-lg"
