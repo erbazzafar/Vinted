@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 export default function LoginFormDemo() {
   const router = useRouter()
@@ -291,9 +292,12 @@ export default function LoginFormDemo() {
             </div>
             <div className="flex flex-col items-center mb-6">
               <div className="w-24 h-24 mb-4">
-                <img
+                <Image
                   src="/forgot.png"
                   alt="Forgot Password"
+                  width={50}
+                  height={50}
+                  unoptimized
                   className="w-full h-full object-contain"
                 />
               </div>
