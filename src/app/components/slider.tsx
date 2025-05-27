@@ -53,7 +53,7 @@ export function ImagesSliderDemo() {
   };
 
   return (
-    <div className="bg-white sm:mt-15 w-[90%] m-auto sm:w-full mt-[-25px]">
+    <div className="bg-white sm:mt-15 w-[90%] m-auto sm:w-full mt-[-50px]">
       {/* Full-width slider container matching the navbar */}
       <div className="container rounded mx-auto max-w-screen-2xl lg:px-[50px] relative">
         <div className="w-full overflow-hidden rounded">

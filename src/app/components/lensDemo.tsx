@@ -170,10 +170,10 @@ const ProductList = () => {
   }, []);
 
   return (
-    <div className="lg:px-[50px] container mx-auto max-w-screen-2xl py-6">
+    <div className="lg:px-[50px] container mx-auto px-3 max-w-screen-2xl py-6 -mt-[35px]">
       {Array.isArray(products) && products.length > 0 ? (
         <>
-          <h2 className="mt-5 text-3xl rounded-xl font-bold ">
+          <h2 className="text-3xl rounded-xl font-bold ">
             Our Recent Products
           </h2>
 
