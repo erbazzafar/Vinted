@@ -9,6 +9,7 @@ import Image from "next/image";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { Eye } from "lucide-react";
+import { Backdrop } from "@mui/material";
 
 interface Products {
   _id: string;
@@ -167,6 +168,13 @@ function Wallet() {
     }
   }
 
+  const CustomBackdrop = (props: any) => (
+  <Backdrop
+    {...props}
+    className="!bg-[rgba(0,0,0,0.1)] !backdrop-blur-sm"
+  />
+);
+
 
   return (
     <div className="bg-white mt-[-18px] sm:mt-15 w-full">
@@ -260,69 +268,77 @@ function Wallet() {
         </div>
 
         {/* Sold Products */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Sold Products</h2>
+        <div className="bg-white rounded-lg shadow-md px-4 py-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Sold Products</h2>
           </div>
 
           {soldProducts.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {soldProducts.map((soldProd: Products) => (
-                <div key={soldProd?._id} className="flex items-center justify-between p-1 border rounded-lg shadow-md bg-white">
-                  <div className="flex items-center space-x-4">
+                <div
+                  key={soldProd?._id}
+                  className="flex justify-between items-center px-2 py-1 border rounded-lg shadow bg-white"
+                >
+                  {/* Image + Name & Price */}
+                  <div className="flex items-center gap-2 sm:gap-4">
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${soldProd?.productId?.[0]?.image?.[0]}`}
                       alt={soldProd?.productId?.[0]?.name}
-                      width={32}
-                      height={32}
+                      width={40}
+                      height={40}
                       unoptimized
-                      className="w-18 h-18 rounded-md object-cover"
+                      className="w-14 h-14 rounded-md object-cover"
                     />
-                    <div>
-                      <h2 className="text-[13px] font-semibold ml-4">{soldProd?.productId?.[0]?.name}</h2>
-                      <p className="m-1 text-red-500 ml-4 text-[12px]">Price : ${soldProd?.total}</p>
+                    <div className="flex flex-col">
+                      <h2 className="text-[13px] font-semibold">{soldProd?.productId?.[0]?.name}</h2>
+                      <p className="text-[12px] text-red-500">Price: ${soldProd?.total}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-5 sm:gap-2">
+                  {/* Status + Eye */}
+                  <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap">
                     <p
-                      className={`text-[13px] text-gray-50 rounded-md px-1 py-2 sm:px-3 ${soldProd?.orderStatus === "cancelled"
-                          ? "bg-gray-500"
-                          : soldProd?.orderStatus === "completed"
-                            ? "bg-green-500"
-                            : soldProd?.orderStatus === "pending"
-                              ? "bg-orange-500"
-                              : "bg-yellow-500"
+                      className={`text-[12px] sm:text-[13px] text-white rounded-md px-2 py-1 sm:px-3 ${soldProd?.orderStatus === "cancelled"
+                        ? "bg-gray-500"
+                        : soldProd?.orderStatus === "completed"
+                          ? "bg-green-500"
+                          : soldProd?.orderStatus === "pending"
+                            ? "bg-orange-500"
+                            : "bg-yellow-500"
                         }`}
                     >
                       {soldProd?.orderStatus}
                     </p>
-
-                    {/* Eye button is always visible */}
                     <button
                       onClick={() => {
                         setSelectedProduct(soldProd);
                         setIsProductModalOpen(true);
                       }}
-                      className="text-[13px] bg-gray-600 shadow-lg rounded-lg text-white px-3 py-1 flex items-center gap-2 mr-5 cursor-pointer hover:bg-gray-500 transition transform hover:scale-105 duration-300"
+                      className="cursor-pointer text-white text-[12px] sm:text-[13px] bg-gray-600 px-2 py-1 sm:px-3 rounded-md hover:bg-gray-500 transition duration-300"
                     >
-                      <Eye size={18} className="text-white" />
+                      <Eye size={16} />
                     </button>
                   </div>
 
                   {/* Product View Modal */}
-                  <Modal open={isProductModalOpen} onClose={() => setIsProductModalOpen(false)}>
-                    <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <Modal
+                    open={isProductModalOpen}
+                    onClose={() => setIsProductModalOpen(false)}
+                    closeAfterTransition
+                    slots={{ backdrop: CustomBackdrop }}
+                  >
+                    <Box className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-[92%] sm:w-[500px] max-h-[90vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                       <Image
                         src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedProduct?.productId?.[0]?.image?.[0]}`}
                         alt={selectedProduct?.productId?.[0]?.name || "Product Image"}
                         width={55}
                         height={50}
                         unoptimized
-                        className="w-full h-66 rounded-md object-contain"
+                        className="w-full h-48 sm:h-64 rounded-md object-contain"
                       />
 
-                      <div className="bg-gray-100 grid grid-cols-2 border-2 my-4">
+                      <div className="bg-gray-100 grid grid-cols-1 sm:grid-cols-2 border-2 my-4">
                         <div className="p-3">
                           <h2 className="text-[13px] font-semibold">Seller Information:</h2>
                           <p className="text-[13px] text-gray-700">Product Name: {selectedProduct?.productId?.[0]?.name}</p>
@@ -339,13 +355,11 @@ function Wallet() {
                         </div>
                       </div>
 
-                      {/* Conditionally render the status dropdown */}
                       {selectedProduct?.orderStatus !== "cancelled" && selectedProduct?.orderStatus !== "completed" && (
                         <>
-                          {/* Update Status Section */}
                           <p className="text-[13px] text-red-600">Update Status</p>
                           <select
-                            value={selectedProduct?.orderStatus || "pending"} // Provide a default value in case it's undefined
+                            value={selectedProduct?.orderStatus || "pending"}
                             onChange={(e) => handleStatusUpdate(selectedProduct?._id, e.target.value)}
                             className="cursor-pointer text-[13px] w-full border p-2 rounded mb-4"
                           >
@@ -354,12 +368,14 @@ function Wallet() {
                             <option value="ready-to-delivered">Ready for Delivered</option>
                             <option value="completed">Completed</option>
                           </select>
-                          <p className="text-[12px] text-gray-400 text-center">This action cannot be undone once marked as <span className="text-[13px] text-gray-600"> Completed </span>
+                          <p className="text-[12px] text-gray-400 text-center">
+                            This action cannot be undone once marked as <span className="text-[13px] text-gray-600">Completed</span>
                           </p>
                         </>
                       )}
                     </Box>
                   </Modal>
+
                 </div>
               ))}
             </div>

@@ -51,18 +51,18 @@ export default function LoginFormDemo() {
       console.log("Login Successful");
       Cookies.set('token', response.data.token)
       Cookies.set("userId", response.data.data._id)
-      if (response.data.data.image){
+      if (response.data.data.image) {
         Cookies.set("photourl", response.data.data.image)
         Cookies.set("photoType", "backend")
       } else {
         Cookies.set("photoType", "dummy")
       }
-      
+
 
       router.push("/")
 
     } catch (error) {
-      if (error.status === 401){
+      if (error.status === 401) {
         toast.error(error.response.data.message || "Login failed")
       }
       console.log("Error while loggin in: ", error);
@@ -103,7 +103,7 @@ export default function LoginFormDemo() {
     if (value.length > 1) {
       value = value.slice(0, 1);
     }
-    
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -144,9 +144,9 @@ export default function LoginFormDemo() {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOTP`,
-        { 
+        {
           email: forgotPasswordEmail,
-          otp: otpString 
+          otp: otpString
         },
         {
           headers: {
@@ -176,10 +176,10 @@ export default function LoginFormDemo() {
 
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/updatePassword?email=${forgotPasswordEmail}`,
-        { 
-        //  email: forgotPasswordEmail,
+        {
+          //  email: forgotPasswordEmail,
           // otp: otp,
-          password: newPassword 
+          password: newPassword
         },
         {
           headers: {
@@ -204,16 +204,23 @@ export default function LoginFormDemo() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto flex flex-col items-center rounded-none md:rounded-2xl p-6 md:p-10 shadow-xl bg-white dark:bg-zinc-900 transition-all duration-300">
+    <div className="max-w-2xl mx-auto flex flex-col items-center rounded-xl p-4 md:p-8 bg-[#EBEBEB] dark:bg-black
+      border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-[0_4px_32px_0_rgba(0,0,0,0.45)] transition-all">
       <h2 className="font-bold text-2xl md:text-3xl text-neutral-800 dark:text-neutral-100 mb-2">
         Login to Affare Doro
       </h2>
       <p className="text-neutral-600 text-[12px] max-w-sm mt-2 mb-5 dark:text-neutral-300">
-        Does not have an account, <span 
+        Does not have an account,{" "}
+        <span
           className="text-[13px] text-gray-900 cursor-pointer font-semibold underline hover:rounded-sm hover:bg-gray-200 hover:text-black hover:text-[13px] hover:px-3 hover:pb-1"
-          onClick={() => {router.push("/signup")}}> Sign Up </span>
+          onClick={() => {
+            router.push("/signup");
+          }}
+        >
+          {" "}
+          Sign Up{" "}
+        </span>
       </p>
-
 
       <form className="w-full space-y-5" onSubmit={handleSubmit}>
         <LabelInputContainer>
@@ -249,14 +256,13 @@ export default function LoginFormDemo() {
               )}
             </button>
           </div>
-          <span 
+          <span
             className="text-red-500 text-sm cursor-pointer text-right"
             onClick={() => setShowForgotPasswordModal(true)}
           >
             Forgot Password?
           </span>
         </LabelInputContainer>
-
 
         <div className="flex flex-col gap-3 pt-2">
           <button
@@ -285,9 +291,9 @@ export default function LoginFormDemo() {
             </div>
             <div className="flex flex-col items-center mb-6">
               <div className="w-24 h-24 mb-4">
-                <img 
-                  src="/forgot.png" 
-                  alt="Forgot Password" 
+                <img
+                  src="/forgot.png"
+                  alt="Forgot Password"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -519,6 +525,7 @@ const LabelInputContainer = ({
   );
 };
 
+// Animations for modals
 const styles = `
   @keyframes fadeIn {
     from { opacity: 0; }

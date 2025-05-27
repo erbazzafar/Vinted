@@ -4,11 +4,11 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#EBEBEB] text-gray-800 py-6 text-sm max-w-full">
+    <footer className="bg-[#EBEBEB] text-gray-800 py-6 text-sm w-full">
       {/* Grid Section */}
-      <div className="ml-15 mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-        {/* Logo - Centered and Aligned */}
-        <div className="flex items-center justify-center md:justify-start">
+      <div className="px-4 md:px-20 mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 items-start">
+        {/* Logo */}
+        <div className="flex justify-start md:justify-start">
           <Link href="/">
             <Image
               src="/Affre Doro Dark Logo-min.png"
@@ -22,7 +22,7 @@ const Footer = () => {
         </div>
 
         {/* Explore */}
-        <div className="w-fit">
+        <div>
           <h3 className="text-[15px] font-[700] mb-2">Explore</h3>
           <ul className="space-y-2">
             <li><Link href="/about">About us</Link></li>
@@ -32,7 +32,7 @@ const Footer = () => {
         </div>
 
         {/* Discover */}
-        <div className="w-fit">
+        <div>
           <h3 className="text-[15px] font-[700] mb-2">Discover</h3>
           <ul className="space-y-2">
             <li><Link href="/how-it-works">How it works</Link></li>
@@ -40,7 +40,7 @@ const Footer = () => {
         </div>
 
         {/* Contact */}
-        <div className="w-fit">
+        <div>
           <h3 className="text-[15px] font-[700] mb-2">Contact</h3>
           <ul className="space-y-2">
             <li>
@@ -53,8 +53,8 @@ const Footer = () => {
       {/* Separator Line */}
       <div className="border-t border-gray-300 mt-6" />
 
-      {/* Bottom Flex Area: Socials + App Links */}
-      <div className="ml-15 mr-40 mx-auto flex flex-col md:flex-row justify-between items-center mt-4">
+      {/* Bottom Flex Area */}
+      <div className="px-4 md:px-20 mx-auto flex flex-col md:flex-row justify-between items-center mt-4 gap-4">
         {/* Socials */}
         <div className="flex gap-4">
           <Link href="https://facebook.com" target="_blank" className="hover:text-blue-600">
@@ -69,7 +69,7 @@ const Footer = () => {
         </div>
 
         {/* App Store Links */}
-        <div className="flex gap-2 mt-4 md:mt-0">
+        <div className="flex flex-row flex-wrap justify-center items-center gap-2 mt-2 md:mt-0">
           <Link href="https://www.apple.com/app-store/" target="_blank">
             <Image
               src="/appstorelogo.jpg"
@@ -96,7 +96,9 @@ const Footer = () => {
       <div className="border-t border-gray-300 mt-3" />
 
       {/* Copyright */}
-      <p className="text-center font-semibold mt-3 ">© 2025 Affare Doro. All rights reserved.</p>
+      <p className="text-center font-semibold mt-3">
+        © 2025 Affare Doro. All rights reserved.
+      </p>
     </footer>
   );
 };

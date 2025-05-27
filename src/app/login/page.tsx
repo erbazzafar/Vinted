@@ -6,10 +6,9 @@ function Page() {
   return (
     <div className="relative flex justify-center items-center min-h-screen w-full">
       {/* Background Beams */}
-      <BackgroundBeamsWithCollisionDemo />
 
-      {/* Signup Form */}
-      <div className="absolute ">
+      {/* Login Form */}
+      <div className="absolute inset-0 flex items-center justify-center px-2 py-8 sm:py-0">
         <LoginFormDemo />
       </div>
     </div>

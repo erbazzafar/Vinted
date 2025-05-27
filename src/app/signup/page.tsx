@@ -6,7 +6,6 @@ function Page() {
   return (
     <div className="relative flex justify-center items-center min-h-screen w-full">
       {/* Background Beams */}
-      <BackgroundBeamsWithCollisionDemo />
 
       {/* Signup Form */}
       <div className="absolute ">
