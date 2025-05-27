@@ -198,18 +198,6 @@ export default function SignupFormDemo() {
               Google
             </span>
           </button>
-          <button
-            className="cursor-pointer relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] border border-gray-200 dark:border-zinc-800"
-            type="button"
-            onClick={handleFacebookSignIn}
-          >
-            <IconBrandFacebook className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-            <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-              Facebook
-            </span>
-            <BottomGradient />
-          </button>
-
         </div>
       </form>
     </div>
