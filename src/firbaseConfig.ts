@@ -15,7 +15,7 @@
 //   const app = initializeApp(firebaseConfig);
 //   const auth = getAuth(app);
 //   const provider = new GoogleAuthProvider();
-  
+
 //   export { auth, provider, signInWithRedirect };
 
 
@@ -44,7 +44,6 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDS0irfT1ol6u9PFvYaEEVi8WTOp6sopzM",
@@ -57,8 +56,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-export { auth, app, provider };
+export { app, auth, provider };
