@@ -42,23 +42,28 @@
 // const analytics = getAnalytics(app);
 
 
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-
-const firebaseSecondConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId: 'YOUR_APP_ID',
+// Your Firebase project configuration (replace with your actual config)
+const firebaseConfig = {
+  apiKey: "AIzaSyDS0irfT1ol6u9PFvYaEEVi8WTOp6sopzM",
+  authDomain: "affare-doro.firebaseapp.com",
+  projectId: "affare-doro",
+  storageBucket: "affare-doro.firebasestorage.app",
+  messagingSenderId: "Y310039757931",
+  appId: "1:310039757931:web:79fc22ca81cb85ae155d2e",
+  measurementId: "G-C5MP9EVT9X" // optional
 };
 
-const app = initializeApp(firebaseSecondConfig, 'secondary'); // NOTE: name it 'secondary'
+// Initialize Firebase app
+const app = initializeApp(firebaseConfig);
 
+// Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-export { auth, db };
+// Set up Google auth provider
+const provider = new GoogleAuthProvider();
+
+// Export app, auth, and provider to use in your components/pages
+export { app, auth, provider };
