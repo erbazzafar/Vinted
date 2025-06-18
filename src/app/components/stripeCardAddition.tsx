@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import {  useState } from "react";
+import { useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, CheckCircle, Lock } from 'lucide-react';
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe } from '@stripe/react-stripe-js';
@@ -48,6 +48,8 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
             const fn_createOrder = async () => {
                 try {
                     formData.cardId = paymentMethod?.id;
+                    console.log("--------------------------------------");
+                    
                     const response = await axios.post(
                         `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/create`,
                         formData,
@@ -57,15 +59,19 @@ const StripeCardForm = ({ onSuccess, formData }: any) => {
                             },
                         }
                     );
+                    console.log("++++++++++++++++++++++++++++++++++");
+                    
                     console.log('Response from create order:', response.data);
+                    if (response.status === 200) {
+                        toast.success("Payment successful!");
+                        router.push(`/orders`);
+                    }
                 } catch (error) {
-        
+
                 }
             }
             fn_createOrder();
             onSuccess();
-            toast.success("Payment successful!");
-            router.push(`/orders`);
 
         } catch (error: any) {
             console.error("Payment error:", error);

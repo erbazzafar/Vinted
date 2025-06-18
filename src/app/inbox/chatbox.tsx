@@ -256,7 +256,7 @@ const Chatbox = () => {
           } md:block`}
       >
         <h2 className="text-lg font-bold mb-4 border-b-2">Inbox</h2>
-        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(7.5 * 72px)' }}>
+        <ul className="overflow-y-auto" style={{ maxHeight: 'calc(7.4 * 72px)' }}>
           {chat?.map((chatMessage: any) => (
             <li
               key={chatMessage._id}
@@ -285,15 +285,15 @@ const Chatbox = () => {
                       : `/imageLogo2.jpg`
                     )
                 }
-                alt={chatMessage.adminUser.fullName}
+                alt={chatMessage.adminUser?.fullName}
                 width={30}
                 height={30}
               />
               <div className="font-semibold text-[13px]">
-                {chatMessage.adminUser._id === loggedInUser ? chatMessage?.userId?.username : chatMessage?.adminUser?.username}
+                {chatMessage.adminUser?._id === loggedInUser ? chatMessage?.userId?.username : chatMessage?.adminUser?.username}
                 <br />
                 {chatMessage?.productId?.slice(0, 1).map((mg: any) => (
-                  <div key={mg._id} className="mt-1 w-[33px] h-[33px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
+                  <div key={mg?._id} className="mt-1 w-[33px] h-[33px] bg-gray-100 rounded-[5px] inline-block overflow-hidden">
                     {/* product image  */}
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mg?.image?.[0]}`}
@@ -392,8 +392,8 @@ const Chatbox = () => {
             [...messages]?.reverse().map((msg: any, index: any) => {
               const isSentByCurrentUser = msg.senderId === loggedInUser;
               const senderImage = isSentByCurrentUser
-                ? (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser?.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`)
-                : (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId.image}` : msg?.userId?.image || `/imageLogo2.jpg`);
+                ? (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId?.image}` : msg?.userId?.image || `/imageLogo2.jpg`)
+                : (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`);
 
 
               return (
