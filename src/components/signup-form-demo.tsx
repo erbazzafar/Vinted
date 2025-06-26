@@ -39,7 +39,9 @@ export default function SignupFormDemo() {
         {
           email,
           password,
-          username: userName
+          username: userName,
+          first_name: firstname,
+          last_name: lastname
         }, // Body data
         {
           headers: {
