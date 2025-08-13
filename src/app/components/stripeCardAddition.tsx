@@ -49,7 +49,7 @@
 //                 try {
 //                     formData.cardId = paymentMethod?.id;
 //                     console.log("--------------------------------------");
-                    
+
 //                     const response = await axios.post(
 //                         `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/create`,
 //                         formData,
@@ -60,7 +60,7 @@
 //                         }
 //                     );
 //                     console.log("++++++++++++++++++++++++++++++++++");
-                    
+
 //                     console.log('Response from create order:', response.data);
 //                     if (response.status === 200) {
 //                         toast.success("Payment successful!");
@@ -216,98 +216,98 @@ import { toast } from 'sonner';
 import Cookies from "js-cookie"
 import axios from 'axios';
 
-const AddNewCardModal = ({formData}: any) => {
+const AddNewCardModal = ({ formData }: any) => {
 
-    const handleCardTokenization = async () => {
+	const handleCardTokenization = async () => {
 
-    }
+	}
 
-    const handleCreateCharge = async (formData: any ,id: String) => {
-        try {
-            const chargeRes = await axios.post (
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/createCharge`,
-                {
-                    ...formData,
-                    cardId: id,
-                    currency: 'AED',
-                    amount: formData?.subTotal.toFixed(2)
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('token')}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            )
-
-            console.log("charge response: ", chargeRes.data);
-
-            if (chargeRes.status === 200) {
-                toast.success("Payment Success!");
-                return
-            }
-
-        } catch (error) {
-            toast.error("Failed to create charge. Please try again later.");
-            return
-        }
-    }
-	return (
-        <div>
-            <p className='font-bold text-lg'>Add Card Details Below</p>
-		<TapCard
-			publicKey='pk_test_HWNhYiQ4z8MlSyw9cqsIJbvx'
-			transaction={{
-				amount: 10,
-				currency: Currencies.AED
-			}}
-			customer={{
-				id: 'customer id',
-				name: [
-					{
-						lang: Locale.EN,
-						first: 'Ahmed',
-						last: 'Sharkawy',
-						middle: 'Mohamed'
-					}
-				],
-				nameOnCard: 'Ahmed Sharkawy',
-				editable: true,
-				contact: {
-					email: 'ahmed@gmail.com',
-					phone: {
-						countryCode: '20',
-						number: '1000000000'
+	const handleCreateCharge = async (formData: any, id: String) => {
+		try {
+			const chargeRes = await axios.post(
+				`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/createCharge`,
+				{
+					...formData,
+					cardId: id,
+					currency: 'AED',
+					amount: formData?.subTotal.toFixed(2)
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${Cookies.get('token')}`,
+						'Content-Type': 'application/json'
 					}
 				}
-			}}
-			acceptance={{
-				supportedBrands: ['AMEX', 'VISA', 'MASTERCARD', 'MADA'],
-				supportedCards: ['CREDIT', 'DEBIT']
-			}}
-			fields={{
-				cardHolder: true
-			}}
-			addons={{
-				displayPaymentBrands: true,
-				loader: true,
-				saveCard: true
-			}}
-			interface={{
-				locale: Locale.EN,
-				theme: Theme.LIGHT,
-				edges: Edges.CURVED,
-				direction: Direction.LTR
-			}}
-			onReady={() => console.log('onReady')}
-			onFocus={() => console.log('onFocus')}
-			onBinIdentification={(data) => console.log('onBinIdentification', data)}
-			onValidInput={(data) => console.log('onValidInputChange', data)}
-			onInvalidInput={(data) => console.log('onInvalidInput', data)}
-			onError={(data) => console.log('onError', data)}
-			onSuccess={(data) => handleCreateCharge(formData, data?.id)}
-		/>
-        </div>
+			)
+
+			console.log("charge response: ", chargeRes.data);
+
+			if (chargeRes.status === 200) {
+				toast.success("Payment Success!");
+				return
+			}
+
+		} catch (error) {
+			toast.error("Failed to create charge. Please try again later.");
+			return
+		}
+	}
+	return (
+		<div>
+			<p className='font-bold text-lg'>Add Card Details Below</p>
+			<TapCard
+				publicKey='pk_test_HWNhYiQ4z8MlSyw9cqsIJbvx'
+				transaction={{
+					amount: 10,
+					currency: Currencies.AED
+				}}
+				customer={{
+					id: 'customer id',
+					name: [
+						{
+							lang: Locale.EN,
+							first: 'Ahmed',
+							last: 'Sharkawy',
+							middle: 'Mohamed'
+						}
+					],
+					nameOnCard: 'Ahmed Sharkawy',
+					editable: true,
+					contact: {
+						email: 'ahmed@gmail.com',
+						phone: {
+							countryCode: '20',
+							number: '1000000000'
+						}
+					}
+				}}
+				acceptance={{
+					supportedBrands: ['AMEX', 'VISA', 'MASTERCARD', 'MADA'],
+					supportedCards: ['CREDIT', 'DEBIT']
+				}}
+				fields={{
+					cardHolder: true
+				}}
+				addons={{
+					displayPaymentBrands: true,
+					loader: true,
+					saveCard: true
+				}}
+				interface={{
+					locale: Locale.EN,
+					theme: Theme.LIGHT,
+					edges: Edges.CURVED,
+					direction: Direction.LTR
+				}}
+				onReady={() => console.log('onReady')}
+				onFocus={() => console.log('onFocus')}
+				onBinIdentification={(data) => console.log('onBinIdentification', data)}
+				onValidInput={(data) => console.log('onValidInputChange', data)}
+				onInvalidInput={(data) => console.log('onInvalidInput', data)}
+				onError={(data) => console.log('onError', data)}
+				onSuccess={(data) => handleCreateCharge(formData, data?.id)}
+			/>
+		</div>
 	)
 }
 

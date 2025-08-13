@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import OtpInput from 'react-otp-input';
+
 
 export default function LoginFormDemo() {
   const router = useRouter()
@@ -25,6 +27,8 @@ export default function LoginFormDemo() {
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false)
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [openOTP, setOpenOTP] = useState(false);
+  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -65,6 +69,10 @@ export default function LoginFormDemo() {
     } catch (error) {
       if (error.status === 401) {
         toast.error(error.response.data.message || "Login failed")
+      } else if (error.response?.status === 402) {
+        toast.error("Please verify your email before logging in");
+        setOpenOTP(true);
+        
       }
       console.log("Error while loggin in: ", error);
     }
@@ -205,6 +213,7 @@ export default function LoginFormDemo() {
   };
 
   return (
+    <>
     <div className="max-w-2xl mx-auto flex flex-col items-center rounded-xl p-4 md:p-8 bg-[#EBEBEB] dark:bg-black
       border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-[0_4px_32px_0_rgba(0,0,0,0.45)] transition-all">
       <h2 className="font-bold text-2xl md:text-3xl text-neutral-800 dark:text-neutral-100 mb-2">
@@ -503,6 +512,8 @@ export default function LoginFormDemo() {
         </div>
       )}
     </div>
+    <OTPModal open={openOTP} setOpen={setOpenOTP} email={email} router={router} />
+    </>
   );
 }
 
@@ -514,6 +525,9 @@ const BottomGradient = () => {
     </>
   );
 };
+
+
+
 
 const LabelInputContainer = ({
   children,
@@ -528,6 +542,70 @@ const LabelInputContainer = ({
     </div>
   );
 };
+
+const OTPModal = ({ open, setOpen, email, router }) => {
+
+  const [otp, setOtp] = useState("");
+  const [loader, setLoader] = useState(false);
+
+  const verifyOTP = async () => {
+    if (otp === "" || otp.length != 6) {
+      return toast.error("Enter Valid OTP");
+    };
+    try {
+      setLoader(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
+      console.log("response", response);
+
+      Cookies.set('token', response.data.token)
+      Cookies.set("userId", response.data.data._id)
+      Cookies.set("photourl", response.data.data?.image)
+      Cookies.set("photoType", "dummy")
+
+
+      router.push("/")
+
+    } catch (error) {
+      console.log("Error in verifyOTP", error);
+      return toast.error(error?.response?.data?.message || "Network Error");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  if (open) {
+    return (
+      <div className="fixed top-0 left-0 w-full min-h-[100vh] bg-[rgba(0,0,0,0.8)] flex justify-center items-center" onClick={() => setOpen(false)}>
+        <div
+          className="w-full sm:w-[350px] min-h-[250px] rounded-[10px] bg-white p-[20px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p className="text-center text-[20px] font-[700] mb-[10px]">Verify Your Email</p>
+          <hr />
+          <div className="flex flex-col justify-center items-center gap-[20px] pt-[25px]">
+            <OtpInput
+              value={otp}
+              onChange={setOtp}
+              numInputs={6}
+              inputStyle={{ backgroundColor: 'rgba(0,0,0,0.1)', width: 40, height: 50 }}
+              renderSeparator={<span>&nbsp;&nbsp;</span>}
+              renderInput={(props) => <input {...props} />}
+            />
+            {loader ? (
+              <button className="w-full h-[40px] rounded-[13px] bg-gray-700 text-white font-[600]">Loading...</button>
+            ) : (
+              <button className="w-full h-[40px] rounded-[13px] bg-black text-white font-[600]" onClick={verifyOTP}>Verify</button>
+            )}
+            <p className="text-[13px] text-gray-500 text-center">Check your email address and write OTP</p>
+          </div>
+        </div>
+      </div>
+    )
+  } else {
+    return null
+  }
+};
+
 
 // Animations for modals
 const styles = `

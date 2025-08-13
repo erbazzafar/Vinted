@@ -1,6 +1,5 @@
 import SignupFormDemo from '@/components/signup-form-demo';
 import React from 'react';
-import { BackgroundBeamsWithCollisionDemo } from '../components/backgroundBeam';
 
 function Page() {
   return (

@@ -4,9 +4,11 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import AddNewCardModal from './stripeCardAddition';
+import Link from "next/link";
+import Cookies from 'js-cookie'
 
 const CheckoutPage = () => {
   const [userDetails, setUserDetails] = useState({
@@ -30,6 +32,9 @@ const CheckoutPage = () => {
   const [isCardModalOpen, setIsCardModalOpen] = useState(false)
   const bids = productInfo?.bid || [];
   const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
+
+  const router = useRouter();
+  const [checkbox, setCheckbox] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
@@ -73,26 +78,68 @@ const CheckoutPage = () => {
   }, [productId, fromUserId, toUserId]);
 
   const handleOrderSubmit = async () => {
+
+    if (!checkbox) {
+      toast.error("Accept Terms and Condtions");
+      return;
+    }
+
     // Ideally send data to backend or Stripe here
     try {
 
-      const payload = {
-        fromUserId: fromUserId || "",
-        toUserId: toUserId || "",
+      const payload: any = {
+        cardId: '1234567890',
+        brand: 'Etc',
+        last4: '1234',
+        expMonth: '12',
+        expYear: '2027',
         productId: [`${productId}`],
+        toUserId: toUserId || "",
         fullName: userDetails.fullName,
         email: userDetails.email,
         address1: userDetails.address1,
+        address2: 'Street 2',
         city: userDetails.city,
         country: userDetails.country,
         zipCode: userDetails.zipCode,
+        subTotal: userDetails.totalPrice,
+
+        fromUserId: fromUserId || "",
         phone: userDetails.phone,
         vat: userDetails.vat,
         total: userDetails.price,
-        subTotal: userDetails.totalPrice,
       }
 
-      setOrderFormData(payload);
+      // setOrderFormData(payload);
+
+      const requestOptions: any = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("token")}`, // Pass the token here
+        },
+        body: JSON.stringify(payload), // Convert formdata to JSON string
+      };
+
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/order/create`, requestOptions)
+        .then((response) => response.text())
+        .then(async (result) => {
+          const resp = JSON.parse(result);
+
+          if (resp.status === "ok") {
+            toast.success("Order Placed")
+            router.push("/")
+          } else if (resp.status === "TokenExpiredError") {
+            toast.error("Network Error");
+          }
+          else if (resp.status === "fail") {
+            toast.error("Network Error");
+          }
+        })
+        .catch((error) => {
+          toast.error("Network Error");
+          console.error(error);
+        });
       return;
     } catch (error) {
       console.log("Error submitting order:", error);
@@ -249,6 +296,11 @@ const CheckoutPage = () => {
             </div>
           </div>
 
+          <div className='flex items-center gap-[10px]'>
+            <input type='checkbox' id='checkbox-terms' onChange={() => setCheckbox(!checkbox)} />
+            <label htmlFor='checkbox-terms' className='text-[14px]'>I have read and accepted <Link href="/terms-and-condition" className='underline font-[600]'>Terms and Conditions</Link></label>
+          </div>
+
           <div className="mt-6 space-y-4">
             <button
               onClick={() => {
@@ -256,12 +308,13 @@ const CheckoutPage = () => {
                   toast.error("Please fill in all fields")
                   return
                 }
-                handleOrderSubmit()
-                setIsCardModalOpen(true)
+                handleOrderSubmit();
+                // setIsCardModalOpen(true)
               }}
               className="cursor-pointer w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-md transition"
             >
-              Proceed to Payment
+              {/* Proceed to Payment */}
+              Place Order
             </button>
           </div>
           {/*add card modal*/}

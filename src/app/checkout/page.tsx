@@ -1,14 +1,16 @@
+// /checkout/page.tsx
 "use client";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 
-import React, { Suspense } from "react";
-import CheckOut from "../components/checkOut";
+const CheckoutComponent = dynamic(() => import("../components/checkOut"), {
+  ssr: false,
+});
 
-function Page() {
+export default function Page() {
   return (
     <Suspense fallback={<div>Loading checkout...</div>}>
-      <CheckOut />
+      <CheckoutComponent />
     </Suspense>
   );
 }
-
-export default Page;

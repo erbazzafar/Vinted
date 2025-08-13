@@ -1,23 +1,22 @@
 "use client";
+
+import axios from "axios";
+import { toast } from "sonner";
+import Cookies from "js-cookie"
+import OtpInput from 'react-otp-input';
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import {
-  IconBrandFacebook,
-  IconBrandGoogle,
-  IconEye,
-  IconEyeOff,
-} from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import Cookies from "js-cookie"
+import { IconBrandGoogle, IconEye, IconEyeOff } from "@tabler/icons-react";
+
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/firbaseConfig";
-import { toast } from "sonner";
-
 
 export default function SignupFormDemo() {
+
   const router = useRouter();
 
   const [email, setEmail] = useState("")
@@ -25,6 +24,8 @@ export default function SignupFormDemo() {
   const [firstname, setFirstname] = useState("")
   const [lastname, setLastname] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+
+  const [openOTP, setOpenOTP] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +35,7 @@ export default function SignupFormDemo() {
         return
       }
       const userName = firstname + " " + lastname;
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/create`,
         {
@@ -53,7 +55,11 @@ export default function SignupFormDemo() {
       if (response.status !== 200) {
         console.log("Internal System Error");
         return
-      }
+      };
+
+      setOpenOTP(true);
+      toast.success("Check your Email for OTP");
+      return;
 
       console.log("Sign Up Successful");
       console.log("Response", response)
@@ -114,97 +120,95 @@ export default function SignupFormDemo() {
   };
 
 
-  const handleFacebookSignIn = async (e: any) => {
-
-  }
-
-
   return (
-    <div className="max-w-2xl mx-auto flex flex-col items-center rounded-xl p-4 md:p-8 bg-[#EBEBEB] dark:bg-black
+    <>
+      <div className="max-w-2xl mx-auto flex flex-col items-center rounded-xl p-4 md:p-8 bg-[#EBEBEB] dark:bg-black
       border border-gray-200 dark:border-zinc-800 shadow-lg dark:shadow-[0_4px_32px_0_rgba(0,0,0,0.45)] transition-all">
-      <h2 className="font-bold text-2xl text-neutral-800 dark:text-neutral-200 mb-1">
-        Welcome to Affare Doro
-      </h2>
-      <p className="text-neutral-600 text-[13px] max-w-sm mt-2 dark:text-neutral-300">
-        Already have an account,{" "}
-        <span
-          className="text-[13px] text-gray-900 cursor-pointer font-semibold underline hover:rounded-sm hover:bg-gray-200 hover:text-black hover:text-[13px] hover:px-3 hover:pb-1"
-          onClick={() => { router.push("/login") }}> Login </span>
-      </p>
+        <h2 className="font-bold text-2xl text-neutral-800 dark:text-neutral-200 mb-1">
+          Welcome to Affare Doro
+        </h2>
+        <p className="text-neutral-600 text-[13px] max-w-sm mt-2 dark:text-neutral-300">
+          Already have an account,{" "}
+          <span
+            className="text-[13px] text-gray-900 cursor-pointer font-semibold underline hover:rounded-sm hover:bg-gray-200 hover:text-black hover:text-[13px] hover:px-3 hover:pb-1"
+            onClick={() => { router.push("/login") }}> Login </span>
+        </p>
 
-      <form className="my-8 w-full" onSubmit={handleSubmit}>
-        <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
+        <form className="my-8 w-full" onSubmit={handleSubmit}>
+          <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+            <LabelInputContainer>
+              <Label htmlFor="firstname">First name</Label>
+              <Input
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+                id="firstname" placeholder="Tyler" type="text" />
+            </LabelInputContainer>
+            <LabelInputContainer>
+              <Label htmlFor="lastname">Last name</Label>
+              <Input
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                id="lastname" placeholder="Durden" type="text" />
+            </LabelInputContainer>
+          </div>
+          <LabelInputContainer className="mb-4">
+            <Label htmlFor="email">Email Address</Label>
             <Input
-              value={firstname}
-              onChange={(e) => setFirstname(e.target.value)}
-              id="firstname" placeholder="Tyler" type="text" />
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              id="email" placeholder="projectmayhem@fc.com" type="email" />
           </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              id="lastname" placeholder="Durden" type="text" />
+          <LabelInputContainer className="mb-4">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                id="password"
+                placeholder="••••••••"
+                type={showPassword ? "text" : "password"}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                {showPassword ? (
+                  <IconEyeOff className="h-4 w-4" />
+                ) : (
+                  <IconEye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </LabelInputContainer>
-        </div>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            id="email" placeholder="projectmayhem@fc.com" type="email" />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              id="password"
-              placeholder="••••••••"
-              type={showPassword ? "text" : "password"}
-            />
+          <button
+            className="cursor-pointer bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-md dark:shadow-[0px_2px_8px_0px_var(--zinc-900)]"
+            type="submit"
+          >
+            Sign up &rarr;
+            <BottomGradient />
+          </button>
+
+          <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+
+          <div className="flex flex-col space-y-4">
             <button
+              className="cursor-pointer relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] border border-gray-200 dark:border-zinc-800"
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              onClick={handleGoogleSignIn}
             >
-              {showPassword ? (
-                <IconEyeOff className="h-4 w-4" />
-              ) : (
-                <IconEye className="h-4 w-4" />
-              )}
+              <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
+              <span className="text-neutral-700 dark:text-neutral-300 text-sm">
+                Google
+              </span>
             </button>
           </div>
-        </LabelInputContainer>
-        <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-md dark:shadow-[0px_2px_8px_0px_var(--zinc-900)]"
-          type="submit"
-        >
-          Sign up &rarr;
-          <BottomGradient />
-        </button>
-
-        <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
-
-        <div className="flex flex-col space-y-4">
-          <button
-            className="cursor-pointer relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] border border-gray-200 dark:border-zinc-800"
-            type="button"
-            onClick={handleGoogleSignIn}
-          >
-            <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-            <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-              Google
-            </span>
-          </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+      <OTPModal open={openOTP} setOpen={setOpenOTP} email={email} router={router} />
+    </>
   );
-}
+};
 
 const BottomGradient = () => {
   return (
@@ -227,4 +231,67 @@ const LabelInputContainer = ({
       {children}
     </div>
   );
+};
+
+const OTPModal = ({ open, setOpen, email, router }) => {
+
+  const [otp, setOtp] = useState("");
+  const [loader, setLoader] = useState(false);
+
+  const verifyOTP = async () => {
+    if (otp === "" || otp.length != 6) {
+      return toast.error("Enter Valid OTP");
+    };
+    try {
+      setLoader(true);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
+      console.log("response", response);
+
+      Cookies.set('token', response.data.token)
+      Cookies.set("userId", response.data.data._id)
+      Cookies.set("photourl", response.data.data?.image)
+      Cookies.set("photoType", "dummy")
+
+
+      router.push("/")
+
+    } catch (error) {
+      console.log("Error in verifyOTP", error);
+      return toast.error(error?.response?.data?.message || "Network Error");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  if (open) {
+    return (
+      <div className="fixed top-0 left-0 w-full min-h-[100vh] bg-[rgba(0,0,0,0.8)] flex justify-center items-center" onClick={() => setOpen(false)}>
+        <div
+          className="w-full sm:w-[350px] min-h-[250px] rounded-[10px] bg-white p-[20px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p className="text-center text-[20px] font-[700] mb-[10px]">Verify Your Email</p>
+          <hr />
+          <div className="flex flex-col justify-center items-center gap-[20px] pt-[25px]">
+            <OtpInput
+              value={otp}
+              onChange={setOtp}
+              numInputs={6}
+              inputStyle={{ backgroundColor: 'rgba(0,0,0,0.1)', width: 40, height: 50 }}
+              renderSeparator={<span>&nbsp;&nbsp;</span>}
+              renderInput={(props) => <input {...props} />}
+            />
+            {loader ? (
+              <button className="w-full h-[40px] rounded-[13px] bg-gray-700 text-white font-[600]">Loading...</button>
+            ) : (
+              <button className="w-full h-[40px] rounded-[13px] bg-black text-white font-[600]" onClick={verifyOTP}>Verify</button>
+            )}
+            <p className="text-[13px] text-gray-500 text-center">Check your email address and write OTP</p>
+          </div>
+        </div>
+      </div>
+    )
+  } else {
+    return null
+  }
 };
