@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import Link from 'next/link';
 import { toast } from "sonner";
 import Cookies from "js-cookie"
 import OtpInput from 'react-otp-input';
@@ -26,12 +27,17 @@ export default function SignupFormDemo() {
   const [showPassword, setShowPassword] = useState(false)
 
   const [openOTP, setOpenOTP] = useState(false);
+  const [checkTerms, setCheckTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       if (!email || !password) {
-        console.log("Please Enter the Email and Password");
+        toast.error("Please Enter the Email and Password");
+        return
+      }
+      if (!checkTerms) {
+        toast.error("Please Accept the Terms and Conditions");
         return
       }
       const userName = firstname + " " + lastname;
@@ -181,6 +187,12 @@ export default function SignupFormDemo() {
               </button>
             </div>
           </LabelInputContainer>
+          <div className="flex items-center mb-4">
+            <input type="checkbox" id="terms" checked={checkTerms} onChange={(e) => setCheckTerms(e.target.checked)} className="mr-2" />
+            <label htmlFor="terms" className="text-sm text-neutral-700 dark:text-neutral-300">
+              By signing up, you agree to our <Link href="/terms-and-condition" className="text-blue-600 hover:underline">Terms and Conditions</Link> and <Link href="/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</Link>
+            </label>
+          </div>
           <button
             className="cursor-pointer bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-md dark:shadow-[0px_2px_8px_0px_var(--zinc-900)]"
             type="submit"
