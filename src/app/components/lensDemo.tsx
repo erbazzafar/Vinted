@@ -91,7 +91,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px]">
       <div className="relative">
-        <Link 
+        <Link
           href={`/product/${product._id}`}>
           <Image
             src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
@@ -151,7 +151,7 @@ const ProductList = () => {
     const getSellerProducts = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?website=true`
         );
 
         if (response.status !== 200) {

@@ -57,11 +57,11 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
     try {
       const response = await axios.put(
-       ` ${process.env.NEXT_PUBLIC_BACKEND_URL}/product/toggleLike`,
+        ` ${process.env.NEXT_PUBLIC_BACKEND_URL}/product/toggleLike`,
         { productId: product._id, userId: Cookies.get('userId') },
         {
           headers: {
-            authorization:` Bearer ${token}`,
+            authorization: ` Bearer ${token}`,
           },
         }
       )
@@ -162,7 +162,7 @@ function Filter() {
           return
         }
         const response = await axios.get(
-         ` ${process.env.NEXT_PUBLIC_BACKEND_URL}/category/get/${categoryId}`
+          ` ${process.env.NEXT_PUBLIC_BACKEND_URL}/category/get/${categoryId}`
         )
         if (response.status !== 200) {
           toast.error("Error fetching the category names")
@@ -187,7 +187,7 @@ function Filter() {
           return
         }
         const response = await axios.get(
-        `  ${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${categoryId}`
+          `  ${process.env.NEXT_PUBLIC_BACKEND_URL}/category/viewAll?parentCategoryId=${categoryId}`
         )
 
         if (response.status !== 200) {
@@ -212,7 +212,7 @@ function Filter() {
     const products = async () => {
       try {
         const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?categoryId=${categoryId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?categoryId=${categoryId}&website=true`
         )
 
         if (response.status !== 200) {
@@ -266,7 +266,7 @@ function Filter() {
           <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 mx-auto w-fit items-center justify-center z-10 after:content-['']">
             <p className='text-white text-[30px] sm:text-[40px] md:text-[40px] lg:text-[55px] font-bold text-center after:block after:w-[100%] after:h-[3px] after:bg-gray-500 after:mt-2'>{hierarcy?.length === 0 ? categoryName : hierarcy?.[0]?.name}</p>
             <div className='flex gap-2 mt-[10px] text-[14px] justify-center text-gray-300'>
-              {hierarcy?.map((i: any, index:number) => {
+              {hierarcy?.map((i: any, index: number) => {
                 return (
                   <p key={index}>{i?.name} /</p>
                 )
@@ -277,7 +277,7 @@ function Filter() {
         </div>
 
         <div className='flex gap-2 mt-[30px] text-[18px] font-[700]'>
-          {hierarcy?.map((i: any, index:number) => {
+          {hierarcy?.map((i: any, index: number) => {
             return (
               <p key={index}>{i?.name} /</p>
             )
