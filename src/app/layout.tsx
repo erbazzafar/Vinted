@@ -7,6 +7,7 @@ import Footer from "./components/footer";
 import { Toaster } from "sonner"; // 👈 Import ThemeProvider
 import { ThemeProvider } from "./components/theme-provider";
 import WhatsappFloatButton from "./components/whatsAppFloatButton";
+import ReduxProvider from "@/components/providers/ReduxProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,11 +43,13 @@ export default function RootLayout({
           <div className="absolute inset-0 -z-10">
             <Particles />
           </div>
-          <Toaster position="bottom-right" richColors />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <WhatsappFloatButton/>
+          <ReduxProvider>
+            <Toaster position="bottom-right" richColors />
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <WhatsappFloatButton />
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>

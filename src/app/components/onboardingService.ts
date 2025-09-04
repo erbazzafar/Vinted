@@ -5,7 +5,7 @@
 // const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // // Get auth token from localStorage
-// const getAuthToken = () => Cookies.get('token');
+// const getAuthToken = () => Cookies.get("user-token");
 
 // // Create auth header
 // const authHeader = () => ({

@@ -22,7 +22,7 @@ const ProductPage = () => {
   const [sold, setSold] = useState(false)
   const [reserve, setReserved] = useState(false)
 
-  const token = Cookies.get("token")
+  const token = Cookies.get("user-token")
   const loggedInUser = Cookies.get("userId")
   const [bump, setBump] = useState(false);
   const [bumpDayCheck, setBumpDayCheck] = useState(0)
@@ -404,22 +404,22 @@ const ProductPage = () => {
             {/* === Set 2: Description, Brand, Size, Color, Category === */}
             <div className=" border-b border-gray-200 pb-2">
               {gettingProduct?.brandId?.name && (
-              <div>
-                <label className="text-[13px] font-medium text-gray-600">Brand:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "Other"}</span>
-              </div>
+                <div>
+                  <label className="text-[13px] font-medium text-gray-600">Brand:</label>
+                  <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "Other"}</span>
+                </div>
               )}
               {gettingProduct?.sizeId?.name && (
-              <div>
-                <label className="text-[13px] font-medium text-gray-600">Size:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "Other"}</span>
-              </div>
+                <div>
+                  <label className="text-[13px] font-medium text-gray-600">Size:</label>
+                  <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "Other"}</span>
+                </div>
               )}
               {gettingProduct?.colorId?.[0]?.name && (
-              <div>
-                <label className="text-[13px] font-medium text-gray-600">Color:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0]?.name || "Other "}</span>
-              </div>
+                <div>
+                  <label className="text-[13px] font-medium text-gray-600">Color:</label>
+                  <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0]?.name || "Other "}</span>
+                </div>
               )}
 
               <div>

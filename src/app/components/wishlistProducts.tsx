@@ -27,7 +27,7 @@ const getStarRating = (rating: number) => {
 
 const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: string) => void }) => {
   const [isWishlisted, setIsWishlisted] = useState(true);
-  const token = Cookies.get("token");
+  const token = Cookies.get("user-token");
 
   const handleWishList = async () => {
     if (!product._id) return;
@@ -131,7 +131,7 @@ const ProductList = () => {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/getLike`,
           {
             headers: {
-              Authorization: `Bearer ${Cookies.get("token")}`,
+              Authorization: `Bearer ${Cookies.get("user-token")}`,
             },
           }
         );

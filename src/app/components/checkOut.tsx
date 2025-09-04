@@ -116,7 +116,7 @@ const CheckoutPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("token")}`, // Pass the token here
+          Authorization: `Bearer ${Cookies.get("user-token")}`, // Pass the token here
         },
         body: JSON.stringify(payload), // Convert formdata to JSON string
       };

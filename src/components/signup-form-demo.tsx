@@ -69,7 +69,7 @@ export default function SignupFormDemo() {
 
       console.log("Sign Up Successful");
       console.log("Response", response)
-      Cookies.set('token', response.data.token)
+      Cookies.set("user-token", response.data.token)
       Cookies.set("userId", response.data.data._id)
       Cookies.set("photourl", response.data.data?.image)
       Cookies.set("photoType", "dummy")
@@ -110,7 +110,7 @@ export default function SignupFormDemo() {
         return
       }
 
-      Cookies.set("token", response.data.token)
+      Cookies.set("user-token", response.data.token)
       console.log("Token", response.data.token);
       Cookies.set("photourl", response.data.data?.image || "")
       Cookies.set("googlePhoto", data?.user?.photoURL)
@@ -259,7 +259,7 @@ const OTPModal = ({ open, setOpen, email, router }) => {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
       console.log("response", response);
 
-      Cookies.set('token', response.data.token)
+      Cookies.set("user-token", response.data.token)
       Cookies.set("userId", response.data.data._id)
       Cookies.set("photourl", response.data.data?.image)
       Cookies.set("photoType", "dummy")

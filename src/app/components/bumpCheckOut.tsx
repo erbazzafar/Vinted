@@ -79,7 +79,7 @@ function BumpCheckOut() {
     useEffect(() => {
         const productForBump = async () => {
             try {
-                if (!productId || !Cookies.get("token")) {
+                if (!productId || !Cookies.get("user-token")) {
                     return
                 }
                 const response = await axios.get(
@@ -103,18 +103,18 @@ function BumpCheckOut() {
 
     const handleBumpPayment = () => {
         try {
-          const formData = new FormData();
-          formData.append("bump", "true");
-          formData.append("bumpDay", String(bumpInformation.bumpDays));
-          formData.append("bumpDate", currentDate);
-      
-          setBumpData(formData);
+            const formData = new FormData();
+            formData.append("bump", "true");
+            formData.append("bumpDay", String(bumpInformation.bumpDays));
+            formData.append("bumpDate", currentDate);
+
+            setBumpData(formData);
         } catch (error) {
-          console.log("Bump info missing", error);
-          toast.error("Bump information Missing");
-          return;
+            console.log("Bump info missing", error);
+            toast.error("Bump information Missing");
+            return;
         }
-      };
+    };
 
     const bumpPrice = product && bumpInformation.percentage
         ? (product.price * parseFloat(bumpInformation.percentage)) / 100
@@ -154,11 +154,11 @@ function BumpCheckOut() {
                 <div className="mt-6 space-y-4">
                     <button
                         onClick={() => {
-                            if (Cookies.get("token")){
+                            if (Cookies.get("user-token")) {
                                 handleBumpPayment()
                                 setIsPaymentModalOpen(true)
                             }
-                        } }
+                        }}
                         className="cursor-pointer w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-md transition"
                     >
                         Proceed to Payment
@@ -167,7 +167,7 @@ function BumpCheckOut() {
 
                 <Modal open={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)}>
                     <Box className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <AddNewCardModal formData={bumpData} productId = {productId}/>
+                        <AddNewCardModal formData={bumpData} productId={productId} />
                     </Box>
                 </Modal>
             </div>

@@ -43,7 +43,7 @@ export default function MyOrders() {
   const [trackOpen, setTrackOpen] = useState(false);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [loader, setLoader] = useState(true)
-  const token = Cookies.get("token");
+  const token = Cookies.get("user-token");
   const loggedInUserId = Cookies.get("userId");
 
   const getUserOrders = async () => {
@@ -324,12 +324,12 @@ export default function MyOrders() {
               <div className="flex flex-col items-center">
                 <Package
                   className={`w-10 h-10 ${selectedOrder?.orderStatus === "pending" ||
-                      selectedOrder?.orderStatus === "shipping" ||
-                      selectedOrder?.orderStatus === "completed" ||
-                      selectedOrder?.orderStatus === "delivered" ||
-                      selectedOrder?.orderStatus === "ready-to-delivered"
-                      ? "text-black"
-                      : "text-gray-400"
+                    selectedOrder?.orderStatus === "shipping" ||
+                    selectedOrder?.orderStatus === "completed" ||
+                    selectedOrder?.orderStatus === "delivered" ||
+                    selectedOrder?.orderStatus === "ready-to-delivered"
+                    ? "text-black"
+                    : "text-gray-400"
                     }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Pending</span>
@@ -338,11 +338,11 @@ export default function MyOrders() {
               {/* Dotted Line */}
               <div
                 className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "shipping" ||
-                    selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
-                    ? "border-black"
-                    : "border-gray-400"
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered" ||
+                  selectedOrder?.orderStatus === "ready-to-delivered"
+                  ? "border-black"
+                  : "border-gray-400"
                   }`}
               ></div>
 
@@ -350,11 +350,11 @@ export default function MyOrders() {
               <div className="flex flex-col items-center">
                 <Truck
                   className={`w-10 h-10 ${selectedOrder?.orderStatus === "shipping" ||
-                      selectedOrder?.orderStatus === "completed" ||
-                      selectedOrder?.orderStatus === "delivered" ||
-                      selectedOrder?.orderStatus === "ready-to-delivered"
-                      ? "text-black"
-                      : "text-gray-400"
+                    selectedOrder?.orderStatus === "completed" ||
+                    selectedOrder?.orderStatus === "delivered" ||
+                    selectedOrder?.orderStatus === "ready-to-delivered"
+                    ? "text-black"
+                    : "text-gray-400"
                     }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Shipping</span>
@@ -363,10 +363,10 @@ export default function MyOrders() {
               {/* Dotted Line */}
               <div
                 className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
-                    ? "border-black"
-                    : "border-gray-400"
+                  selectedOrder?.orderStatus === "delivered" ||
+                  selectedOrder?.orderStatus === "ready-to-delivered"
+                  ? "border-black"
+                  : "border-gray-400"
                   }`}
               ></div>
 
@@ -374,10 +374,10 @@ export default function MyOrders() {
               <div className="flex flex-col items-center">
                 <Users
                   className={`w-10 h-10 ${selectedOrder?.orderStatus === "completed" ||
-                      selectedOrder?.orderStatus === "delivered" ||
-                      selectedOrder?.orderStatus === "ready-to-delivered"
-                      ? "text-black"
-                      : "text-gray-400"
+                    selectedOrder?.orderStatus === "delivered" ||
+                    selectedOrder?.orderStatus === "ready-to-delivered"
+                    ? "text-black"
+                    : "text-gray-400"
                     }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Ready for Delivery</span>
@@ -386,8 +386,8 @@ export default function MyOrders() {
               {/* Dotted Line */}
               <div
                 className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "delivered"
-                    ? "border-black"
-                    : "border-gray-400"
+                  ? "border-black"
+                  : "border-gray-400"
                   }`}
               ></div>
 
@@ -395,8 +395,8 @@ export default function MyOrders() {
               <div className="flex flex-col items-center">
                 <Archive
                   className={`w-10 h-10 ${selectedOrder?.orderStatus === "delivered"
-                      ? "text-black"
-                      : "text-gray-400"
+                    ? "text-black"
+                    : "text-gray-400"
                     }`}
                 />
                 <span className="text-sm text-gray-600 mt-1">Delivered</span>

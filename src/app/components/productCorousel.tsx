@@ -48,7 +48,7 @@ const ProductCard = ({ product }: { product: any }) => {
         { productId: product._id, userId: Cookies.get("userId") },
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("token")}`,
+            authorization: `Bearer ${Cookies.get("user-token")}`,
           },
         }
       );

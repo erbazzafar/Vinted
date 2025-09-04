@@ -40,7 +40,7 @@ function Wallet() {
   const [fullName, setFullName] = useState<string>("")
 
   const userId = Cookies.get("userId");
-  const token = Cookies.get("token");
+  const token = Cookies.get("user-token");
   const router = useRouter();
 
   const [wallet, setWallet] = useState<{
@@ -169,11 +169,11 @@ function Wallet() {
   }
 
   const CustomBackdrop = (props: any) => (
-  <Backdrop
-    {...props}
-    className="!bg-[rgba(0,0,0,0.1)] !backdrop-blur-sm"
-  />
-);
+    <Backdrop
+      {...props}
+      className="!bg-[rgba(0,0,0,0.1)] !backdrop-blur-sm"
+    />
+  );
 
 
   return (

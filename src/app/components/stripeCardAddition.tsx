@@ -55,7 +55,7 @@
 //                         formData,
 //                         {
 //                             headers: {
-//                                 Authorization: `Bearer ${Cookies.get('token')}`,
+//                                 Authorization: `Bearer ${Cookies.get("user-token")}`,
 //                             },
 //                         }
 //                     );
@@ -234,7 +234,7 @@ const AddNewCardModal = ({ formData }: any) => {
 				},
 				{
 					headers: {
-						Authorization: `Bearer ${Cookies.get('token')}`,
+						Authorization: `Bearer ${Cookies.get("user-token")}`,
 						'Content-Type': 'application/json'
 					}
 				}

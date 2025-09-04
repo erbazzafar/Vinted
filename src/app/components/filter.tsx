@@ -42,7 +42,7 @@ const getStarRating = (rating: number) => {
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false)
-  const token = Cookies.get('token')
+  const token = Cookies.get("user-token")
 
   const handleWishList = async () => {
     if (!product._id) return

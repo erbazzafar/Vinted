@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import Link from "next/link";
-import { Heart, Inbox, Search, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
-import { motion, AnimatePresence, setDragLock } from "framer-motion";
-import Cookies from "js-cookie"
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
-import axios from "axios";
+import Cookies from "js-cookie";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { updateUserLoggedIn, updateUserToken } from "@/features/features";
+import { Heart, Inbox, Search, Bell, MessageSquare, Package, Percent, User, Settings, Wallet, Plus, LogOut } from "lucide-react";
 
 interface DropdownOption {
   label: string;
@@ -26,27 +28,45 @@ interface Notification {
 }
 
 const Navbar = () => {
-  const router = useRouter()
+
+  const router = useRouter();
+  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const photoURL = Cookies.get("photourl")
-  const isLoggedIn = Cookies.get("token") ? true : false
+  const [token, setToken] = useState(useSelector((state: any) => state.userToken) || null);
+
   const id = Cookies.get("userId")
 
+  const [isLoggedIn, setIsLoggedIn] = useState(useSelector((state: any) => state.userLoggedIn) || false);
+
+  useEffect(() => {
+    dispatch(updateUserLoggedIn(id ? true : false));
+    setIsLoggedIn(id ? true : false);
+    setToken(id ? true : false);
+  }, [id]);
+
   const handleLogout = () => {
-    console.log("user Logged out");
+
+    dispatch(updateUserLoggedIn(false));
+    dispatch(updateUserToken(null));
+
+    setToken(null);
+    setIsLoggedIn(false);
+
     Cookies.remove("photourl")
-    Cookies.remove("token")
+    Cookies.remove("user-token")
     Cookies.remove("userId")
     Cookies.remove("googlePhoto")
     Cookies.remove("photoType")
+
+    toast.success("Logged out successfully");
+
     router.push('/')
   }
-
-  const token = Cookies.get("token")
 
   // Profile Dropdown Options
   const dropdownOptions: DropdownOption[] = [
@@ -86,7 +106,7 @@ const Navbar = () => {
   useEffect(() => {
     const getNotifications = async () => {
       try {
-        if (!token || !id) {
+        if (!id) {
           return
         }
         const response = await axios.get(
@@ -114,7 +134,7 @@ const Navbar = () => {
   useEffect(() => {
     const unreadNotificationCounter = async () => {
       try {
-        if (!id || !token) return;
+        if (!id) return;
 
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification/countUnreadData?userId=${id}`,
@@ -134,7 +154,7 @@ const Navbar = () => {
         setCounter(response.data.data); // must be an array
 
         console.log("counter: ", counter.length);
-        
+
       } catch (error) {
         console.log("Notification error:", error);
       }
@@ -218,7 +238,7 @@ const Navbar = () => {
 
   return (
     <nav className="bg-[#EBEBEB] dark:bg-gray-900 w-full shadow-md relative overflow-visible">
-      <div className="lg:px-[50px] container mx-auto max-w-screen-2xl flex items-center justify-between">
+      <div className="lg:px-[50px] container mx-auto max-w-screen-2xl flex items-center justify-between min-h-[75px]">
         {/* Brand Name */}
         <Link href="/" className="text-3xl font-bold text-gray-900 dark:text-white">
           <Image

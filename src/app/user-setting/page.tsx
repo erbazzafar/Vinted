@@ -5,8 +5,8 @@ function userDashboardPage() {
 
     return (
         <>
-            <Dashboard/>
-        </>        
+            <Dashboard />
+        </>
     )
 }
 

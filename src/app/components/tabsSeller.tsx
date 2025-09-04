@@ -33,7 +33,7 @@ const TabsComponent = ({ sellerId }: any) => {
   ]);
 
   const [wishlistState, setWishlistState] = useState<{ [key: string]: boolean }>({});
-  const token = Cookies.get("token")
+  const token = Cookies.get("user-token")
 
   const handleWishList = async (product: any) => {
     if (!product._id) return;
@@ -54,7 +54,7 @@ const TabsComponent = ({ sellerId }: any) => {
         { productId: product._id, userId: Cookies.get("userId") },
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("token")}`,
+            authorization: `Bearer ${Cookies.get("user-token")}`,
           },
         }
       );

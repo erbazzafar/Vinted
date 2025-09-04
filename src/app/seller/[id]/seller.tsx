@@ -14,7 +14,7 @@ import Link from "next/link";
 
 const SellerProfile = () => {
 
-  const token = Cookies.get("token")
+  const token = Cookies.get("user-token")
 
   const router = useRouter()
 
@@ -312,7 +312,7 @@ const SellerProfile = () => {
                   )}
                 </Box>
               </Modal>
-              
+
               {/*Follower Modal*/}
               <Modal open={isFollowerModalOpen} onClose={() => setIsFollowerModalOpen(false)}>
                 <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[80vh] overflow-hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

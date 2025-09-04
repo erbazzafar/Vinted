@@ -37,7 +37,7 @@ const getStarRating = (rating: number) => {
 // Component for rendering each product card
 const ProductCard = ({ product }: { product: Product }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const token = Cookies.get("token")
+  const token = Cookies.get("user-token")
 
   const handleWishList = async () => {
     if (!product._id) return;
@@ -56,7 +56,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         { productId: product._id, userId: Cookies.get("userId") },
         {
           headers: {
-            authorization: `Bearer ${Cookies.get("token")}`,
+            authorization: `Bearer ${Cookies.get("user-token")}`,
           },
         }
       );

@@ -1,33 +1,38 @@
 "use client";
+
 import axios from "axios";
+import Image from "next/image";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
-import { cn } from "@/lib/utils";
+import OtpInput from 'react-otp-input';
+import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
+import React, { useState, useRef } from "react";
+import { IconEye, IconEyeOff } from "@tabler/icons-react";
+
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { IconEye, IconEyeOff } from "@tabler/icons-react";
-import React, { useState, useRef } from "react";
-import Image from "next/image";
-import OtpInput from 'react-otp-input';
-
+import { updateUserLoggedIn, updateUserToken } from "@/features/features";
 
 export default function LoginFormDemo() {
+
   const router = useRouter()
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [openOTP, setOpenOTP] = useState(false);
   const [newPassword, setNewPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showOtpModal, setShowOtpModal] = useState(false)
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("")
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false)
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
-  const [openOTP, setOpenOTP] = useState(false);
 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,9 +43,7 @@ export default function LoginFormDemo() {
         toast.error("Please Enter all the fields!!");
         return
       }
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`,
-        { email, password }, // Body data
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, { email, password },
         {
           headers: {
             "Content-Type": "application/json",
@@ -53,9 +56,12 @@ export default function LoginFormDemo() {
         return
       }
 
-      console.log("Login Successful");
-      Cookies.set('token', response.data.token)
-      Cookies.set("userId", response.data.data._id)
+      dispatch(updateUserLoggedIn(true));
+      dispatch(updateUserToken(response.data.token));
+
+      Cookies.set("user-token", response.data.token);
+      Cookies.set("userId", response.data.data._id);
+
       if (response.data.data.image) {
         Cookies.set("photourl", response.data.data.image)
         Cookies.set("photoType", "backend")
@@ -64,7 +70,7 @@ export default function LoginFormDemo() {
       }
 
 
-      router.push("/")
+      router.push("/");
 
     } catch (error) {
       if (error.status === 401) {
@@ -72,7 +78,6 @@ export default function LoginFormDemo() {
       } else if (error.response?.status === 402) {
         toast.error("Please verify your email before logging in");
         setOpenOTP(true);
-
       } else if (error.response?.status === 403) {
         toast.error("Your account has been blocked by Admin");
       }
@@ -514,7 +519,7 @@ export default function LoginFormDemo() {
           </div>
         )}
       </div>
-      <OTPModal open={openOTP} setOpen={setOpenOTP} email={email} router={router} />
+      <OTPModal open={openOTP} setOpen={setOpenOTP} email={email} router={router} dispatch={dispatch} />
     </>
   );
 }
@@ -545,7 +550,7 @@ const LabelInputContainer = ({
   );
 };
 
-const OTPModal = ({ open, setOpen, email, router }) => {
+const OTPModal = ({ open, setOpen, email, router, dispatch }) => {
 
   const [otp, setOtp] = useState("");
   const [loader, setLoader] = useState(false);
@@ -557,9 +562,11 @@ const OTPModal = ({ open, setOpen, email, router }) => {
     try {
       setLoader(true);
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
-      console.log("response", response);
 
-      Cookies.set('token', response.data.token)
+      dispatch(updateUserLoggedIn(true));
+      dispatch(updateUserToken(response.data.token));
+
+      Cookies.set("user-token", response.data.token)
       Cookies.set("userId", response.data.data._id)
       Cookies.set("photourl", response.data.data?.image)
       Cookies.set("photoType", "dummy")

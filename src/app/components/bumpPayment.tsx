@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import {  useState } from "react";
+import { useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, CheckCircle, Lock } from 'lucide-react';
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useElements, useStripe } from '@stripe/react-stripe-js';
@@ -52,7 +52,7 @@ const StripeCardForm = ({ onSuccess, formData, productId }: any) => {
                         formData,
                         {
                             headers: {
-                                Authorization: `Bearer ${Cookies.get('token')}`,
+                                Authorization: `Bearer ${Cookies.get("user-token")}`,
                                 "Content-Type": "multipart/form-data"
                             },
                         }
@@ -194,7 +194,7 @@ const AddNewCardModal = ({ formData, productId }: any) => {
                 <Elements stripe={stripePromise}>
                     <StripeCardForm
                         formData={formData}
-                        productId = {productId}
+                        productId={productId}
                         onSuccess={() => { }}
                     />
                 </Elements>

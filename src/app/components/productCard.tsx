@@ -413,7 +413,7 @@ const ProductCard = () => {
   //         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
   //         {
   //           headers: {
-  //             Authorization: `Bearer ${Cookies.get("token")}`
+  //             Authorization: `Bearer ${Cookies.get("user-token")}`
   //           }
   //         }
   //       )
@@ -590,7 +590,7 @@ const ProductCard = () => {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${Cookies.get("token")}`,
+              Authorization: `Bearer ${Cookies.get("user-token")}`,
             },
           }
         )
@@ -601,7 +601,7 @@ const ProductCard = () => {
           {
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${Cookies.get("token")}`,
+              Authorization: `Bearer ${Cookies.get("user-token")}`,
             },
           })
       }
@@ -991,9 +991,9 @@ const ProductCard = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="w-full p-2 border rounded-lg bg-white mt-2"
               >
-                {quality.map((q: any, i:number) => {
-                    if(!condtionFlags.hasCondition && i > 0) return;
-                    return (
+                {quality.map((q: any, i: number) => {
+                  if (!condtionFlags.hasCondition && i > 0) return;
+                  return (
                     <motion.div
                       key={q.name}
                       className="cursor-pointer p-2 hover:bg-gray-100"
@@ -1002,7 +1002,8 @@ const ProductCard = () => {
                       <strong>{q.name}</strong>
                       <p className="text-sm text-gray-600">{q.description}</p>
                     </motion.div>
-                  )})}
+                  )
+                })}
               </motion.div>
             )}
           </AnimatePresence>
