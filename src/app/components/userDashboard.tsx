@@ -8,15 +8,22 @@ import Cookies from "js-cookie";
 import { DatePicker } from "antd";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings, User, FileText, Camera, PlusCircle, Menu, X } from "lucide-react";
+import { Settings, User, FileText, Camera, PlusCircle, Menu, X, Shield } from "lucide-react";
 
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
-import UserSettingsTermsCondition from "@/components/user-settings-terms-condition";
+
+import KfcSetting from "@/components/kfc-setting";
 import UserSettings from "@/components/user-settings";
+import UserSettingsTermsCondition from "@/components/user-settings-terms-condition";
 
 const pages = [
   { name: "Profile", icon: User },
+  {
+    name: "KYC", icon: Shield, content: () => (
+      <KfcSetting />
+    )
+  },
   {
     name: "Settings", icon: Settings, content: ({ vacationMode, onVacationModeChange, notificationEnabled, onNotificationChange }) => (
       <UserSettings
@@ -51,8 +58,6 @@ export default function Dashboard() {
 
   const token = Cookies.get("user-token");
   const id = Cookies.get("userId");
-
-  console.log('token: ', token);
 
   useEffect(() => {
     const fetchData = async () => {
