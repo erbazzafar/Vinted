@@ -16,7 +16,6 @@ interface KYCFormData {
         idFront: File | null
         idBack: File | null
         selfieWithId: File | null
-        proofOfAddress: File | null
     }
 }
 
@@ -30,7 +29,6 @@ interface KYCErrors {
         idFront?: string
         idBack?: string
         selfieWithId?: string
-        proofOfAddress?: string
     }
 }
 
@@ -48,8 +46,7 @@ const KfcSetting = () => {
         documents: {
             idFront: null,
             idBack: null,
-            selfieWithId: null,
-            proofOfAddress: null
+            selfieWithId: null
         }
     })
 
@@ -159,9 +156,6 @@ const KfcSetting = () => {
             newErrors.documents = { ...newErrors.documents, selfieWithId: 'Selfie with ID is required' }
         }
 
-        if (!formData.documents.proofOfAddress) {
-            newErrors.documents = { ...newErrors.documents, proofOfAddress: 'Proof of address is required' }
-        }
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
@@ -200,9 +194,6 @@ const KfcSetting = () => {
             }
             if (formData.documents.selfieWithId) {
                 formDataToSend.append('selfieWithId', formData.documents.selfieWithId);
-            }
-            if (formData.documents.proofOfAddress) {
-                formDataToSend.append('proofOfAddress', formData.documents.proofOfAddress);
             }
 
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/kyc/create`, formDataToSend, {
@@ -287,7 +278,7 @@ const KfcSetting = () => {
     }
 
     // KYC Status Component
-    const KYCStatusCard = ({ status }: { status: string }) => {
+    const KYCStatusCard = ({ status, declineReason }: { status: string, declineReason?: string }) => {
         const getStatusInfo = (status: string) => {
             switch (status.toLowerCase()) {
                 case 'pending':
@@ -312,7 +303,9 @@ const KfcSetting = () => {
                 case 'rejected':
                     return {
                         title: 'KYC Declined',
-                        message: 'Your KYC verification has been declined. Please review the requirements and submit a new application with correct information.',
+                        message: declineReason
+                            ? `Your KYC verification has been declined. Reason: ${declineReason}. Please review the requirements and submit a new application with correct information.`
+                            : 'Your KYC verification has been declined. Please review the requirements and submit a new application with correct information.',
                         icon: '❌',
                         bgColor: 'bg-red-50',
                         borderColor: 'border-red-200',
@@ -342,6 +335,15 @@ const KfcSetting = () => {
                     <p className={`text-lg ${statusInfo.textColor} mb-6`}>
                         {statusInfo.message}
                     </p>
+
+                    {/* Show decline reason separately if available */}
+                    {declineReason && (status.toLowerCase() === 'declined' || status.toLowerCase() === 'rejected') && (
+                        <div className="bg-red-100 border border-red-300 rounded-lg p-4 mb-6">
+                            <h3 className="text-lg font-semibold text-red-800 mb-2">Decline Reason:</h3>
+                            <p className="text-red-700">{declineReason}</p>
+                        </div>
+                    )}
+
                     {status.toLowerCase() === 'declined' || status.toLowerCase() === 'rejected' ? (
                         <button
                             onClick={() => {
@@ -355,8 +357,7 @@ const KfcSetting = () => {
                                     documents: {
                                         idFront: null,
                                         idBack: null,
-                                        selfieWithId: null,
-                                        proofOfAddress: null
+                                        selfieWithId: null
                                     }
                                 })
                                 setErrors({})
@@ -389,7 +390,7 @@ const KfcSetting = () => {
 
     // Show KYC status if user has submitted KYC
     if (userKyc && userKyc.status) {
-        return <KYCStatusCard status={userKyc.status} />
+        return <KYCStatusCard status={userKyc.status} declineReason={userKyc.declineReason} />
     }
 
     return (
@@ -547,11 +548,6 @@ const KfcSetting = () => {
                             description="Take a selfie holding your ID next to your face"
                         />
 
-                        <FileUploadField
-                            label="Proof of Address"
-                            documentType="proofOfAddress"
-                            description="Upload utility bill, bank statement, or tenancy contract"
-                        />
                     </div>
                 </div>
 
@@ -569,8 +565,7 @@ const KfcSetting = () => {
                                 documents: {
                                     idFront: null,
                                     idBack: null,
-                                    selfieWithId: null,
-                                    proofOfAddress: null
+                                    selfieWithId: null
                                 }
                             })
                             setErrors({})
