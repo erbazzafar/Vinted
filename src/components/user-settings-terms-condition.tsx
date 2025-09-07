@@ -4,7 +4,7 @@ const UserSettingsTermsCondition = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-6">Terms and Conditions</h1>
-            <p className="text-gray-600 mb-8">Last Updated: April 24, 2025</p>
+            <p className="text-gray-600 mb-8">Last Updated: September 7, 2025</p>
 
             <div className="space-y-8">
                 <section>
@@ -152,7 +152,56 @@ const UserSettingsTermsCondition = () => {
                 </section>
 
                 <section>
-                    <h2 className="text-2xl font-semibold mb-4">12. Contact Information</h2>
+                    <h2 className="text-2xl font-semibold mb-4">12. KYC (Know Your Customer) and AML Compliance</h2>
+                    <div className="space-y-4 text-gray-600">
+                        <div>
+                            <h3 className="text-xl font-medium mb-2">12.1. Purpose</h3>
+                            <p>
+                                To maintain a secure and compliant marketplace, Affare doro requires users to complete Know Your Customer (KYC) verification.
+                                This process ensures identity confirmation, prevents fraud, and complies with Anti-Money Laundering (AML) and Counter-Terrorist
+                                Financing (CTF) regulations applicable in the United Arab Emirates and other relevant jurisdictions.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-medium mb-2">12.2. Information Collected</h3>
+                            <p className="mb-2">During the KYC process, users may be required to provide:</p>
+                            <ul className="list-disc pl-6 space-y-1">
+                                <li>Full name, date of birth, and nationality</li>
+                                <li>A valid government-issued identification document (passport, ID card, or equivalent)</li>
+                                <li>A recent photograph or selfie for verification</li>
+                                <li>Additional documents if required by law or our payment service providers</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-medium mb-2">12.3. Third-Party Verification</h3>
+                            <p>
+                                While Affare doro collects KYC data via its platform, the verification, screening, and ongoing monitoring may be conducted
+                                by regulated third-party service providers, including payment partners, in accordance with applicable AML/CTF obligations.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-medium mb-2">12.4. User Obligations</h3>
+                            <p>
+                                Users must provide accurate and up-to-date information. Affare doro reserves the right to restrict, suspend, or terminate
+                                accounts if KYC is not completed, is incomplete, or contains false or misleading information.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-medium mb-2">12.5. Data Protection</h3>
+                            <p>
+                                All KYC data is handled securely and in accordance with our Privacy Policy. Data may be shared only with authorized
+                                third parties where necessary to comply with legal and regulatory requirements.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 className="text-2xl font-semibold mb-4">13. Contact Information</h2>
                     <p className="text-gray-600">
                         For any questions or concerns regarding these terms, please contact our support team at:
                         support@affaredoro.com
