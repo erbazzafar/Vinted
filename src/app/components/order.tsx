@@ -23,7 +23,7 @@ const modalStyle = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "90%", // Use percentage for responsive width
-  maxWidth: "580px", // Set a maximum width for larger screens
+  maxWidth: "780px", // Increased from 680px to 780px (+100px)
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
@@ -93,11 +93,23 @@ export default function MyOrders() {
   const filteredOrders = userOrders.filter((order: any) => {
     console.log(`Checking order ${order._id} with status ${order.orderStatus} for tab ${activeTab}`);
     if (activeTab === "Ongoing") {
-      return order.orderStatus === "pending" || order.orderStatus === "shipping" || order.orderStatus === "ready-to-delivered";
+      return order.orderStatus === "pending" ||
+        order.orderStatus === "Pickup Scheduled" ||
+        order.orderStatus === "Pickup Completed" ||
+        order.orderStatus === "Inscan At Hub" ||
+        order.orderStatus === "Reached At Hub" ||
+        order.orderStatus === "Out For Delivery" ||
+        order.orderStatus === "order_confirmed" ||
+        order.orderStatus === "on_the_way";
     } else if (activeTab === "Completed") {
-      return order.orderStatus === "completed" || order.orderStatus === "delivered";
+      return order.orderStatus === "Delivered" ||
+        order.orderStatus === "completed" ||
+        order.orderStatus === "delivered";
     } else if (activeTab === "Cancelled") {
-      return order.orderStatus === "cancel" || order.orderStatus === "cancelled" || order.orderStatus === "Cancelled";
+      return order.orderStatus === "Undelivered" ||
+        order.orderStatus === "cancel" ||
+        order.orderStatus === "cancelled" ||
+        order.orderStatus === "Cancelled";
     }
     return false;
   });
@@ -168,14 +180,78 @@ export default function MyOrders() {
     if (order?.orderStatus === "pending") {
       return "Pending";
     }
-    if (order?.orderStatus === "Completed") {
+    if (order?.orderStatus === "Pickup Scheduled") {
+      return "Pickup Scheduled";
+    }
+    if (order?.orderStatus === "Pickup Completed") {
+      return "Pickup Completed";
+    }
+    if (order?.orderStatus === "Inscan At Hub") {
+      return "Inscan At Hub";
+    }
+    if (order?.orderStatus === "Reached At Hub") {
+      return "Reached At Hub";
+    }
+    if (order?.orderStatus === "Out For Delivery") {
+      return "Out For Delivery";
+    }
+    if (order?.orderStatus === "Delivered") {
+      return "Delivered";
+    }
+    if (order?.orderStatus === "Undelivered") {
+      return "Undelivered";
+    }
+    // Keep existing statuses for backward compatibility
+    if (order?.orderStatus === "order_confirmed") {
+      return "Order Confirmed";
+    }
+    if (order?.orderStatus === "on_the_way") {
+      return "On the Way";
+    }
+    if (order?.orderStatus === "completed") {
       return "Completed";
     }
-    if (order?.orderStatus === "Cancelled") {
+    if (order?.orderStatus === "delivered") {
+      return "Delivered";
+    }
+    if (order?.orderStatus === "cancelled" || order?.orderStatus === "Cancelled") {
       return "Cancelled";
     }
-    if (order?.orderStatus === "ready-to-delivered") {
-      return "Ready for Delivery";
+    return order?.orderStatus || "Unknown";
+  };
+
+  const getStatusBackgroundColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Pickup Scheduled":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Pickup Completed":
+        return "bg-indigo-100 text-indigo-800 border-indigo-200";
+      case "Inscan At Hub":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "Reached At Hub":
+        return "bg-violet-100 text-violet-800 border-violet-200";
+      case "Out For Delivery":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Delivered":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Undelivered":
+        return "bg-red-100 text-red-800 border-red-200";
+      // Keep existing statuses for backward compatibility
+      case "order_confirmed":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "on_the_way":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "delivered":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "cancelled":
+      case "Cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -240,8 +316,8 @@ export default function MyOrders() {
                     <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
                     <p className="m-2 text-gray-600 ml-4 sm:ml-0">
                       ${order?.subTotal}
-                      <span className="ml-5 rounded-lg bg-black text-white px-3 py-2 text-sm font-semibold">
-                        {order.orderStatus}
+                      <span className={`ml-5 rounded-lg px-3 py-2 text-sm font-semibold border ${getStatusBackgroundColor(order.orderStatus)}`}>
+                        {getOrderStatus(order)}
                       </span>
                     </p>
                   </div>
@@ -250,12 +326,15 @@ export default function MyOrders() {
                 {/* Ongoing Tab: Cancel & Track Buttons */}
                 {activeTab === "Ongoing" && (
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-                    <button
-                      onClick={() => handleOpen(order)}
-                      className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg w-full sm:w-auto"
-                    >
-                      Cancel Order
-                    </button>
+                    {/* Only show Cancel Order button if status is pending */}
+                    {order.orderStatus === "pending" && (
+                      <button
+                        onClick={() => handleOpen(order)}
+                        className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg w-full sm:w-auto"
+                      >
+                        Cancel Order
+                      </button>
+                    )}
                     <button
                       onClick={() => handleTrack(order)}
                       className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg w-full sm:w-auto"
@@ -308,113 +387,338 @@ export default function MyOrders() {
       {/* Track Order Modal */}
       <Modal open={trackOpen} onClose={handleTrackClose} aria-labelledby="track-modal-title">
         <Box sx={modalStyle} className="w-full sm:w-auto">
-          {/* Title */}
-          <Typography
-            id="track-modal-title"
-            variant="h6"
-            className="text-center text-gray-800 border-b-2 pb-2"
-          >
-            Order Tracking
-          </Typography>
+          {/* Header with gradient background */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg -m-4 mb-4 p-6">
+            <Typography
+              id="track-modal-title"
+              variant="h5"
+              className="text-center font-bold text-white"
+            >
+              📦 Order Tracking
+            </Typography>
+            <p className="text-center text-blue-100 mt-2">
+              Track your order progress in real-time
+            </p>
+          </div>
 
-          <Typography sx={{ mt: 2 }} className="text-center font-bold">
-            {/* Order Tracking Icons with Dotted Line */}
-            <div className="flex items-center justify-center mt-6">
-              {/* Step 1 - Pending */}
-              <div className="flex flex-col items-center">
-                <Package
-                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "pending" ||
-                    selectedOrder?.orderStatus === "shipping" ||
-                    selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
-                    ? "text-black"
-                    : "text-gray-400"
-                    }`}
-                />
-                <span className="text-sm text-gray-600 mt-1">Pending</span>
-              </div>
-
-              {/* Dotted Line */}
-              <div
-                className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "shipping" ||
-                  selectedOrder?.orderStatus === "completed" ||
-                  selectedOrder?.orderStatus === "delivered" ||
-                  selectedOrder?.orderStatus === "ready-to-delivered"
-                  ? "border-black"
-                  : "border-gray-400"
-                  }`}
-              ></div>
-
-              {/* Step 2 - Shipping */}
-              <div className="flex flex-col items-center">
-                <Truck
-                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "shipping" ||
-                    selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
-                    ? "text-black"
-                    : "text-gray-400"
-                    }`}
-                />
-                <span className="text-sm text-gray-600 mt-1">Shipping</span>
-              </div>
-
-              {/* Dotted Line */}
-              <div
-                className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "completed" ||
-                  selectedOrder?.orderStatus === "delivered" ||
-                  selectedOrder?.orderStatus === "ready-to-delivered"
-                  ? "border-black"
-                  : "border-gray-400"
-                  }`}
-              ></div>
-
-              {/* Step 3 - Ready to Deliver */}
-              <div className="flex flex-col items-center">
-                <Users
-                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "completed" ||
-                    selectedOrder?.orderStatus === "delivered" ||
-                    selectedOrder?.orderStatus === "ready-to-delivered"
-                    ? "text-black"
-                    : "text-gray-400"
-                    }`}
-                />
-                <span className="text-sm text-gray-600 mt-1">Ready for Delivery</span>
-              </div>
-
-              {/* Dotted Line */}
-              <div
-                className={`border-t-2 border-dashed w-16 ${selectedOrder?.orderStatus === "delivered"
-                  ? "border-black"
-                  : "border-gray-400"
-                  }`}
-              ></div>
-
-              {/* Step 4 - Delivered */}
-              <div className="flex flex-col items-center">
-                <Archive
-                  className={`w-10 h-10 ${selectedOrder?.orderStatus === "delivered"
-                    ? "text-black"
-                    : "text-gray-400"
-                    }`}
-                />
-                <span className="text-sm text-gray-600 mt-1">Delivered</span>
+          {/* Order Info Card */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 border-l-4 border-blue-500">
+            <div className="flex items-center space-x-3">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
+                alt={selectedOrder?.productId?.[0]?.name}
+                width={60}
+                height={60}
+                unoptimized
+                className="w-16 h-16 rounded-lg object-cover shadow-md"
+              />
+              <div>
+                <h3 className="font-semibold text-gray-800 text-lg">{selectedOrder?.productId?.[0]?.name}</h3>
+                <p className="text-gray-600">Order ID: {selectedOrder?._id?.slice(-8)}</p>
+                <p className="text-green-600 font-semibold">${selectedOrder?.subTotal}</p>
               </div>
             </div>
-          </Typography>
+          </div>
 
-          {/* Tracking Status */}
-          <Typography sx={{ mt: 2 }} className="text-center font-bold">
-            Your order, <span className="text-gray-600">{selectedOrder?.productId?.[0]?.name}</span>, is currently{" "}
-            <span className="text-black">{getOrderStatus(selectedOrder)}</span>.
-          </Typography>
+          {/* Progress Tracking */}
+          <div className="bg-white rounded-xl p-6 shadow-inner border">
+            <h4 className="text-center text-gray-700 font-semibold mb-6 text-lg">Delivery Progress</h4>
 
-          {/* Close Button */}
-          <div className="flex justify-end mt-6">
+            {/* Order Tracking Icons with Enhanced Styling */}
+            <div className="flex items-center justify-center mt-6 overflow-x-auto pb-4 pt-2">
+              {/* Step 1 - Pending */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "pending" ||
+                  selectedOrder?.orderStatus === "Pickup Scheduled" ||
+                  selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "order_confirmed" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-yellow-500 text-white ring-4 ring-yellow-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Package className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "pending" ||
+                  selectedOrder?.orderStatus === "Pickup Scheduled" ||
+                  selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "order_confirmed" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Pending
+                </span>
+              </div>
+
+              {/* Enhanced Dotted Line */}
+              <div
+                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrder?.orderStatus === "Pickup Scheduled" ||
+                  selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "order_confirmed" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "border-blue-400"
+                  : "border-gray-300"
+                  }`}
+              ></div>
+
+              {/* Step 2 - Pickup Scheduled */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "Pickup Scheduled" ||
+                  selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "order_confirmed" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-blue-500 text-white ring-4 ring-blue-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Users className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "Pickup Scheduled" ||
+                  selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "order_confirmed" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Pickup Scheduled
+                </span>
+              </div>
+
+              {/* Enhanced Dotted Line */}
+              <div
+                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "border-indigo-400"
+                  : "border-gray-300"
+                  }`}
+              ></div>
+
+              {/* Step 3 - Pickup Completed */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-indigo-500 text-white ring-4 ring-indigo-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Package className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "Pickup Completed" ||
+                  selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "on_the_way" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-indigo-100 text-indigo-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Pickup Completed
+                </span>
+              </div>
+
+              {/* Enhanced Dotted Line */}
+              <div
+                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "border-purple-400"
+                  : "border-gray-300"
+                  }`}
+              ></div>
+
+              {/* Step 4 - Inscan At Hub */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-purple-500 text-white ring-4 ring-purple-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Package className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "Inscan At Hub" ||
+                  selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-purple-100 text-purple-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Inscan At Hub
+                </span>
+              </div>
+
+              {/* Enhanced Dotted Line */}
+              <div
+                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "border-violet-400"
+                  : "border-gray-300"
+                  }`}
+              ></div>
+
+              {/* Step 5 - Reached At Hub */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-violet-500 text-white ring-4 ring-violet-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Package className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "Reached At Hub" ||
+                  selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-violet-100 text-violet-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Reached At Hub
+                </span>
+              </div>
+
+              {/* Enhanced Dotted Line */}
+              <div
+                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "border-orange-400"
+                  : "border-gray-300"
+                  }`}
+              ></div>
+
+              {/* Step 6 - Out For Delivery */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-orange-500 text-white ring-4 ring-orange-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Truck className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "Out For Delivery" ||
+                  selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-orange-100 text-orange-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Out For Delivery
+                </span>
+              </div>
+
+              {/* Enhanced Dotted Line */}
+              <div
+                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "border-green-400"
+                  : "border-gray-300"
+                  }`}
+              ></div>
+
+              {/* Step 7 - Delivered */}
+              <div className="flex flex-col items-center min-w-[90px] relative">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-green-500 text-white ring-4 ring-green-200"
+                  : "bg-gray-200 text-gray-400"
+                  }`}>
+                  <Archive className="w-7 h-7" />
+                </div>
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrder?.orderStatus === "Delivered" ||
+                  selectedOrder?.orderStatus === "completed" ||
+                  selectedOrder?.orderStatus === "delivered"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-gray-100 text-gray-500"
+                  }`}>
+                  Delivered
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Current Status Card */}
+          <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 mt-6 border border-gray-200">
+            <div className="text-center">
+              <h4 className="text-lg font-semibold text-gray-800 mb-2">Current Status</h4>
+              <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusBackgroundColor(selectedOrder?.orderStatus)}`}>
+                <div className={`w-2 h-2 rounded-full mr-2 ${selectedOrder?.orderStatus === "Delivered" || selectedOrder?.orderStatus === "delivered" || selectedOrder?.orderStatus === "completed"
+                  ? "bg-green-500"
+                  : selectedOrder?.orderStatus === "Undelivered" || selectedOrder?.orderStatus === "cancelled" || selectedOrder?.orderStatus === "Cancelled"
+                    ? "bg-red-500"
+                    : "bg-yellow-500 animate-pulse"
+                  }`}></div>
+                {getOrderStatus(selectedOrder)}
+              </div>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <div className="flex justify-center mt-6">
             <button
               onClick={handleTrackClose}
-              className="text-black bg-[#EBEBEB] rounded-lg px-6 py-2 text-lg cursor-pointer shadow-lg hover:bg-gray-200"
+              className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105"
             >
               Close
             </button>

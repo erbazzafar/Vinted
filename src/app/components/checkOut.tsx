@@ -16,9 +16,14 @@ const CheckoutPage = () => {
     email: '',
     address1: '',
     city: '',
-    country: '',
+    country: 'UAE',
     zipCode: '',
     phone: '',
+    phoneCode: '971',
+    houseNo: '',
+    buildingName: '',
+    area: '',
+    landmark: '',
     price: 0,
     totalPrice: 0,
     vat: 0
@@ -36,7 +41,7 @@ const CheckoutPage = () => {
   const router = useRouter();
   const [checkbox, setCheckbox] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
   }
 
@@ -98,14 +103,17 @@ const CheckoutPage = () => {
         fullName: userDetails.fullName,
         email: userDetails.email,
         address1: userDetails.address1,
-        address2: 'Street 2',
         city: userDetails.city,
         country: userDetails.country,
         zipCode: userDetails.zipCode,
-        subTotal: userDetails.totalPrice,
-
-        fromUserId: fromUserId || "",
         phone: userDetails.phone,
+        phoneCode: userDetails.phoneCode,
+        houseNo: userDetails.houseNo,
+        buildingName: userDetails.buildingName,
+        area: userDetails.area,
+        landmark: userDetails.landmark,
+        subTotal: userDetails.totalPrice,
+        fromUserId: fromUserId || "",
         vat: userDetails.vat,
         total: userDetails.price,
       }
@@ -128,7 +136,7 @@ const CheckoutPage = () => {
 
           if (resp.status === "ok") {
             toast.success("Order Placed")
-            router.push("/")
+            router.push("/orders")
           } else if (resp.status === "TokenExpiredError") {
             toast.error("Network Error");
           }
@@ -155,97 +163,189 @@ const CheckoutPage = () => {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Left Side: Address Form */}
         <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
-          <div className="space-y-4">
-            <label htmlFor="fullName"
-              className='text-black text-md font-semibold'>
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              value={userDetails.fullName}
-              onChange={handleChange}
-              placeholder="Enter your Full Name"
-              className="w-full border rounded-md px-4 py-2"
-            />
-            <label htmlFor="email"
-              className='text-black text-md font-semibold'>
-              Email
-            </label>
-            <input
-              type="text"
-              name="email"
-              value={userDetails.email}
-              onChange={handleChange}
-              placeholder="Enter your Email"
-              className="w-full border rounded-md px-4 py-2"
-            />
-            <label htmlFor="Address"
-              className='text-black text-md font-semibold'>
-              Address
-            </label>
-            <input
-              type="text"
-              name="address1"
-              value={userDetails.address1}
-              onChange={handleChange}
-              placeholder="Enter your address"
-              className="w-full border rounded-md px-4 py-2"
-            />
-            <div className='grid grid-cols-2 gap-4'>
+          <h2 className="text-xl font-bold mb-6">Shipping Information</h2>
+
+          {/* Personal Information */}
+          <div className="space-y-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="city" className='text-black text-md font-semibold'>
-                  City
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name *
                 </label>
                 <input
                   type="text"
-                  name="city"
-                  value={userDetails.city}
+                  name="fullName"
+                  value={userDetails.fullName}
                   onChange={handleChange}
-                  placeholder="Enter your City"
-                  className="w-full border rounded-md px-4 py-2 mt-1"
+                  placeholder="Enter your full name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
 
               <div>
-                <label htmlFor="country" className='text-black text-md font-semibold'>
-                  Country
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
                 </label>
                 <input
-                  type="text"
-                  name="country"
-                  value={userDetails.country}
+                  type="email"
+                  name="email"
+                  value={userDetails.email}
                   onChange={handleChange}
-                  placeholder="Enter your Country"
-                  className="w-full border rounded-md px-4 py-2 mt-1"
+                  placeholder="Enter your email"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
             </div>
-            <label htmlFor="zipcode"
-              className='text-black text-md font-semibold'>
-              Zip Code
-            </label>
-            <input
-              type="text"
-              name="zipCode"
-              value={userDetails.zipCode}
-              onChange={handleChange}
-              placeholder="Enter the Zip Code"
-              className="w-full border rounded-md px-4 py-2"
-            />
-            <label htmlFor="phone"
-              className='text-black text-md font-semibold'>
-              Phone Number
-            </label>
-            <input
-              type="text"
-              name="phone"
-              value={userDetails.phone}
-              onChange={handleChange}
-              placeholder="Enter the Phone Number"
-              className="w-full border rounded-md px-4 py-2"
-            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number *
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={userDetails.phone}
+                onChange={handleChange}
+                placeholder="Enter phone number (e.g., +971501234567)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Address Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Delivery Address</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  House/Villa Number *
+                </label>
+                <input
+                  type="text"
+                  name="houseNo"
+                  value={userDetails.houseNo}
+                  onChange={handleChange}
+                  placeholder="House/Villa number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Building Name
+                </label>
+                <input
+                  type="text"
+                  name="buildingName"
+                  value={userDetails.buildingName}
+                  onChange={handleChange}
+                  placeholder="Building name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Area/Community *
+                </label>
+                <input
+                  type="text"
+                  name="area"
+                  value={userDetails.area}
+                  onChange={handleChange}
+                  placeholder="Area/Community"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Landmark
+                </label>
+                <input
+                  type="text"
+                  name="landmark"
+                  value={userDetails.landmark}
+                  onChange={handleChange}
+                  placeholder="Nearby landmark"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Street Address *
+              </label>
+              <input
+                type="text"
+                name="address1"
+                value={userDetails.address1}
+                onChange={handleChange}
+                placeholder="Street address"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City *
+                </label>
+                <select
+                  name="city"
+                  value={userDetails.city}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select City</option>
+                  <option value="Dubai">Dubai</option>
+                  <option value="Abu Dhabi">Abu Dhabi</option>
+                  <option value="Sharjah">Sharjah</option>
+                  <option value="Ajman">Ajman</option>
+                  <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                  <option value="Fujairah">Fujairah</option>
+                  <option value="Umm Al Quwain">Umm Al Quwain</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ZIP Code *
+                </label>
+                <input
+                  type="text"
+                  name="zipCode"
+                  value={userDetails.zipCode}
+                  onChange={handleChange}
+                  placeholder="ZIP Code"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Country
+              </label>
+              <input
+                disabled
+                type="text"
+                name="country"
+                value={userDetails.country}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed"
+              />
+            </div>
           </div>
         </div>
 
@@ -304,8 +404,8 @@ const CheckoutPage = () => {
           <div className="mt-6 space-y-4">
             <button
               onClick={() => {
-                if (!userDetails.fullName || !userDetails.email || !userDetails.address1 || !userDetails.city || !userDetails.country || !userDetails.zipCode || !userDetails.phone) {
-                  toast.error("Please fill in all fields")
+                if (!userDetails.fullName || !userDetails.email || !userDetails.phone || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city || !userDetails.zipCode) {
+                  toast.error("Please fill in all required fields")
                   return
                 }
                 handleOrderSubmit();
