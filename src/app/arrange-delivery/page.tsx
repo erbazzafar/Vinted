@@ -5,6 +5,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import React, { useEffect, useState, Suspense } from "react";
+import { Truck, Users } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function ArrangeDeliveryContent() {
@@ -455,10 +456,8 @@ function ArrangeDeliveryContent() {
                                         aria-pressed={pickupOption === 'rider'}
                                         className={`w-1/2 h-[150px] border rounded-md flex flex-col items-center justify-center text-center px-3 transition cursor-pointer ${pickupOption === 'rider' ? 'bg-blue-50 border-blue-600 text-blue-800' : 'bg-white border-gray-300 text-gray-700'}`}
                                     >
-                                        {/* Rider icon */}
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 mb-3">
-                                            <path d="M9 3a1 1 0 100 2h2.382l1 2H10a1 1 0 000 2h3.382l.724 1.447A3.999 3.999 0 0012 12a4 4 0 102.829 6.829l2.707-2.707A3.99 3.99 0 0020 17a4 4 0 10-3.874-5.09l-1.3-2.6A1 1 0 0014 9h-1.382l-1-2H15a1 1 0 000-2h-2.382l-1-2H9zM8 20a2 2 0 110-4 2 2 0 010 4zm12-2a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
+                                        {/* Truck icon */}
+                                        <Truck className="w-10 h-10 mb-3" />
                                         <span className="font-medium">Want Rider to Pickup the Order ?</span>
                                     </button>
                                     <button
@@ -467,10 +466,8 @@ function ArrangeDeliveryContent() {
                                         aria-pressed={pickupOption === 'hub'}
                                         className={`w-1/2 h-[150px] border rounded-md flex flex-col items-center justify-center text-center px-3 transition cursor-pointer ${pickupOption === 'hub' ? 'bg-blue-50 border-blue-600 text-blue-800' : 'bg-white border-gray-300 text-gray-700'}`}
                                     >
-                                        {/* Hub icon */}
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 mb-3">
-                                            <path d="M3 10a1 1 0 011-1h1V6a2 2 0 012-2h6a2 2 0 012 2v3h1a1 1 0 011 1v9a1 1 0 01-1 1h-4v-4H8v4H4a1 1 0 01-1-1v-9zm7-3h4V6H7v1h3z" />
-                                        </svg>
+                                        {/* Switch Camera icon */}
+                                        <Users className="w-10 h-10 mb-3" />
                                         <span className="font-medium">Give Order Yourself to the Nearest Jeebly Hub ?</span>
                                     </button>
                                 </div>

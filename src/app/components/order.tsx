@@ -41,6 +41,10 @@ export default function MyOrders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [trackOpen, setTrackOpen] = useState(false);
+  const [cancelShippingOpen, setCancelShippingOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancellingShipping, setIsCancellingShipping] = useState(false);
+  const [reasonOpen, setReasonOpen] = useState(false);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [loader, setLoader] = useState(true)
   const token = Cookies.get("user-token");
@@ -105,7 +109,7 @@ export default function MyOrders() {
       return order.orderStatus === "Delivered" ||
         order.orderStatus === "completed" ||
         order.orderStatus === "delivered";
-    } else if (activeTab === "Cancelled") {
+    } else if (activeTab === "Cancelled / Undeliverd") {
       return order.orderStatus === "Undelivered" ||
         order.orderStatus === "cancel" ||
         order.orderStatus === "cancelled" ||
@@ -128,6 +132,62 @@ export default function MyOrders() {
   // Close modal
   const handleClose = () => {
     setCancelOpen(false);
+    setSelectedOrder(null);
+  };
+
+  // Open Cancel Shipping modal
+  const handleOpenCancelShipping = (order: Order) => {
+    setSelectedOrder(order);
+    setCancelReason("");
+    setCancelShippingOpen(true);
+  };
+
+  const handleCloseCancelShipping = () => {
+    setCancelShippingOpen(false);
+    setSelectedOrder(null);
+    setCancelReason("");
+  };
+
+  // Submit Cancel Shipping
+  const handleSubmitCancelShipping = async () => {
+    if (!selectedOrder || !cancelReason?.trim()) {
+      toast.error("Please provide a reason.");
+      return;
+    }
+    try {
+      setIsCancellingShipping(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/delivery/cancel/${(selectedOrder as any)?._id}`,
+        { reason: cancelReason },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response?.data?.message || "Shipping cancelled successfully");
+        await getUserOrders();
+        handleCloseCancelShipping();
+      } else {
+        toast.error("Failed to cancel shipping");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to cancel shipping");
+    } finally {
+      setIsCancellingShipping(false);
+    }
+  };
+
+  // Open reason modal for cancelled/undelivered orders
+  const handleOpenReason = (order: Order) => {
+    setSelectedOrder(order);
+    setReasonOpen(true);
+  };
+
+  const handleCloseReason = () => {
+    setReasonOpen(false);
     setSelectedOrder(null);
   };
 
@@ -259,7 +319,7 @@ export default function MyOrders() {
     <div className="max-w-4xl mx-auto p-4 sm:p-4 mt-6">
       {/* Tabs Section */}
       <div className="flex justify-between p-2 rounded-md mb-6 flex-wrap gap-2">
-        {["Ongoing", "Completed", "Cancelled"].map((tab) => (
+        {["Ongoing", "Completed", "Cancelled / Undeliverd"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -301,7 +361,12 @@ export default function MyOrders() {
             filteredOrders.map((order: any) => (
               <div
                 key={order._id}
-                className="flex flex-col sm:flex-row items-center justify-between p-4 border rounded-lg shadow-md bg-white gap-4"
+                onClick={() => {
+                  if (activeTab === "Cancelled / Undeliverd") {
+                    handleOpenReason(order);
+                  }
+                }}
+                className={`flex flex-col sm:flex-row items-center justify-between p-4 border rounded-lg shadow-md bg-white gap-4 ${activeTab === "Cancelled / Undeliverd" ? "cursor-pointer hover:bg-gray-50" : ""}`}
               >
                 <div className="flex items-center space-x-4 w-full sm:w-auto">
                   <Image
@@ -335,6 +400,20 @@ export default function MyOrders() {
                         Cancel Order
                       </button>
                     )}
+                    {/* Show Cancel Shipping for in-transit statuses (not pending/cancelled/undelivered/delivered) */}
+                    {order.orderStatus !== "pending" &&
+                      order.orderStatus !== "Cancelled" &&
+                      order.orderStatus !== "cancelled" &&
+                      order.orderStatus !== "Undelivered" &&
+                      order.orderStatus !== "Delivered" &&
+                      order.orderStatus !== "delivered" && (
+                        <button
+                          onClick={() => handleOpenCancelShipping(order)}
+                          className="px-3 py-2 border-white bg-red-600 text-white rounded-md hover:bg-red-500 cursor-pointer shadow-lg w-full sm:w-auto"
+                        >
+                          Cancel Shipping
+                        </button>
+                      )}
                     <button
                       onClick={() => handleTrack(order)}
                       className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg w-full sm:w-auto"
@@ -379,6 +458,69 @@ export default function MyOrders() {
               className="text-black bg-[#EBEBEB] rounded-lg px-4 py-2 text-lg cursor-pointer shadow-lg ml-3 hover:bg-gray-200"
             >
               Yes, Cancel
+            </button>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Cancel Shipping Modal */}
+      <Modal open={cancelShippingOpen} onClose={handleCloseCancelShipping} aria-labelledby="cancel-shipping-title">
+        <Box sx={modalStyle} className="w-full sm:w-auto">
+          <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-t-lg -m-4 mb-4 p-6">
+            <Typography id="cancel-shipping-title" variant="h5" className="text-center font-bold text-white">
+              Cancel Shipping
+            </Typography>
+            <p className="text-center text-red-100 mt-2">Provide a reason to cancel the shipment</p>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-4 mb-4 border">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">Order</h4>
+            <div className="flex items-center gap-3">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
+                alt={selectedOrder?.productId?.[0]?.name}
+                width={48}
+                height={48}
+                unoptimized
+                className="w-12 h-12 rounded object-cover"
+              />
+              <div>
+                <p className="text-gray-800 font-medium">{selectedOrder?.productId?.[0]?.name}</p>
+                <p className="text-gray-500 text-sm">ID: {selectedOrder?._id?.slice(-8)}</p>
+              </div>
+            </div>
+          </div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+          <textarea
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            rows={4}
+            placeholder="Write your reason here..."
+            className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
+          <div className="flex justify-end mt-4 gap-2">
+            <button
+              onClick={handleCloseCancelShipping}
+              className="px-4 py-2 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 cursor-pointer"
+              disabled={isCancellingShipping}
+            >
+              Close
+            </button>
+            <button
+              onClick={handleSubmitCancelShipping}
+              disabled={isCancellingShipping || !cancelReason?.trim()}
+              className={`px-4 py-2 rounded-md text-white cursor-pointer flex items-center justify-center ${isCancellingShipping ? "bg-red-400" : "bg-red-600 hover:bg-red-500"}`}
+            >
+              {isCancellingShipping ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                  </svg>
+                  Cancelling...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </Box>
@@ -719,6 +861,50 @@ export default function MyOrders() {
             <button
               onClick={handleTrackClose}
               className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105"
+            >
+              Close
+            </button>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Reason View Modal for Cancelled/Undelivered */}
+      <Modal open={reasonOpen} onClose={handleCloseReason} aria-labelledby="reason-modal-title">
+        <Box sx={modalStyle} className="w-full sm:w-auto">
+          <div className="bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-t-lg -m-4 mb-4 p-6">
+            <Typography id="reason-modal-title" variant="h6" className="text-center font-bold text-white">
+              Cancellation Details
+            </Typography>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-4 mb-4 border">
+            <div className="flex items-center space-x-3">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
+                alt={selectedOrder?.productId?.[0]?.name}
+                width={60}
+                height={60}
+                unoptimized
+                className="w-16 h-16 rounded-lg object-cover shadow-md"
+              />
+              <div>
+                <h3 className="font-semibold text-gray-800 text-lg">{selectedOrder?.productId?.[0]?.name}</h3>
+                <p className="text-gray-600">Order ID: {selectedOrder?._id?.slice(-8)}</p>
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mt-2 ${getStatusBackgroundColor(selectedOrder?.orderStatus)}`}>
+                  {getOrderStatus(selectedOrder)}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-gray-700 mb-1">Reason</h4>
+            <p className="text-gray-800 bg-white border rounded-md p-3 min-h-[80px]">
+              {selectedOrder?.cancelReason || "No reason provided."}
+            </p>
+          </div>
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleCloseReason}
+              className="bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 cursor-pointer"
             >
               Close
             </button>

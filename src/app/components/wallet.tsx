@@ -102,30 +102,7 @@ function Wallet() {
     fetchSoldProducts();
   }, [userId, token]);
 
-  const handleStatusUpdate = async (orderId: string, newStatus: string) => {
-    try {
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/update/${orderId}`,
-        { orderStatus: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
 
-      if (response.status === 200) {
-        toast.success("Status updated successfully.");
-        setIsProductModalOpen(false);
-        setSelectedProduct(null);
-        fetchSoldProducts(); // Refresh the list with updated status
-      } else {
-        toast.error("Failed to update order status.");
-      }
-    } catch (error) {
-      toast.error("Error updating status. Please try again later.");
-    }
-  };
 
   const handleAddBank = async () => {
     try {
@@ -445,7 +422,7 @@ function Wallet() {
                         Arrange Delivery
                       </button>
                     )}
-                    {soldProd?.arrangeDelivery && (
+                    {soldProd?.arrangeDelivery && soldProd?.orderStatus !== "Cancelled" && soldProd?.orderStatus !== "Delivered" && (
                       <button
                         className="bg-[#741e1e] h-[30px] text-[13px] font-[500] px-[15px] rounded-[10px] text-white cursor-pointer hover:bg-[#6f4141] transition duration-300"
                         onClick={() => fn_getLabel(soldProd?._id)}
@@ -513,26 +490,7 @@ function Wallet() {
                         </div>
                       </div>
 
-                      {selectedProduct?.orderStatus !== "cancelled" && selectedProduct?.orderStatus !== "delivered" && (
-                        <>
-                          <p className="text-[13px] text-red-600">Update Status</p>
-                          <select
-                            value={selectedProduct?.orderStatus || "pending"}
-                            onChange={(e) => handleStatusUpdate(selectedProduct?._id, e.target.value)}
-                            className="cursor-pointer text-[13px] w-full border p-2 rounded mb-4"
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="order_confirmed">Order Confirmed</option>
-                            <option value="on_the_way">On the Way</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="returned">Returned</option>
-                            <option value="cancelled">Cancelled</option>
-                          </select>
-                          <p className="text-[12px] text-gray-400 text-center">
-                            This action cannot be undone once marked as <span className="text-[13px] text-gray-600">Delivered</span>
-                          </p>
-                        </>
-                      )}
+
                     </Box>
                   </Modal>
 
