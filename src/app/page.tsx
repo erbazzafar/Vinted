@@ -7,13 +7,13 @@ import ProductCarousel from "./components/productCorousel";
 export default function Home() {
   return (
     <>
-      <ImagesSliderDemo/>
+      <ImagesSliderDemo />
       <br />
-      <Categories/>
+      <Categories />
       <br />
-      <ProductCarousel/>
+      <ProductCarousel />
       <br />
-      <LensDemo/>
+      <LensDemo />
     </>
   );
 }

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { Backdrop } from "@mui/material";
-import { Eye, Package, Truck, Users, Archive } from "lucide-react";
+import { Eye, Package, Truck, Users, Archive, Tag } from "lucide-react";
 
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -38,6 +38,10 @@ function Wallet() {
   const [soldProducts, setSoldProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedOrderForTracking, setSelectedOrderForTracking] = useState(null);
+
+  const [labelPdf, setLabelPdf] = useState(null);
+  const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const getUserWallet = async () => {
@@ -229,6 +233,86 @@ function Wallet() {
     />
   );
 
+  const LabelBackdrop = (props: any) => (
+    <Backdrop
+      {...props}
+      className="!bg-[rgba(0,0,0,0.5)]"
+    />
+  );
+
+  const fn_getLabel = async (orderId: string) => {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/delivery/label/${orderId}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response?.status === 200) {
+        const data = response?.data?.data;
+        setLabelPdf(data)
+        // Try to fetch the PDF as a blob for preview and download (supports auth)
+        const pdfUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}${data?.labelPath || ""}`;
+        try {
+          const blobResp = await axios.get(pdfUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            responseType: "blob",
+          });
+          const objectUrl = URL.createObjectURL(blobResp.data);
+          setPdfBlobUrl(objectUrl);
+        } catch (blobErr) {
+          // Fallback to direct URL if blob fetch fails
+          setPdfBlobUrl(null);
+        }
+        setIsLabelModalOpen(true);
+        toast.success(response?.data?.message || "Label generated successfully.");
+      }
+    }
+    catch (error) {
+      toast.error(error?.response?.data?.message || "Error generating label. Please try again later.");
+    }
+  }
+
+  const handleDownloadLabel = async () => {
+    try {
+      if (pdfBlobUrl) {
+        const link = document.createElement("a");
+        link.href = pdfBlobUrl;
+        link.download = `${labelPdf?.trackingNumber || "label"}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        return;
+      }
+      const directUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}${labelPdf?.labelPath || ""}`;
+      const blobResp = await axios.get(directUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: "blob",
+      });
+      const objectUrl = URL.createObjectURL(blobResp.data);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `${labelPdf?.trackingNumber || "label"}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      toast.error("Failed to download label. Please try again.");
+    }
+  }
+
+  const closeLabelModal = () => {
+    setIsLabelModalOpen(false);
+    if (pdfBlobUrl) {
+      URL.revokeObjectURL(pdfBlobUrl);
+      setPdfBlobUrl(null);
+    }
+  }
+
 
   return (
     <div className="bg-white mt-[-18px] sm:mt-15 w-full">
@@ -361,6 +445,15 @@ function Wallet() {
                         Arrange Delivery
                       </button>
                     )}
+                    {soldProd?.arrangeDelivery && (
+                      <button
+                        className="bg-[#741e1e] h-[30px] text-[13px] font-[500] px-[15px] rounded-[10px] text-white cursor-pointer hover:bg-[#6f4141] transition duration-300"
+                        onClick={() => fn_getLabel(soldProd?._id)}
+                      >
+                        <Tag size={16} className="inline-block mt-[-2px] me-[7px]" />
+                        Generate Label
+                      </button>
+                    )}
                     <span className={`text-[12px] sm:text-[13px] rounded-md px-2 py-1 sm:px-3 border ${getStatusBackgroundColor(soldProd?.orderStatus)}`}>
                       {getOrderStatus(soldProd?.orderStatus)}
                     </span>
@@ -451,6 +544,41 @@ function Wallet() {
           )}
         </div>
       </div>
+
+      {/* Label PDF Modal */}
+      <Modal
+        open={isLabelModalOpen}
+        onClose={closeLabelModal}
+        closeAfterTransition
+        slots={{ backdrop: LabelBackdrop }}
+      >
+        <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] md:w-[80%] h-[85vh]">
+          <div className="bg-white rounded-md shadow-lg h-full flex flex-col">
+            <div className="flex-1 overflow-hidden">
+              {labelPdf && (
+                <iframe
+                  src={pdfBlobUrl || `${process.env.NEXT_PUBLIC_BACKEND_URL}${labelPdf?.labelPath || ""}`}
+                  className="w-full h-full"
+                />
+              )}
+            </div>
+            <div className="p-3 flex items-center justify-end gap-2">
+              <button
+                onClick={closeLabelModal}
+                className="bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleDownloadLabel}
+                className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
 
       {/* Track Order Modal */}
       <Modal open={isTrackModalOpen} onClose={() => setIsTrackModalOpen(false)} aria-labelledby="track-modal-title">
