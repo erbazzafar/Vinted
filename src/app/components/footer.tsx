@@ -70,7 +70,7 @@ const Footer = () => {
 
         {/* App Store Links */}
         <div className="flex flex-row flex-wrap justify-center items-center gap-2 mt-2 md:mt-0">
-          <Link href="https://www.apple.com/app-store/" target="_blank">
+          <Link href="" target="_blank">
             <Image
               src="/appstorelogo.jpg"
               alt="App Store"
@@ -80,7 +80,7 @@ const Footer = () => {
               unoptimized
             />
           </Link>
-          <Link href="https://play.google.com/store" target="_blank">
+          <Link href="https://play.google.com/store/apps/details?id=com.affaredoro" target="_blank">
             <Image
               src="/googleplaylogo.jpg"
               alt="Google Play"
