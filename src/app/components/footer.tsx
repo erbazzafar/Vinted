@@ -70,7 +70,7 @@ const Footer = () => {
 
         {/* App Store Links */}
         <div className="flex flex-row flex-wrap justify-center items-center gap-2 mt-2 md:mt-0">
-          <Link href="" target="_blank">
+          <Link href="https://apps.apple.com/pk/app/affare-doro/id6747271120" target="_blank">
             <Image
               src="/appstorelogo.jpg"
               alt="App Store"
