@@ -43,6 +43,9 @@ function Wallet() {
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
 
+  // Tab state for filtering sold products
+  const [activeTab, setActiveTab] = useState("All");
+
   useEffect(() => {
     const getUserWallet = async () => {
       try {
@@ -203,6 +206,46 @@ function Wallet() {
     }
   };
 
+  // Function to get return status display text
+  const getReturnStatus = (order: any) => {
+    if (!order?.returnStatus || order?.returnStatus.trim() === '') {
+      return "No Return";
+    }
+    return order.returnStatus;
+  };
+
+  // Function to get return status background color
+  const getReturnStatusBackgroundColor = (returnStatus: string) => {
+    switch (returnStatus) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Pickup Scheduled":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Pickup Completed":
+        return "bg-indigo-100 text-indigo-800 border-indigo-200";
+      case "Inscan At Hub":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "Reached At Hub":
+        return "bg-violet-100 text-violet-800 border-violet-200";
+      case "Out For Delivery":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Delivered":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Undelivered":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  // Function to get the appropriate status for tracking (returnStatus for Returns tab, orderStatus for others)
+  const getTrackingStatus = (order: any) => {
+    if (activeTab === "Returns" && order?.returnStatus) {
+      return order.returnStatus;
+    }
+    return order?.orderStatus;
+  };
+
   const CustomBackdrop = (props: any) => (
     <Backdrop
       {...props}
@@ -289,6 +332,35 @@ function Wallet() {
       setPdfBlobUrl(null);
     }
   }
+
+  // Filter sold products based on selected tab
+  const filteredSoldProducts = soldProducts.filter((soldProd: any) => {
+    if (activeTab === "All") {
+      return true;
+    } else if (activeTab === "Ongoing") {
+      return soldProd.orderStatus === "pending" ||
+        soldProd.orderStatus === "Pickup Scheduled" ||
+        soldProd.orderStatus === "Pickup Completed" ||
+        soldProd.orderStatus === "Inscan At Hub" ||
+        soldProd.orderStatus === "Reached At Hub" ||
+        soldProd.orderStatus === "Out For Delivery" ||
+        soldProd.orderStatus === "order_confirmed" ||
+        soldProd.orderStatus === "on_the_way";
+    } else if (activeTab === "Completed") {
+      return (soldProd.orderStatus === "Delivered" ||
+        soldProd.orderStatus === "completed" ||
+        soldProd.orderStatus === "delivered") &&
+        (!soldProd.returnStatus || soldProd.returnStatus.trim() === '');
+    } else if (activeTab === "Cancelled / Undelivered") {
+      return soldProd.orderStatus === "Undelivered" ||
+        soldProd.orderStatus === "cancel" ||
+        soldProd.orderStatus === "cancelled" ||
+        soldProd.orderStatus === "Cancelled";
+    } else if (activeTab === "Returns") {
+      return soldProd.returnStatus && soldProd.returnStatus.trim() !== '';
+    }
+    return true;
+  });
 
 
   return (
@@ -382,15 +454,29 @@ function Wallet() {
           </div>
         </div>
 
+        {/* Tabs Section */}
+        <div className="flex justify-between p-2 rounded-md mb-8 mt-8 flex-wrap gap-2">
+          {["All", "Ongoing", "Completed", "Cancelled / Undelivered", "Returns"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`flex-1 text-center py-2 rounded-md font-medium cursor-pointer sm:text-sm sm:py-1 ${activeTab === tab ? "border-b-2 border-gray-800 text-gray-700" : "text-gray-400"
+                }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
         {/* Sold Products */}
         <div className="bg-white rounded-lg shadow-md px-4 py-4 sm:p-6">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Sold Products</h2>
           </div>
 
-          {soldProducts.length > 0 ? (
+          {filteredSoldProducts.length > 0 ? (
             <div className="space-y-3 sm:space-y-4">
-              {soldProducts.map((soldProd: any) => (
+              {filteredSoldProducts.map((soldProd: any) => (
                 <div
                   key={soldProd?._id}
                   className="flex justify-between items-center px-2 py-1 border rounded-lg shadow bg-white"
@@ -431,8 +517,8 @@ function Wallet() {
                         Generate Label
                       </button>
                     )}
-                    <span className={`text-[12px] sm:text-[13px] rounded-md px-2 py-1 sm:px-3 border ${getStatusBackgroundColor(soldProd?.orderStatus)}`}>
-                      {getOrderStatus(soldProd?.orderStatus)}
+                    <span className={`text-[12px] sm:text-[13px] rounded-md px-2 py-1 sm:px-3 border ${activeTab === "Returns" && soldProd?.returnStatus ? getReturnStatusBackgroundColor(soldProd?.returnStatus) : getStatusBackgroundColor(soldProd?.orderStatus)}`}>
+                      {activeTab === "Returns" && soldProd?.returnStatus ? getReturnStatus(soldProd) : getOrderStatus(soldProd?.orderStatus)}
                     </span>
                     <button
                       onClick={() => {
@@ -498,7 +584,12 @@ function Wallet() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No Products Sold / No Pending Balance.</p>
+            <p className="text-center text-gray-500">
+              {activeTab === "All"
+                ? "No Products Sold / No Pending Balance."
+                : `No products found in ${activeTab.toLowerCase()} category.`
+              }
+            </p>
           )}
         </div>
       </div>
@@ -542,17 +633,17 @@ function Wallet() {
       <Modal open={isTrackModalOpen} onClose={() => setIsTrackModalOpen(false)} aria-labelledby="track-modal-title">
         <Box className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-[92%] sm:w-[780px] max-h-[90vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg -m-4 mb-4 p-6">
+          <div className={`text-white rounded-t-lg -m-4 mb-4 p-6 ${activeTab === "Returns" ? "bg-gradient-to-r from-orange-600 to-red-600" : "bg-gradient-to-r from-blue-600 to-purple-600"}`}>
             <h3 className="text-center font-bold text-white text-xl">
-              📦 Order Tracking
+              {activeTab === "Returns" ? "🔄 Return Tracking" : "📦 Order Tracking"}
             </h3>
             <p className="text-center text-blue-100 mt-2">
-              Track your order progress in real-time
+              {activeTab === "Returns" ? "Track your return progress in real-time" : "Track your order progress in real-time"}
             </p>
           </div>
 
           {/* Order Info Card */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6 border-l-4 border-blue-500">
+          <div className={`bg-gray-50 rounded-lg p-4 mb-6 border-l-4 ${activeTab === "Returns" ? "border-orange-500" : "border-blue-500"}`}>
             <div className="flex items-center space-x-3">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrderForTracking?.productId?.[0]?.image?.[0]}`}
@@ -566,45 +657,55 @@ function Wallet() {
                 <h3 className="font-semibold text-gray-800 text-lg">{selectedOrderForTracking?.productId?.[0]?.name}</h3>
                 <p className="text-gray-600">Order ID: {selectedOrderForTracking?._id?.slice(-8)}</p>
                 <p className="text-green-600 font-semibold">${selectedOrderForTracking?.total}</p>
+                {/* Show return status for Returns tab */}
+                {activeTab === "Returns" && selectedOrderForTracking?.returnStatus && (
+                  <div className="mt-2">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getReturnStatusBackgroundColor(selectedOrderForTracking.returnStatus)}`}>
+                      Return Status: {getReturnStatus(selectedOrderForTracking)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Progress Tracking */}
           <div className="bg-white rounded-xl p-6 shadow-inner border">
-            <h4 className="text-center text-gray-700 font-semibold mb-6 text-lg">Delivery Progress</h4>
+            <h4 className="text-center text-gray-700 font-semibold mb-6 text-lg">
+              {activeTab === "Returns" ? "Return Progress" : "Delivery Progress"}
+            </h4>
 
             {/* Order Tracking Icons with Enhanced Styling */}
             <div className="flex items-center justify-center mt-6 overflow-x-auto pb-4 pt-2">
               {/* Step 1 - Pending */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "pending" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Scheduled" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "order_confirmed" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "pending" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Scheduled" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "order_confirmed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-yellow-500 text-white ring-4 ring-yellow-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Package className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "pending" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Scheduled" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "order_confirmed" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "pending" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Scheduled" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "order_confirmed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-yellow-100 text-yellow-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -614,16 +715,16 @@ function Wallet() {
 
               {/* Enhanced Dotted Line */}
               <div
-                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrderForTracking?.orderStatus === "Pickup Scheduled" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "order_confirmed" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrderForTracking) === "Pickup Scheduled" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "order_confirmed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "border-blue-400"
                   : "border-gray-300"
                   }`}
@@ -631,31 +732,31 @@ function Wallet() {
 
               {/* Step 2 - Pickup Scheduled */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "Pickup Scheduled" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "order_confirmed" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "Pickup Scheduled" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "order_confirmed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-blue-500 text-white ring-4 ring-blue-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Users className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "Pickup Scheduled" ||
-                  selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "order_confirmed" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "Pickup Scheduled" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "order_confirmed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-blue-100 text-blue-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -665,14 +766,14 @@ function Wallet() {
 
               {/* Enhanced Dotted Line */}
               <div
-                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "border-indigo-400"
                   : "border-gray-300"
                   }`}
@@ -680,27 +781,27 @@ function Wallet() {
 
               {/* Step 3 - Pickup Completed */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-indigo-500 text-white ring-4 ring-indigo-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Package className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "Pickup Completed" ||
-                  selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "on_the_way" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "Pickup Completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "on_the_way" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-indigo-100 text-indigo-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -710,12 +811,12 @@ function Wallet() {
 
               {/* Enhanced Dotted Line */}
               <div
-                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "border-purple-400"
                   : "border-gray-300"
                   }`}
@@ -723,23 +824,23 @@ function Wallet() {
 
               {/* Step 4 - Inscan At Hub */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-purple-500 text-white ring-4 ring-purple-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Package className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "Inscan At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "Inscan At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-purple-100 text-purple-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -749,11 +850,11 @@ function Wallet() {
 
               {/* Enhanced Dotted Line */}
               <div
-                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "border-violet-400"
                   : "border-gray-300"
                   }`}
@@ -761,21 +862,21 @@ function Wallet() {
 
               {/* Step 5 - Reached At Hub */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-violet-500 text-white ring-4 ring-violet-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Package className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "Reached At Hub" ||
-                  selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "Reached At Hub" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-violet-100 text-violet-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -785,10 +886,10 @@ function Wallet() {
 
               {/* Enhanced Dotted Line */}
               <div
-                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "border-orange-400"
                   : "border-gray-300"
                   }`}
@@ -796,19 +897,19 @@ function Wallet() {
 
               {/* Step 6 - Out For Delivery */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-orange-500 text-white ring-4 ring-orange-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Truck className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "Out For Delivery" ||
-                  selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "Out For Delivery" ||
+                  getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-orange-100 text-orange-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -818,9 +919,9 @@ function Wallet() {
 
               {/* Enhanced Dotted Line */}
               <div
-                className={`border-t-3 border-dashed w-20 h-0 ${selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "border-green-400"
                   : "border-gray-300"
                   }`}
@@ -828,17 +929,17 @@ function Wallet() {
 
               {/* Step 7 - Delivered */}
               <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-green-500 text-white ring-4 ring-green-200"
                   : "bg-gray-200 text-gray-400"
                   }`}>
                   <Archive className="w-7 h-7" />
                 </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${selectedOrderForTracking?.orderStatus === "Delivered" ||
-                  selectedOrderForTracking?.orderStatus === "completed" ||
-                  selectedOrderForTracking?.orderStatus === "delivered"
+                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrderForTracking) === "Delivered" ||
+                  getTrackingStatus(selectedOrderForTracking) === "completed" ||
+                  getTrackingStatus(selectedOrderForTracking) === "delivered"
                   ? "bg-green-100 text-green-800"
                   : "bg-gray-100 text-gray-500"
                   }`}>
@@ -849,18 +950,32 @@ function Wallet() {
           </div>
 
           {/* Current Status Card */}
-          <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 mt-6 border border-gray-200">
+          <div className={`bg-gradient-to-r from-gray-50 rounded-lg p-4 mt-6 border border-gray-200 ${activeTab === "Returns" ? "to-orange-50" : "to-blue-50"}`}>
             <div className="text-center">
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Current Status</h4>
-              <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusBackgroundColor(selectedOrderForTracking?.orderStatus)}`}>
-                <div className={`w-2 h-2 rounded-full mr-2 ${selectedOrderForTracking?.orderStatus === "Delivered" || selectedOrderForTracking?.orderStatus === "delivered" || selectedOrderForTracking?.orderStatus === "completed"
-                  ? "bg-green-500"
-                  : selectedOrderForTracking?.orderStatus === "Undelivered" || selectedOrderForTracking?.orderStatus === "cancelled" || selectedOrderForTracking?.orderStatus === "Cancelled"
-                    ? "bg-red-500"
-                    : "bg-yellow-500 animate-pulse"
-                  }`}></div>
-                {getOrderStatus(selectedOrderForTracking?.orderStatus)}
-              </div>
+              <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                {activeTab === "Returns" ? "Current Return Status" : "Current Status"}
+              </h4>
+              {activeTab === "Returns" && selectedOrderForTracking?.returnStatus ? (
+                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getReturnStatusBackgroundColor(selectedOrderForTracking.returnStatus)}`}>
+                  <div className={`w-2 h-2 rounded-full mr-2 ${selectedOrderForTracking?.returnStatus === "pending"
+                    ? "bg-yellow-500 animate-pulse"
+                    : selectedOrderForTracking?.returnStatus === "Pickup Scheduled"
+                      ? "bg-blue-500"
+                      : "bg-gray-500"
+                    }`}></div>
+                  {getReturnStatus(selectedOrderForTracking)}
+                </div>
+              ) : (
+                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusBackgroundColor(getTrackingStatus(selectedOrderForTracking))}`}>
+                  <div className={`w-2 h-2 rounded-full mr-2 ${getTrackingStatus(selectedOrderForTracking) === "Delivered" || getTrackingStatus(selectedOrderForTracking) === "delivered" || getTrackingStatus(selectedOrderForTracking) === "completed"
+                    ? "bg-green-500"
+                    : getTrackingStatus(selectedOrderForTracking) === "Undelivered" || getTrackingStatus(selectedOrderForTracking) === "cancelled" || getTrackingStatus(selectedOrderForTracking) === "Cancelled"
+                      ? "bg-red-500"
+                      : "bg-yellow-500 animate-pulse"
+                    }`}></div>
+                  {activeTab === "Returns" ? getReturnStatus(selectedOrderForTracking) : getOrderStatus(getTrackingStatus(selectedOrderForTracking))}
+                </div>
+              )}
             </div>
           </div>
 

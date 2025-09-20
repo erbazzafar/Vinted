@@ -6,7 +6,7 @@ import Wallet from '../components/wallet'
 function WalletPage() {
 
     return (
-        <Wallet/>
+        <Wallet />
     )
 }
 
