@@ -132,7 +132,6 @@ export default function MyOrders() {
         order.orderStatus === "Pickup Scheduled" ||
         order.orderStatus === "Pickup Completed" ||
         order.orderStatus === "Inscan At Hub" ||
-        order.orderStatus === "Reached At Hub" ||
         order.orderStatus === "Out For Delivery" ||
         order.orderStatus === "order_confirmed" ||
         order.orderStatus === "on_the_way";
@@ -379,9 +378,6 @@ export default function MyOrders() {
     if (order?.orderStatus === "Inscan At Hub") {
       return "Inscan At Hub";
     }
-    if (order?.orderStatus === "Reached At Hub") {
-      return "Reached At Hub";
-    }
     if (order?.orderStatus === "Out For Delivery") {
       return "Out For Delivery";
     }
@@ -420,8 +416,6 @@ export default function MyOrders() {
         return "bg-indigo-100 text-indigo-800 border-indigo-200";
       case "Inscan At Hub":
         return "bg-purple-100 text-purple-800 border-purple-200";
-      case "Reached At Hub":
-        return "bg-violet-100 text-violet-800 border-violet-200";
       case "Out For Delivery":
         return "bg-orange-100 text-orange-800 border-orange-200";
       case "Delivered":
@@ -786,7 +780,6 @@ export default function MyOrders() {
                   getTrackingStatus(selectedOrder) === "Pickup Scheduled" ||
                   getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "order_confirmed" ||
@@ -802,7 +795,6 @@ export default function MyOrders() {
                   getTrackingStatus(selectedOrder) === "Pickup Scheduled" ||
                   getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "order_confirmed" ||
@@ -821,7 +813,6 @@ export default function MyOrders() {
                 className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrder) === "Pickup Scheduled" ||
                   getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "order_confirmed" ||
@@ -838,7 +829,6 @@ export default function MyOrders() {
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrder) === "Pickup Scheduled" ||
                   getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "order_confirmed" ||
@@ -853,7 +843,6 @@ export default function MyOrders() {
                 <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrder) === "Pickup Scheduled" ||
                   getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "order_confirmed" ||
@@ -871,7 +860,6 @@ export default function MyOrders() {
               <div
                 className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "on_the_way" ||
@@ -886,7 +874,6 @@ export default function MyOrders() {
               <div className="flex flex-col items-center min-w-[90px] relative">
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "on_the_way" ||
@@ -899,7 +886,6 @@ export default function MyOrders() {
                 </div>
                 <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrder) === "Pickup Completed" ||
                   getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "on_the_way" ||
@@ -915,7 +901,6 @@ export default function MyOrders() {
               {/* Enhanced Dotted Line */}
               <div
                 className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "completed" ||
@@ -928,7 +913,6 @@ export default function MyOrders() {
               {/* Step 4 - Inscan At Hub */}
               <div className="flex flex-col items-center min-w-[90px] relative">
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "completed" ||
@@ -939,7 +923,6 @@ export default function MyOrders() {
                   <Package className="w-7 h-7" />
                 </div>
                 <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrder) === "Inscan At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Reached At Hub" ||
                   getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "completed" ||
@@ -948,42 +931,6 @@ export default function MyOrders() {
                   : "bg-gray-100 text-gray-500"
                   }`}>
                   Inscan At Hub
-                </span>
-              </div>
-
-              {/* Enhanced Dotted Line */}
-              <div
-                className={`border-t-3 border-dashed w-20 h-0 ${getTrackingStatus(selectedOrder) === "Reached At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Out For Delivery" ||
-                  getTrackingStatus(selectedOrder) === "Delivered" ||
-                  getTrackingStatus(selectedOrder) === "completed" ||
-                  getTrackingStatus(selectedOrder) === "delivered"
-                  ? "border-violet-400"
-                  : "border-gray-300"
-                  }`}
-              ></div>
-
-              {/* Step 5 - Reached At Hub */}
-              <div className="flex flex-col items-center min-w-[90px] relative">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrder) === "Reached At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Out For Delivery" ||
-                  getTrackingStatus(selectedOrder) === "Delivered" ||
-                  getTrackingStatus(selectedOrder) === "completed" ||
-                  getTrackingStatus(selectedOrder) === "delivered"
-                  ? "bg-violet-500 text-white ring-4 ring-violet-200"
-                  : "bg-gray-200 text-gray-400"
-                  }`}>
-                  <Package className="w-7 h-7" />
-                </div>
-                <span className={`text-xs font-medium mt-2 text-center px-2 py-1 rounded-full ${getTrackingStatus(selectedOrder) === "Reached At Hub" ||
-                  getTrackingStatus(selectedOrder) === "Out For Delivery" ||
-                  getTrackingStatus(selectedOrder) === "Delivered" ||
-                  getTrackingStatus(selectedOrder) === "completed" ||
-                  getTrackingStatus(selectedOrder) === "delivered"
-                  ? "bg-violet-100 text-violet-800"
-                  : "bg-gray-100 text-gray-500"
-                  }`}>
-                  Reached At Hub
                 </span>
               </div>
 
@@ -998,7 +945,7 @@ export default function MyOrders() {
                   }`}
               ></div>
 
-              {/* Step 6 - Out For Delivery */}
+              {/* Step 5 - Out For Delivery */}
               <div className="flex flex-col items-center min-w-[90px] relative">
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrder) === "Out For Delivery" ||
                   getTrackingStatus(selectedOrder) === "Delivered" ||
@@ -1030,7 +977,7 @@ export default function MyOrders() {
                   }`}
               ></div>
 
-              {/* Step 7 - Delivered */}
+              {/* Step 6 - Delivered */}
               <div className="flex flex-col items-center min-w-[90px] relative">
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${getTrackingStatus(selectedOrder) === "Delivered" ||
                   getTrackingStatus(selectedOrder) === "completed" ||
