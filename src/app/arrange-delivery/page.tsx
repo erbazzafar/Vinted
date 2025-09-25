@@ -5,7 +5,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import React, { useEffect, useState, Suspense } from "react";
-import { Truck, Users } from "lucide-react";
+
 import { useRouter, useSearchParams } from "next/navigation";
 
 function ArrangeDeliveryContent() {
@@ -20,7 +20,7 @@ function ArrangeDeliveryContent() {
 
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(false);
-    const [pickupOption, setPickupOption] = useState<string | null>(null);
+
 
     const [formData, setFormData] = useState({
         delivery_type: "Next Day",
@@ -77,7 +77,7 @@ function ArrangeDeliveryContent() {
         }
     }, [userId, token, orderId]);
 
-    // Load saved origin address fields and pickup option from localStorage
+    // Load saved origin address fields from localStorage
     useEffect(() => {
         try {
             const originStorageKey = `jeebly_origin_address_${userId || 'anon'}`;
@@ -96,11 +96,6 @@ function ArrangeDeliveryContent() {
                 }));
             }
 
-            const pickupOptionKey = `jeebly_pickup_option_${userId || 'anon'}`;
-            const savedOption = localStorage.getItem(pickupOptionKey);
-            if (savedOption === 'rider' || savedOption === 'hub') {
-                setPickupOption(savedOption);
-            }
         } catch (err) {
             console.error('Error loading saved pickup data:', err);
         }
@@ -134,17 +129,7 @@ function ArrangeDeliveryContent() {
         userId,
     ]);
 
-    // Persist pickup option selection
-    useEffect(() => {
-        try {
-            if (pickupOption) {
-                const pickupOptionKey = `jeebly_pickup_option_${userId || 'anon'}`;
-                localStorage.setItem(pickupOptionKey, pickupOption);
-            }
-        } catch (err) {
-            console.error('Error saving pickup option:', err);
-        }
-    }, [pickupOption, userId]);
+
 
     const fn_getOrderDetails = async (orderId: string) => {
         try {
@@ -202,11 +187,6 @@ function ArrangeDeliveryContent() {
         setLoading(true);
 
         try {
-            if (!pickupOption) {
-                toast.error("Please select a pickup option");
-                setLoading(false);
-                return;
-            }
             // Validate weight restriction
             const weight = parseFloat(formData.weight);
             if (weight > 5) {
@@ -215,16 +195,16 @@ function ArrangeDeliveryContent() {
                 return;
             }
 
-            const newOrderStatus = pickupOption === 'rider' ? "Pickup Scheduled" : "Dropoff Scheduled";
+            const newOrderStatus = "Pickup Scheduled";
             formData.status = newOrderStatus;
             formData.productId = order?.productId;
             formData.orderId = orderId;
             formData.sellerId = order?.toUserId;
             formData.customerId = order?.fromUserId;
             formData.weight = weight;
-            formData.origin_address_type = pickupOption === 'rider' ? "Normal" : "Western";
-            formData.pickup_option = pickupOption || "";
-            formData.dropoff_to_hub = pickupOption === 'hub';
+            formData.origin_address_type = "Normal";
+            formData.pickup_option = 'rider';
+            formData.dropoff_to_hub = false;
 
             // Format pickup date to YYYY-MM-DD format
             formData.pickup_date = formatDateForAPI(formData.pickup_date);
@@ -237,7 +217,7 @@ function ArrangeDeliveryContent() {
 
             if (response.status === 200) {
                 toast.success("Delivery request created successfully!");
-                const resp = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/order/update/${orderId}`, { orderStatus: pickupOption === 'rider' ? "Pickup Scheduled" : "Dropoff Scheduled", arrangeDelivery: true }, {
+                const resp = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/order/update/${orderId}`, { orderStatus: "Pickup Scheduled", arrangeDelivery: true }, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }
@@ -449,142 +429,116 @@ function ArrangeDeliveryContent() {
                             {/* Origin Address (Seller's Address) */}
                             <div className="bg-white border rounded-lg p-6">
                                 <h3 className="text-xl font-bold mb-4">Pickup Address (Your Address)</h3>
-                                {/* Pickup option selector */}
-                                <div className="flex gap-4 mb-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setPickupOption('rider')}
-                                        aria-pressed={pickupOption === 'rider'}
-                                        className={`w-1/2 h-[150px] border rounded-md flex flex-col items-center justify-center text-center px-3 transition cursor-pointer ${pickupOption === 'rider' ? 'bg-blue-50 border-blue-600 text-blue-800' : 'bg-white border-gray-300 text-gray-700'}`}
-                                    >
-                                        {/* Truck icon */}
-                                        <Truck className="w-10 h-10 mb-3" />
-                                        <span className="font-medium">Want Rider to Pickup the Order ?</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setPickupOption('hub')}
-                                        aria-pressed={pickupOption === 'hub'}
-                                        className={`w-1/2 h-[150px] border rounded-md flex flex-col items-center justify-center text-center px-3 transition cursor-pointer ${pickupOption === 'hub' ? 'bg-blue-50 border-blue-600 text-blue-800' : 'bg-white border-gray-300 text-gray-700'}`}
-                                    >
-                                        {/* Switch Camera icon */}
-                                        <Users className="w-10 h-10 mb-3" />
-                                        <span className="font-medium">Give Order Yourself to the Nearest Jeebly Hub ?</span>
-                                    </button>
-                                </div>
-
-                                {pickupOption === 'rider' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Your Name *
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="origin_address_name"
-                                                value={formData.origin_address_name}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Enter your name"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Mobile Number *
-                                            </label>
-                                            <input
-                                                type="tel"
-                                                name="origin_address_mobile_number"
-                                                value={formData.origin_address_mobile_number}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Enter mobile number (e.g., +971501234567)"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                House Number *
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="origin_address_house_no"
-                                                value={formData.origin_address_house_no}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="House/Villa number"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Building Name
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="origin_address_building_name"
-                                                value={formData.origin_address_building_name}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Building name"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Area *
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="origin_address_area"
-                                                value={formData.origin_address_area}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Area/Community"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Landmark
-                                            </label>
-                                            <input
-                                                type="text"
-                                                name="origin_address_landmark"
-                                                value={formData.origin_address_landmark}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Nearby landmark"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                City *
-                                            </label>
-                                            <select
-                                                name="origin_address_city"
-                                                value={formData.origin_address_city}
-                                                onChange={handleInputChange}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                required
-                                            >
-                                                <option value="Dubai">Dubai</option>
-                                                <option value="Abu Dhabi">Abu Dhabi</option>
-                                                <option value="Sharjah">Sharjah</option>
-                                                <option value="Ajman">Ajman</option>
-                                                <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                                                <option value="Fujairah">Fujairah</option>
-                                                <option value="Umm Al Quwain">Umm Al Quwain</option>
-                                            </select>
-                                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Your Name *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="origin_address_name"
+                                            value={formData.origin_address_name}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter your name"
+                                            required
+                                        />
                                     </div>
-                                )}
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Mobile Number *
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            name="origin_address_mobile_number"
+                                            value={formData.origin_address_mobile_number}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Enter mobile number (e.g., +971501234567)"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            House Number *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="origin_address_house_no"
+                                            value={formData.origin_address_house_no}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="House/Villa number"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Building Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="origin_address_building_name"
+                                            value={formData.origin_address_building_name}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Building name"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Area *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="origin_address_area"
+                                            value={formData.origin_address_area}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Area/Community"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Landmark
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="origin_address_landmark"
+                                            value={formData.origin_address_landmark}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Nearby landmark"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            City *
+                                        </label>
+                                        <select
+                                            name="origin_address_city"
+                                            value={formData.origin_address_city}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        >
+                                            <option value="Dubai">Dubai</option>
+                                            <option value="Abu Dhabi">Abu Dhabi</option>
+                                            <option value="Sharjah">Sharjah</option>
+                                            <option value="Ajman">Ajman</option>
+                                            <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                                            <option value="Fujairah">Fujairah</option>
+                                            <option value="Umm Al Quwain">Umm Al Quwain</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
 
