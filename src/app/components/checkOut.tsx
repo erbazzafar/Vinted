@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import AddNewCardModal from './stripeCardAddition';
 import Link from "next/link";
 import Cookies from 'js-cookie'
+import StripeCheckout from './stripeCardAddition';
+import axios from 'axios';
 
 const CheckoutPage = () => {
   const [userDetails, setUserDetails] = useState({
@@ -16,7 +18,7 @@ const CheckoutPage = () => {
     email: '',
     address1: '',
     city: '',
-    country: 'UAE',
+    country: 'AE',
     zipCode: '',
     phone: '',
     phoneCode: '971',
@@ -99,7 +101,6 @@ const CheckoutPage = () => {
         expMonth: '12',
         expYear: '2027',
         productId: [`${productId}`],
-        toUserId: toUserId || "",
         fullName: userDetails.fullName,
         email: userDetails.email,
         address1: userDetails.address1,
@@ -114,40 +115,11 @@ const CheckoutPage = () => {
         landmark: userDetails.landmark,
         subTotal: userDetails.totalPrice,
         fromUserId: fromUserId || "",
+        toUserId: toUserId || "",
         vat: userDetails.vat,
         total: userDetails.price,
       }
-
-      // setOrderFormData(payload);
-
-      const requestOptions: any = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${Cookies.get("user-token")}`, // Pass the token here
-        },
-        body: JSON.stringify(payload), // Convert formdata to JSON string
-      };
-
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/order/create`, requestOptions)
-        .then((response) => response.text())
-        .then(async (result) => {
-          const resp = JSON.parse(result);
-
-          if (resp.status === "ok") {
-            toast.success("Order Placed")
-            router.push("/orders")
-          } else if (resp.status === "TokenExpiredError") {
-            toast.error("Network Error");
-          }
-          else if (resp.status === "fail") {
-            toast.error("Network Error");
-          }
-        })
-        .catch((error) => {
-          toast.error("Network Error");
-          console.error(error);
-        });
+      setOrderFormData(payload);
       return;
     } catch (error) {
       console.log("Error submitting order:", error);
@@ -358,9 +330,9 @@ const CheckoutPage = () => {
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo?.image[0]}`}
                 alt={productInfo?.name || "Product Image"}
                 width={200}
-                height={70}
+                height={100}
                 unoptimized
-                className="w-118 h-70 object-contain rounded-md m-3"
+                className="w-118 h-100 object-contain rounded-md m-3 shadow-lg"
               />
             )}
             <div className="mt-4">
@@ -409,7 +381,7 @@ const CheckoutPage = () => {
                   return
                 }
                 handleOrderSubmit();
-                // setIsCardModalOpen(true)
+                setIsCardModalOpen(true)
               }}
               className="cursor-pointer w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-md transition"
             >
@@ -422,7 +394,7 @@ const CheckoutPage = () => {
             <Box
               className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             >
-              <AddNewCardModal formData={orderFormData} />
+              <StripeCheckout formData={orderFormData} />
             </Box>
           </Modal>
         </div>

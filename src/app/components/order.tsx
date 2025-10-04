@@ -523,18 +523,34 @@ export default function MyOrders() {
                   />
                   <div className="flex-1 sm:flex-none">
                     <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
-                    <p className="m-2 text-gray-600 ml-4 sm:ml-0">
-                      ${order?.subTotal}
-                      <span className={`ml-5 rounded-lg px-3 py-2 text-sm font-semibold border ${getStatusBackgroundColor(order.orderStatus)}`}>
+                    <p className="m-2 text-gray-600 ml-4 sm:ml-0 flex items-center gap-1">
+                      {/* Dirham image */}
+                      <Image
+                        src="/dirhamlogo.png"
+                        alt="dirham"
+                        width={18}
+                        height={18}
+                        unoptimized
+                      />
+
+                      {Number(order?.subTotal).toFixed(2)}
+
+                      <span
+                        className={`ml-5 rounded-lg px-3 py-2 text-sm font-semibold border ${getStatusBackgroundColor(order.orderStatus)}`}
+                      >
                         {getOrderStatus(order)}
                       </span>
+
                       {/* Show return status for Returns tab */}
                       {activeTab === "Returns" && order.returnStatus && (
-                        <span className={`ml-2 rounded-lg px-3 py-2 text-sm font-semibold border ${getReturnStatusBackgroundColor(order.returnStatus)}`}>
+                        <span
+                          className={`ml-2 rounded-lg px-3 py-2 text-sm font-semibold border ${getReturnStatusBackgroundColor(order.returnStatus)}`}
+                        >
                           Return: {getReturnStatus(order)}
                         </span>
                       )}
                     </p>
+
                   </div>
                 </div>
 
@@ -753,7 +769,16 @@ export default function MyOrders() {
               <div>
                 <h3 className="font-semibold text-gray-800 text-lg">{selectedOrder?.productId?.[0]?.name}</h3>
                 <p className="text-gray-600">Order ID: {selectedOrder?._id?.slice(-8)}</p>
-                <p className="text-green-600 font-semibold">${selectedOrder?.subTotal}</p>
+                <p className="text-green-600 font-semibold">{<div className="flex items-center gap-1 text-md font-semibold text-teal-600">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={18}
+                    height={18}
+                    unoptimized
+                  />
+                  <span>{Number(selectedOrder?.subTotal).toFixed(2)}</span>
+                </div>}</p>
                 {/* Show return status for Returns tab */}
                 {activeTab === "Returns" && selectedOrder?.returnStatus && (
                   <div className="mt-2">

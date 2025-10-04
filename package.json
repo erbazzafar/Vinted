@@ -48,6 +48,7 @@
     "react-select": "^5.10.1",
     "react-slick": "^0.30.3",
     "react-slideshow-image": "^4.3.2",
+    "react-tabs": "^6.1.0",
     "slick-carousel": "^1.8.1",
     "sonner": "^2.0.1",
     "stripe": "^17.7.0",

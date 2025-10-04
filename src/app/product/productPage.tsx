@@ -6,7 +6,6 @@ import Image from "next/image";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
 import { toast } from "sonner";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -320,13 +319,13 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-15 items-start">
           {/* Left: Product Images */}
           <div className="flex flex-col md:flex-row gap-6">
-            {/* Thumbnail Images - Below main image on mobile, to the left on desktop */}
+            {/* Thumbnail Images */}
             <div className="flex flex-row md:flex-col gap-4 px-6 md:px-0 order-2 md:order-1">
               {gettingProduct?.image?.slice(0, 4)?.map((image: any, index: any) => (
                 <div key={index} className="relative">
                   <Image
                     src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
-                    alt={`Thumbnail ${index}`}
+                    alt={`Thumbnail ${index}` || "Image"}
                     width={80}
                     height={80}
                     unoptimized
@@ -350,7 +349,7 @@ const ProductPage = () => {
             <div className="w-full px-6 md:px-0 order-1 md:order-2">
               <Image
                 src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mainImage}`}
-                alt={"Product"}
+                alt="Product"
                 width={500}
                 height={600}
                 unoptimized
@@ -372,7 +371,10 @@ const ProductPage = () => {
                   arrows
                 >
                   {gettingProduct?.image?.map((image: any, index: any) => (
-                    <div key={index} className="w-full h-[600px] flex justify-center items-center">
+                    <div
+                      key={index}
+                      className="w-full h-[600px] flex justify-center items-center"
+                    >
                       <Image
                         src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
                         alt={`Product ${index}`}
@@ -390,232 +392,143 @@ const ProductPage = () => {
 
           {/* Right: Product Details */}
           <div className="bg-white space-y-1 px-6 md:px-0">
-            <div className=" border-b border-gray-200 pb-3">
+            {/* Product Title, Rating, Desc */}
+            <div className="border-b border-gray-200 pb-3">
               <h1 className="text-[14px] md:text-[14px] font-bold text-gray-800">
-                {gettingProduct?.name || "no name"}
+                {gettingProduct?.name || "No name"}
               </h1>
 
               <div className="flex items-center space-x-2 mt-1">
-                <span className="text-[12px] text-gray-500">{gettingProduct?.ratings} (Reviews)</span>
+                <span className="text-[12px] text-gray-500">
+                  {gettingProduct?.ratings} (Reviews)
+                </span>
               </div>
-              <p className="text-[12px] text-gray-600">{gettingProduct?.description}</p>
+              <p className="text-[12px] text-gray-600">
+                {gettingProduct?.description}
+              </p>
             </div>
 
-            {/* === Set 2: Description, Brand, Size, Color, Category === */}
-            <div className=" border-b border-gray-200 pb-2">
+            {/* Attributes */}
+            <div className="border-b border-gray-200 pb-2 space-y-1">
               {gettingProduct?.brandId?.name && (
-                <div>
-                  <label className="text-[13px] font-medium text-gray-600">Brand:</label>
-                  <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.brandId?.name || "Other"}</span>
-                </div>
+                <p className="text-[13px] text-gray-600">
+                  <span className="font-medium">Brand:</span>{" "}
+                  {gettingProduct?.brandId?.name}
+                </p>
               )}
               {gettingProduct?.sizeId?.name && (
-                <div>
-                  <label className="text-[13px] font-medium text-gray-600">Size:</label>
-                  <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.sizeId?.name || "Other"}</span>
-                </div>
+                <p className="text-[13px] text-gray-600">
+                  <span className="font-medium">Size:</span>{" "}
+                  {gettingProduct?.sizeId?.name}
+                </p>
               )}
               {gettingProduct?.colorId?.[0]?.name && (
-                <div>
-                  <label className="text-[13px] font-medium text-gray-600">Color:</label>
-                  <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.colorId?.[0]?.name || "Other "}</span>
-                </div>
+                <p className="text-[13px] text-gray-600">
+                  <span className="font-medium">Color:</span>{" "}
+                  {gettingProduct?.colorId?.[0]?.name}
+                </p>
               )}
-
-              <div>
-                <label className="text-[13px] font-medium text-gray-600">Category:</label>
-                <span className="text-[13px] text-gray-600 ml-1">{gettingProduct?.categoryId?.[gettingProduct?.categoryId.length - 1]?.name || "Other"}</span>
-              </div>
+              <p className="text-[13px] text-gray-600">
+                <span className="font-medium">Category:</span>{" "}
+                {gettingProduct?.categoryId?.[
+                  gettingProduct?.categoryId?.length - 1
+                ]?.name || "Other"}
+              </p>
             </div>
 
-            {/* === Set 3: Pricing Section === */}
+            {/* Pricing */}
             <div className="space-y-2">
-              {/* Product Price */}
-              <div className="flex items-center gap-2">
-                <label className="text-[14px] font-medium text-gray-600">Product Price:</label>
-                <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={15}
-                    height={15}
-                    unoptimized />
-                  <span>{gettingProduct?.price}</span>
+              {[
+                { label: "Product Price", value: gettingProduct?.price },
+                { label: "Shipping Cost", value: gettingProduct?.shipPrice },
+                { label: "Protection Fee", value: gettingProduct?.inclPrice },
+              ].map(({ label, value }, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <label className="text-[14px] font-medium text-gray-600">
+                    {label}:
+                  </label>
+                  <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
+                    <Image
+                      src="/dirhamlogo.png"
+                      alt="dirham"
+                      width={15}
+                      height={15}
+                      unoptimized
+                    />
+                    <span>{value}</span>
+                  </div>
                 </div>
-              </div>
+              ))}
 
-              {/* Shipping Cost */}
-              <div className="flex items-center gap-2">
-                <label className="text-[14px] font-medium text-gray-600">Shipping Cost:</label>
-                <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={15}
-                    height={15}
-                    unoptimized />
-                  <span>{gettingProduct?.shipPrice}</span>
-                </div>
-              </div>
-
-              {/* Protection Fee */}
-              <div className="flex items-center gap-2">
-                <label className="text-[14px] font-medium text-gray-600">Protection Fee:</label>
-                <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={15}
-                    height={15}
-                    unoptimized />
-                  <span>{gettingProduct?.inclPrice}</span>
-                </div>
-              </div>
-
-              {/* Total Price */}
+              {/* Total */}
               <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-300">
-                <label className="text-[16px] font-bold text-gray-700">Total Price:</label>
+                <label className="text-[16px] font-bold text-gray-700">
+                  Total Price:
+                </label>
                 <div className="flex items-center gap-1 text-[18px] font-bold text-green-700">
                   <Image
                     src="/dirhamlogo.png"
                     alt="dirham"
                     width={17}
                     height={17}
-                    unoptimized />
+                    unoptimized
+                  />
                   <span>{gettingProduct?.totalPrice}</span>
                 </div>
               </div>
             </div>
 
-            {/* Contact Seller Button */}
+            {/* Seller / Owner Buttons */}
             {gettingProduct?.userId?._id === loggedInUser ? (
               <>
+                {/* Bump Button */}
                 <button
-                  className={`text-lg mt-4 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition
-                    ${bump && bumpDayCheck > 0 ?
-                      "bg-gray-300 text-green-600 cursor-not-allowed" :
-                      "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer"}
-  `               }
+                  className={`text-lg mt-4 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition ${bump && bumpDayCheck > 0
+                      ? "bg-gray-300 text-green-600 cursor-not-allowed"
+                      : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
+                    }`}
                   disabled={bump && bumpDayCheck > 0}
                   onClick={() => {
-                    if (bump && bumpDayCheck > 0) return; // already bumped, do nothing
-
-                    if (token) {
-                      setIsBumpModalOpen(true);
-                    } else {
-                      toast.error("Login first to Bump product");
-                    }
+                    if (bump && bumpDayCheck > 0) return;
+                    if (token) setIsBumpModalOpen(true);
+                    else toast.error("Login first to Bump product");
                   }}
                 >
-                  <span>{bump && bumpDayCheck > 0 ? "Bumped ✅" : "Bump"}</span>
+                  {bump && bumpDayCheck > 0 ? "Bumped ✅" : "Bump"}
                 </button>
 
+                {/* Hide Button */}
                 <button
-                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
-                    ${hidden ?
-                      "bg-gray-400 text-gray-950" :
-                      "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
+                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition ${hidden
+                      ? "bg-gray-400 text-gray-950"
+                      : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
                     }`}
-                  onClick={() => {
-                    if (token) {
-                      handleHide()
-                    } else {
-                      toast.error("Login First to hide the Product")
-                    }
-                  }}
+                  onClick={() => (token ? handleHide() : toast.error("Login First"))}
                 >
-                  <span>{hidden ? "Unhide Product" : "Hide"}</span>
+                  {hidden ? "Unhide Product" : "Hide"}
                 </button>
 
-                {/* <button
-                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
-                    ${sold ?
-                      "bg-gray-400 text-gray-950" :
-                      "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
-                    }`}
-                  onClick={() => {
-                    if (token) {
-                      setIsSoldModalOpen(true)
-                    } else {
-                      toast.error("Login First to hide the Product")
-                    }
-                  }}
-                >
-                  <span>{sold ? "Mark as Unsold" : "Mark as Sold ✅"}</span>
-                </button> */}
-
-                {/*Sold Modal*/}
-                {/* <Modal open={isSoldModalOpen} onClose={() => setIsSoldModalOpen(false)}>
-                  <Box className="bg-white p-6 rounded-lg shadow-lg w-[90vw] max-w-md sm:max-w-lg md:max-w-2xl max-h-[80vh] overflow-hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <h2 className="text-xl font-semibold mb-4 text-center">Users List</h2>
-                    {allUsers?.length === 0 ? (
-                      <p className="text-gray-600 text-center">No User found.</p>
-                    ) : (
-                      <ul className="space-y-3 overflow-y-auto max-h-[55vh] pr-2">
-                        {allUsers?.map((user: any, index: number) => (
-                          <li key={index} className="border p-3 rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition">
-                            <div className="flex items-center gap-4">
-                              <Image
-                                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${user?.image}` || "/default-avatar.png"}
-                                alt="User"
-                                width={40}
-                                height={40}
-                                className="rounded-full object-cover w-10 h-10"
-                              />
-                              <span className="text-[14px] sm:text-[15px] font-medium text-gray-800">{user.fullName}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </Box>
-                </Modal> */}
-
-                {/* <button
-                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer 
-                    ${reserve ?
-                      "bg-gray-400 text-gray-950" :
-                      "bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
-                    }`}
-                  onClick={() => {
-                    if (token) {
-                      handleReserved()
-                    } else {
-                      toast.error("Login first to reserve the Product")
-                    }
-                  }}
-                >
-                  <span>{reserve ? "Reserved" : "Mark as Reserve"}</span>
-                </button> */}
-
-                {/* <button
-                  className="`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer bg-gray-800 hover:bg-gray-300 hover:text-gray-950"
-                  onClick={() => {
-                    if (token) {
-                      handleProductEdit()
-                    } else {
-                      toast.error("Login first to Edit your Product")
-                    }
-                  }}>
-                  Edit
-                </button> */}
-
+                {/* Delete Button */}
                 <button
-                  className="`text-lg mt-2 flex items-center justify-center gap-2 w-full text-white px-7 py-2 rounded-lg transition cursor-pointer bg-red-800 hover:bg-red-500 hover:text-white"
-                  onClick={() => {
-                    if (token) {
-                      setIsDeleteModalOpen(true)
-                    } else {
-                      toast.error("Login first to Delete your Product")
-                    }
-                  }}>
+                  className="text-lg mt-2 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition cursor-pointer bg-red-800 text-white hover:bg-red-500"
+                  onClick={() =>
+                    token
+                      ? setIsDeleteModalOpen(true)
+                      : toast.error("Login first to Delete")
+                  }
+                >
                   Delete
                 </button>
 
                 {/* Delete Modal */}
-                <Modal open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <Modal
+                  open={isDeleteModalOpen}
+                  onClose={() => setIsDeleteModalOpen(false)}
+                >
                   <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <h3 className="text-lg text-center font-semibold mb-4">Are you sure you want to delete Your Product</h3>
+                    <h3 className="text-lg text-center font-semibold mb-4">
+                      Are you sure you want to delete Your Product?
+                    </h3>
                     <button
                       className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full cursor-pointer"
                       onClick={handleProductDelete}
@@ -625,7 +538,7 @@ const ProductPage = () => {
                   </Box>
                 </Modal>
 
-
+                {/* Seller Info */}
                 <SellerButton
                   seller={{
                     username: gettingProduct?.userId?.username,
@@ -636,28 +549,34 @@ const ProductPage = () => {
                   sellerId={gettingProduct?.userId?._id}
                 />
 
-                {/*Bump Modal*/}
+                {/* Bump Modal */}
                 <Modal open={isBumpModalOpen} onClose={() => setIsBumpModalOpen(false)}>
                   <Box className="bg-white p-6 rounded-lg shadow-lg w-full max-w-[500px] max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <h2 className="text-[13px] font-semibold mb-4">Select how many days you want to bump your product</h2>
+                    <h2 className="text-[13px] font-semibold mb-4">
+                      Select how many days you want to bump your product
+                    </h2>
 
-                    {/* Horizontal bump day options */}
+                    {/* Options */}
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {Array.isArray(bumpDays) &&
                         bumpDays?.map((option) => {
-                          const isSelected = selectedBumpDays?.day === option.day;
-                          const bumpPrice = ((Number(option.percentage) / 100) * Number(gettingProduct?.price || 0)).toFixed(2);
+                          const isSelected =
+                            selectedBumpDays?.day === option.day;
+                          const bumpPrice = (
+                            (Number(option.percentage) / 100) *
+                            Number(gettingProduct?.price || 0)
+                          ).toFixed(2);
 
                           return (
                             <button
                               key={option._id}
                               className={`cursor-pointer min-w-[140px] flex items-center justify-center gap-2 text-[13px] px-3 py-2 rounded-lg border whitespace-nowrap transition-colors duration-200 ${isSelected
-                                ? 'bg-gray-800 text-white border-gray-900'
-                                : 'bg-gray-100 text-black border-gray-300'
+                                  ? "bg-gray-800 text-white border-gray-900"
+                                  : "bg-gray-100 text-black border-gray-300"
                                 }`}
                               onClick={() => setSelectedBumpDays(option)}
                             >
-                              {option.day} days  –
+                              {option.day} days –
                               <div className="flex items-center gap-1">
                                 <Image
                                   src="/dirhamlogo.png"
@@ -684,15 +603,14 @@ const ProductPage = () => {
                       <button
                         disabled={bump || !selectedBumpDays}
                         className={`cursor-pointer text-[13px] px-4 py-2 rounded ${bump
-                          ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                            : "bg-gray-600 text-white hover:bg-gray-700"
                           }`}
                         onClick={async () => {
                           if (bump) {
                             toast.error("This product is already bumped");
                             return;
                           }
-
                           await handleBump(selectedBumpDays.day);
                           setIsBumpModalOpen(false);
                         }}
@@ -705,21 +623,24 @@ const ProductPage = () => {
               </>
             ) : (
               <>
+                {/* Buy Now */}
                 <button
                   className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
                   onClick={handleBuyNow}
                 >
-                  <span>Buy Now</span>
+                  Buy Now
                 </button>
 
+                {/* Chat */}
                 <button
                   className="text-xl mt-3 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
                   onClick={handleChat}
                 >
-                  <span>Chat with Seller</span>
+                  Chat with Seller
                   <MessageCircle size={20} className="shrink-0" />
                 </button>
 
+                {/* Seller Info */}
                 <SellerButton
                   seller={{
                     username: gettingProduct?.userId?.username,
@@ -731,11 +652,11 @@ const ProductPage = () => {
                 />
               </>
             )}
-
           </div>
         </div>
       </div>
 
+      {/* Related Products */}
       <div className="mt-12">
         <ProductCarousel />
       </div>

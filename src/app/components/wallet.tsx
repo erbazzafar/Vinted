@@ -486,7 +486,7 @@ function Wallet() {
                     />
                     <div className="flex flex-col">
                       <h2 className="text-[13px] font-semibold">{soldProd?.productId?.[0]?.name}</h2>
-                      <p className="text-[12px] text-red-500">Price: ${soldProd?.total}</p>
+                      <p className="text-[12px] text-red-500">Price: {soldProd?.total}</p>
                     </div>
                   </div>
 
@@ -558,7 +558,7 @@ function Wallet() {
                           <p className="text-[13px] text-gray-700">Product Name: {selectedProduct?.productId?.[0]?.name}</p>
                           <p className="text-[13px] text-gray-700">Price: {selectedProduct?.total}</p>
                           <p className="text-[13px] text-gray-700">Platform Fee: {selectedProduct?.buyerFee}</p>
-                          <p className="text-[13px] mb-1 text-green-700">Receivable: {selectedProduct?.subTotal || selectedProduct?.total}</p>
+                          <p className="text-[13px] mb-1 text-green-700">Receivable: {selectedProduct?.total || selectedProduct?.total}</p>
                         </div>
                         <div className="p-3">
                           <h2 className="text-[13px] font-semibold">Buyer Information:</h2>
