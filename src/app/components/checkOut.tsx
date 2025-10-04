@@ -6,11 +6,8 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import AddNewCardModal from './stripeCardAddition';
 import Link from "next/link";
-import Cookies from 'js-cookie'
 import StripeCheckout from './stripeCardAddition';
-import axios from 'axios';
 
 const CheckoutPage = () => {
   const [userDetails, setUserDetails] = useState({
@@ -28,7 +25,8 @@ const CheckoutPage = () => {
     landmark: '',
     price: 0,
     totalPrice: 0,
-    vat: 0
+    vat: 0,
+    shipPrice: 0
   })
   const [productInfo, setProductInfo] = useState<any>(null)
   const searchParams = useSearchParams()
@@ -40,7 +38,6 @@ const CheckoutPage = () => {
   const bids = productInfo?.bid || [];
   const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
 
-  const router = useRouter();
   const [checkbox, setCheckbox] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -63,9 +60,6 @@ const CheckoutPage = () => {
         const vat = finalPrice * 0.05;
         const finalInclPrice = vat + finalTotalPrice;
 
-        console.log("vat Price ==> ", vat);
-        console.log("Final price ==> ", finalTotalPrice);
-
         setUserDetails((prevDetails) => ({
           ...prevDetails,
           price: finalPrice,
@@ -73,11 +67,6 @@ const CheckoutPage = () => {
           vat: vat
         }));
 
-        console.log("total price in API call: ", userDetails.totalPrice);
-
-
-        console.log("Matched Bid:", matchedBid);
-        console.log("Parsed product info from localStorage:", parsedData);
       } catch (error) {
         console.error("Error parsing product info from localStorage:", error);
       }
@@ -118,6 +107,7 @@ const CheckoutPage = () => {
         toUserId: toUserId || "",
         vat: userDetails.vat,
         total: userDetails.price,
+        shipPrice: userDetails.shipPrice,
       }
       setOrderFormData(payload);
       return;
@@ -127,8 +117,6 @@ const CheckoutPage = () => {
       return
     }
   }
-
-  console.log("orderFormData", orderFormData);
 
   return (
     <div className="max-w-7xl mx-auto mt-8 py-10 px-5">

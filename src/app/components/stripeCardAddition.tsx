@@ -518,7 +518,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const stripePromise = loadStripe(
-	"pk_test_51RH3dwI5tAyGjw2REiKEXU1UjR8QfdvJZyY1SOcxZS48JxJEGi8eJ84F2MVV1cjMPWuuTlI9v4LOt4xfQXqhqmP800sHniLIA9"
+	process.env.STRIPE_PUBLISH_KEY || "pk_test_51RH3dwI5tAyGjw2REiKEXU1UjR8QfdvJZyY1SOcxZS48JxJEGi8eJ84F2MVV1cjMPWuuTlI9v4LOt4xfQXqhqmP800sHniLIA9"
 );
 
 const ELEMENT_OPTIONS = {
@@ -654,9 +654,9 @@ function CheckoutForm({ formData }: { formData: any }) {
 				onClick={handlePayment}
 				disabled={loading}
 				className={`mt-6 w-full py-3 rounded-lg font-semibold text-white shadow-md transition-all ${loading
-						? "bg-indigo-400 cursor-not-allowed"
-						: "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800"
-					} flex justify-center items-center`}
+						? "bg-gray-400 cursor-not-allowed"
+						: "bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
+					} flex justify-center items-center cursor-pointer`}
 			>
 				{loading ? "Processing..." : `Pay AED ${Number(formData.subTotal).toFixed(2)}`}
 			</button>
@@ -672,7 +672,7 @@ function CheckoutForm({ formData }: { formData: any }) {
 
 			{/* Powered By Stripe */}
 			<div className="mt-8 flex justify-center items-center text-gray-400 text-xs space-x-2 select-none">
-				<span>Powered by</span>
+				<span>Powered by Stripe</span>
 				<svg
 					className="h-5"
 					xmlns="http://www.w3.org/2000/svg"

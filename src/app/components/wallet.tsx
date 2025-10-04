@@ -366,7 +366,16 @@ function Wallet() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Balance</h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-4xl font-bold text-gray-900">${wallet?.wallet?.available}</p>
+                <p className="flex items-center gap-2 text-4xl font-bold">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={18}
+                    height={18}
+                    unoptimized
+                  />
+                  <span>{wallet?.wallet?.available}</span>
+                </p>
                 <p className="text-sm text-gray-500 mt-1">Ready to withdraw</p>
               </div>
               {wallet?.wallet?.available > 0 && (
@@ -379,7 +388,6 @@ function Wallet() {
               )}
             </div>
           </div>
-
 
           {/* Add Bank Modal */}
           <Modal open={isBankModalOpen} onClose={() => setIsBankModalOpen(false)}>
@@ -442,7 +450,16 @@ function Wallet() {
           {/* Pending Balance Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Pending Balance</h2>
-            <p className="text-4xl font-bold text-red-500">${wallet?.wallet?.pending}</p>
+            <p className="flex items-center gap-2 text-4xl font-bold text-red-500">
+              <Image
+                src="/dirhamlogo.png"
+                alt="dirham"
+                width={18}
+                height={18}
+                unoptimized
+              />
+              <span>{wallet?.wallet?.pending}</span>
+            </p>
             <p className="text-sm text-gray-500 mt-1">Will be available in 1-3 business days</p>
           </div>
         </div>
