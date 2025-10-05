@@ -378,9 +378,13 @@ const CheckoutPage = () => {
             </button>
           </div>
           {/*add card modal*/}
-          <Modal open={isCardModalOpen} onClose={() => setIsCardModalOpen(false)}>
+          <Modal
+            open={isCardModalOpen}
+            onClose={() => setIsCardModalOpen(false)}
+            className="flex justify-center items-center p-4 sm:p-6 backdrop-blur-sm bg-black/40"
+          >
             <Box
-              className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+              className="bg-white rounded-xl shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg p-5 sm:p-6 overflow-y-auto max-h-[90vh]"
             >
               <StripeCheckout formData={orderFormData} />
             </Box>
