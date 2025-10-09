@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import { DatePicker } from "antd";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings, User, FileText, Camera, PlusCircle, Menu, X, Shield } from "lucide-react";
+import { Settings, User, FileText, Camera, PlusCircle, Menu, X, Shield, Banknote } from "lucide-react";
 
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -16,6 +16,7 @@ import Modal from "@mui/material/Modal";
 import KfcSetting from "@/components/kfc-setting";
 import UserSettings from "@/components/user-settings";
 import UserSettingsTermsCondition from "@/components/user-settings-terms-condition";
+import UserAddBank from "./userAddBank";
 
 const pages = [
   { name: "Profile", icon: User },
@@ -38,6 +39,11 @@ const pages = [
     name: "Terms & Conditions", icon: FileText, content: () => (
       <UserSettingsTermsCondition />
     )
+  },
+  {
+    name: "Add Withdraw Bank", icon: Banknote, content: () => (
+      <UserAddBank />
+    )
   }
 ];
 
@@ -48,6 +54,9 @@ export default function Dashboard() {
     image: null as string | File | null, about: "", country: "United States", city: "", language: "English", phone: "", emailLink: false, fullName: "", gender: "", birthDay: null as string | null,
   });
   const router = useRouter()
+  
+  const id = Cookies.get("userId");
+  const token = Cookies.get("user-token");
 
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -55,9 +64,6 @@ export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [vacationMode, setVacationMode] = useState(false);
   const [notificationEnabled, setNotificationEnabled] = useState(false);
-
-  const token = Cookies.get("user-token");
-  const id = Cookies.get("userId");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -380,10 +386,13 @@ export default function Dashboard() {
                   value={profile.country}
                   onChange={(e) => setProfile({ ...profile, country: e.target.value })}
                 >
-                  <option>United States</option>
-                  <option>United Kingdom</option>
-                  <option>Australia</option>
-                  <option>Germany</option>
+                  <option>Dubai</option>
+                  <option>Sharjah</option>
+                  <option>Abu Dhabi</option>
+                  <option>Ajman</option>
+                  <option>Um Al Quwain</option>
+                  <option>Ras Al Khaimah</option>
+                  <option>Fujairah</option>
                 </select>
               </div>
 
@@ -408,6 +417,7 @@ export default function Dashboard() {
                   onChange={(e) => setProfile({ ...profile, language: e.target.value })}
                 >
                   <option>English</option>
+                  <option>Arabic</option>
                   <option>Spanish</option>
                   <option>French</option>
                   <option>German</option>
