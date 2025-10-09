@@ -363,29 +363,20 @@ function Wallet() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-4 sm:m-0 mb-6">
           {/* Available Balance Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Balance</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Withdrawable Balance</h2>
             <div className="flex items-center justify-between">
               <div>
                 <p className="flex items-center gap-2 text-4xl font-bold">
                   <Image
                     src="/dirhamlogo.png"
                     alt="dirham"
-                    width={18}
-                    height={18}
+                    width={22}
+                    height={22}
                     unoptimized
                   />
-                  <span>{wallet?.wallet?.available}</span>
+                  <span className="text-green-600">{wallet?.wallet?.available}</span>
                 </p>
-                <p className="text-sm text-gray-500 mt-1">Ready to withdraw</p>
               </div>
-              {wallet?.wallet?.available > 0 && (
-                <button
-                  onClick={() => setIsBankModalOpen(true)}
-                  className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
-                >
-                  Add Bank
-                </button>
-              )}
             </div>
           </div>
 
@@ -454,13 +445,13 @@ function Wallet() {
               <Image
                 src="/dirhamlogo.png"
                 alt="dirham"
-                width={18}
-                height={18}
+                width={22}
+                height={22}
                 unoptimized
               />
               <span>{wallet?.wallet?.pending}</span>
             </p>
-            <p className="text-sm text-gray-500 mt-1">Will be available in 1-3 business days</p>
+            <p className="text-sm text-gray-500 mt-1">Will be available in 1-3 business days of successful package delivery</p>
           </div>
         </div>
 

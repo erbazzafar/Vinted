@@ -9,7 +9,8 @@ import Modal from '@mui/material/Modal'
 interface WithDrawBank {
     _id?: string
     accountHolderName: string
-    accountNo: string
+    accountNo: string,
+    iban: string,
     bankName: string
     bankStatus: 'active' | 'inactive' | string
     userId: string
@@ -23,6 +24,7 @@ export default function UserAddBank() {
     const [formBank, setFormBank] = useState<WithDrawBank>({
         accountHolderName: '',
         accountNo: '',
+        iban: '',
         bankName: '',
         bankStatus: 'active',
         userId: id,
@@ -68,6 +70,7 @@ export default function UserAddBank() {
                     accountHolderName: formBank.accountHolderName,
                     accountNo: formBank.accountNo,
                     bankName: formBank.bankName,
+                    iban: formBank.iban,
                     bankStatus: 'active',
                     userId: formBank.userId,
                 },
@@ -88,6 +91,7 @@ export default function UserAddBank() {
                 accountHolderName: '',
                 accountNo: '',
                 bankName: '',
+                iban: ''
             })
             getUserBanks()
         } catch (error) {
@@ -110,6 +114,7 @@ export default function UserAddBank() {
                 accountNo: formBank.accountNo,
                 bankName: formBank.bankName,
                 bankStatus: formBank.bankStatus,
+                iban: formBank.iban
             }
             const response = await axios.put(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/bank/update/${currentBankId}`,
@@ -209,6 +214,7 @@ export default function UserAddBank() {
                             setFormBank({
                                 accountHolderName: '',
                                 accountNo: '',
+                                iban: '',
                                 bankName: '',
                                 bankStatus: 'active',
                                 userId: id,
@@ -232,6 +238,7 @@ export default function UserAddBank() {
                                     <th className="py-2 px-3 border text-left">#</th>
                                     <th className="py-2 px-3 border text-left">Account Title</th>
                                     <th className="py-2 px-3 border text-left">Account No</th>
+                                    <th className="py-2 px-3 border text-left">IBAN</th>
                                     <th className="py-2 px-3 border text-left">Bank Name</th>
                                     <th className="py-2 px-3 border text-left">Status</th>
                                     <th className="py-2 px-3 border text-center">Change Status</th>
@@ -245,6 +252,7 @@ export default function UserAddBank() {
                                         <td className="py-2 px-3 border">{index + 1}</td>
                                         <td className="py-2 px-3 border">{bank.accountHolderName}</td>
                                         <td className="py-2 px-3 border">{bank.accountNo}</td>
+                                        <td className="py-2 px-3 border">{bank.iban}</td>
                                         <td className="py-2 px-3 border">{bank.bankName}</td>
                                         <td className="py-2 px-3 border text-center">
                                             <span
@@ -307,6 +315,14 @@ export default function UserAddBank() {
                         />
                         <input
                             className="border p-2 rounded"
+                            placeholder="IBAN"
+                            value={formBank.iban}
+                            onChange={(e) =>
+                                setFormBank({ ...formBank, iban: e.target.value })
+                            }
+                        />
+                        <input
+                            className="border p-2 rounded"
                             placeholder="Bank Name"
                             value={formBank.bankName}
                             onChange={(e) =>
@@ -348,6 +364,14 @@ export default function UserAddBank() {
                             value={formBank.accountNo}
                             onChange={(e) =>
                                 setFormBank({ ...formBank, accountNo: e.target.value })
+                            }
+                        />
+                        <input
+                            className="border p-2 rounded"
+                            placeholder="IBAN "
+                            value={formBank.iban}
+                            onChange={(e) =>
+                                setFormBank({ ...formBank, iban: e.target.value })
                             }
                         />
                         <input
