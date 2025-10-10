@@ -26,7 +26,8 @@ const CheckoutPage = () => {
     price: 0,
     totalPrice: 0,
     vat: 0,
-    shipPrice: 0
+    shipPrice: 0,
+    protectionFee: 0
   })
   const [productInfo, setProductInfo] = useState<any>(null)
   const searchParams = useSearchParams()
@@ -57,14 +58,18 @@ const CheckoutPage = () => {
 
         const finalPrice = matchedBid?.price || parsedData?.price;
         const finalTotalPrice = matchedBid?.totalPrice || parsedData?.totalPrice;
-        const vat = finalPrice * 0.05;
-        const finalInclPrice = vat + finalTotalPrice;
+        const vat = parsedData?.vat || 0.7;
+        const shipPrice = parsedData?.shipPrice || 0.7;
+        const finalInclPrice = finalTotalPrice;
+        const protectionFee = matchedBid?.inclPrice || parsedData?.inclPrice || 0;
 
         setUserDetails((prevDetails) => ({
           ...prevDetails,
           price: finalPrice,
           totalPrice: finalInclPrice,
-          vat: vat
+          vat: vat,
+          shipPrice,
+          protectionFee
         }));
 
       } catch (error) {
@@ -324,11 +329,39 @@ const CheckoutPage = () => {
               />
             )}
             <div className="mt-4">
-              <h3 className="text-lg font-semibold">{productInfo?.name}</h3>
+              <h3 className="text-[23px] font-bold">{productInfo?.name}</h3>
 
               <div className="flex items-center gap-2 mt-3">
-                <h3 className="text-md font-semibold">VAT (5%):</h3>
-                <div className="flex items-center gap-1 text-md font-semibold text-teal-600">
+                <h3 className="text-[15px] font-semibold">Product Price:</h3>
+                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={18}
+                    height={18}
+                    unoptimized
+                  />
+                  <span>{userDetails.price?.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-3">
+                <h3 className="text-[15px] font-semibold">Shipping Charges:</h3>
+                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={18}
+                    height={18}
+                    unoptimized
+                  />
+                  <span>{userDetails.shipPrice?.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-2">
+                <h3 className="text-[15px] font-semibold">VAT <span className='text-[12px] text-gray-600'>(5% of shipping charges)</span>:</h3>
+                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
                   <Image
                     src="/dirhamlogo.png"
                     alt="dirham"
@@ -340,9 +373,9 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mt-3">
-                <h3 className="text-md font-semibold">Total Price:</h3>
-                <div className="flex items-center gap-1 text-md font-semibold text-teal-600">
+              <div className="flex items-center gap-2 mt-2">
+                <h3 className="text-[15px] font-semibold">Protection Fee:</h3>
+                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
                   <Image
                     src="/dirhamlogo.png"
                     alt="dirham"
@@ -350,7 +383,21 @@ const CheckoutPage = () => {
                     height={18}
                     unoptimized
                   />
-                  <span>{userDetails.totalPrice?.toFixed(2)}</span>
+                  <span>{userDetails.protectionFee?.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-3 border-y border-gray-300 py-2">
+                <h3 className="text-[18px] font-semibold">Total Price:</h3>
+                <div className="flex items-center gap-1 text-[18px] font-semibold text-teal-600">
+                  <Image
+                    src="/dirhamlogo.png"
+                    alt="dirham"
+                    width={20}
+                    height={20}
+                    unoptimized
+                  />
+                  <span>{userDetails.totalPrice}</span>
                 </div>
               </div>
             </div>

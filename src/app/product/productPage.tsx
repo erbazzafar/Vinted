@@ -72,20 +72,6 @@ const ProductPage = () => {
     }
   }, [gettingProduct]);
 
-  const getStarRating = (rating: number) => {
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-    return (
-      <span className="text-yellow-500 text-lg">
-        {"★".repeat(fullStars)}
-        {halfStar && "☆"}
-        {"☆".repeat(emptyStars)}
-      </span>
-    );
-  };
-
   const handleBuyNow = () => {
     if (!token) {
       toast.error("Please login to buy the product")
@@ -394,42 +380,36 @@ const ProductPage = () => {
           <div className="bg-white space-y-1 px-6 md:px-0">
             {/* Product Title, Rating, Desc */}
             <div className="border-b border-gray-200 pb-3">
-              <h1 className="text-[14px] md:text-[14px] font-bold text-gray-800">
+              <h1 className="text-[18px] md:text-[30px] font-bold text-gray-800">
                 {gettingProduct?.name || "No name"}
               </h1>
-
-              <div className="flex items-center space-x-2 mt-1">
-                <span className="text-[12px] text-gray-500">
-                  {gettingProduct?.ratings} (Reviews)
-                </span>
-              </div>
-              <p className="text-[12px] text-gray-600">
+              <p className="text-[13px] sm:text-[15px] text-gray-600 my-[8px]">
                 {gettingProduct?.description}
               </p>
             </div>
 
             {/* Attributes */}
-            <div className="border-b border-gray-200 pb-2 space-y-1">
+            <div className="border-b border-gray-200 pb-[15px] pt-[10px] space-y-1">
               {gettingProduct?.brandId?.name && (
-                <p className="text-[13px] text-gray-600">
-                  <span className="font-medium">Brand:</span>{" "}
+                <p className="text-[16px] text-gray-600">
+                  <span className="font-[700]">Brand:</span>{" "}
                   {gettingProduct?.brandId?.name}
                 </p>
               )}
               {gettingProduct?.sizeId?.name && (
-                <p className="text-[13px] text-gray-600">
-                  <span className="font-medium">Size:</span>{" "}
+                <p className="text-[16px] text-gray-600">
+                  <span className="font-[700]">Size:</span>{" "}
                   {gettingProduct?.sizeId?.name}
                 </p>
               )}
               {gettingProduct?.colorId?.[0]?.name && (
-                <p className="text-[13px] text-gray-600">
-                  <span className="font-medium">Color:</span>{" "}
+                <p className="text-[16px] text-gray-600">
+                  <span className="font-[700]">Color:</span>{" "}
                   {gettingProduct?.colorId?.[0]?.name}
                 </p>
               )}
-              <p className="text-[13px] text-gray-600">
-                <span className="font-medium">Category:</span>{" "}
+              <p className="text-[16px] text-gray-600">
+                <span className="font-[700]">Category:</span>{" "}
                 {gettingProduct?.categoryId?.[
                   gettingProduct?.categoryId?.length - 1
                 ]?.name || "Other"}
@@ -437,8 +417,8 @@ const ProductPage = () => {
             </div>
 
             {/* Pricing */}
-            <div className="space-y-2">
-              {[
+            <div className="space-y-2 pt-[20px] pb-[10px]">
+              {/* {[
                 { label: "Product Price", value: gettingProduct?.price },
                 { label: "Shipping Cost", value: gettingProduct?.shipPrice },
                 { label: "Protection Fee", value: gettingProduct?.inclPrice },
@@ -458,22 +438,22 @@ const ProductPage = () => {
                     <span>{value}</span>
                   </div>
                 </div>
-              ))}
+              ))} */}
 
               {/* Total */}
-              <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-300">
-                <label className="text-[16px] font-bold text-gray-700">
-                  Total Price:
+              <div className="flex items-center gap-2">
+                <label className="text-[20px] font-bold text-gray-700">
+                  Product Price:
                 </label>
-                <div className="flex items-center gap-1 text-[18px] font-bold text-green-700">
+                <div className="flex items-center gap-1 text-[22px] font-bold text-green-700">
                   <Image
                     src="/dirhamlogo.png"
                     alt="dirham"
-                    width={17}
-                    height={17}
+                    width={22}
+                    height={22}
                     unoptimized
                   />
-                  <span>{gettingProduct?.totalPrice}</span>
+                  <span>{Number(gettingProduct?.price).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -484,8 +464,8 @@ const ProductPage = () => {
                 {/* Bump Button */}
                 <button
                   className={`text-lg mt-4 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition ${bump && bumpDayCheck > 0
-                      ? "bg-gray-300 text-green-600 cursor-not-allowed"
-                      : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
+                    ? "bg-gray-300 text-green-600 cursor-not-allowed"
+                    : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
                     }`}
                   disabled={bump && bumpDayCheck > 0}
                   onClick={() => {
@@ -500,8 +480,8 @@ const ProductPage = () => {
                 {/* Hide Button */}
                 <button
                   className={`text-lg mt-2 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition ${hidden
-                      ? "bg-gray-400 text-gray-950"
-                      : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
+                    ? "bg-gray-400 text-gray-950"
+                    : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
                     }`}
                   onClick={() => (token ? handleHide() : toast.error("Login First"))}
                 >
@@ -571,8 +551,8 @@ const ProductPage = () => {
                             <button
                               key={option._id}
                               className={`cursor-pointer min-w-[140px] flex items-center justify-center gap-2 text-[13px] px-3 py-2 rounded-lg border whitespace-nowrap transition-colors duration-200 ${isSelected
-                                  ? "bg-gray-800 text-white border-gray-900"
-                                  : "bg-gray-100 text-black border-gray-300"
+                                ? "bg-gray-800 text-white border-gray-900"
+                                : "bg-gray-100 text-black border-gray-300"
                                 }`}
                               onClick={() => setSelectedBumpDays(option)}
                             >
@@ -603,8 +583,8 @@ const ProductPage = () => {
                       <button
                         disabled={bump || !selectedBumpDays}
                         className={`cursor-pointer text-[13px] px-4 py-2 rounded ${bump
-                            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                            : "bg-gray-600 text-white hover:bg-gray-700"
+                          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                          : "bg-gray-600 text-white hover:bg-gray-700"
                           }`}
                         onClick={async () => {
                           if (bump) {

@@ -2,12 +2,12 @@ import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 
-const SellerButton = ({ seller, sellerId } : any) => {
+const SellerButton = ({ seller, sellerId }: any) => {
   const router = useRouter();
 
   return (
     <div
-      className="mt-6 flex items-center justify-between bg-[#EBEBEB] p-2 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition"
+      className="mt-6 flex items-center justify-between bg-[#EBEBEB] p-3 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition"
       onClick={() => router.push(`/seller/${sellerId}`)}
     >
       {/* Profile Image & Info */}
@@ -16,17 +16,12 @@ const SellerButton = ({ seller, sellerId } : any) => {
           src={seller.profileImage}
           alt={seller.username}
           height={70}
-          width={45}
+          width={50}
           className="rounded-full object-cover h-[50px]"
           unoptimized
         />
         <div>
-          <p className="text-gray-900 text-lg font-semibold">{seller.username}</p>
-          <div className="flex items-center text-yellow-500">
-            {"★".repeat(Math.floor(seller.rating))}
-            {"☆".repeat(5 - Math.floor(seller.rating))}
-            <span className="text-gray-900 text-sm ml-2">{seller.reviews}</span>
-          </div>
+          <p className="text-gray-900 text-[20px] font-semibold">{seller.username}</p>
         </div>
       </div>
 
