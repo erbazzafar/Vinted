@@ -160,7 +160,7 @@ function ArrangeDeliveryContent() {
                     destination_address_landmark: orderData.landmark || "",
                     destination_address_street: orderData.address1 || "",
                     destination_address_city: orderData.city || "Dubai",
-                    pickup_date: new Date().toISOString().split('T')[0]
+                    pickup_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
                 }));
             }
         } catch (error) {
@@ -415,13 +415,12 @@ function ArrangeDeliveryContent() {
                                         name="pickup_date"
                                         value={formData.pickup_date}
                                         onChange={handleInputChange}
-                                        min={new Date().toISOString().split('T')[0]}
-                                        max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Max 30 days from today
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        disabled
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 cursor-not-allowed"
                                         required
                                     />
                                     <p className="text-sm text-gray-500 mt-1">
-                                        Select a date between today and 30 days from now
+                                        Pickup scheduled for next day
                                     </p>
                                 </div>
                             </div>

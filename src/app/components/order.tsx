@@ -651,12 +651,12 @@ export default function MyOrders() {
           >
             Confirm Cancellation
           </Typography>
-          <Typography sx={{ mt: 2 }} className="text-center font-bold ">
-            Are you sure you want to cancel your order?
+          <Typography sx={{ mt: 2 }} className="text-center font-bold">
+            <b>Are you sure you want to cancel your order?</b>
             <br />
-            <span className="text-gray-500 text-center m-6">
-              Only 80% of the money you can refund from your payment according to our policy.
-            </span>
+            <p className="text-gray-500 text-center mt-2">
+              According to our policy, 5% of the amount plus 14.7 AED will be non-refundable.
+            </p>
           </Typography>
           <div className="flex justify-end space-x-2 mt-4">
             <button
