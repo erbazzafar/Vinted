@@ -655,7 +655,7 @@ export default function MyOrders() {
             <b>Are you sure you want to cancel your order?</b>
             <br />
             <p className="text-gray-500 text-center mt-2">
-              According to our policy, 5% of the amount plus 14.7 AED will be non-refundable.
+              According to our policy, 3.4% of the amount plus 14.7 AED will be non-refundable.
             </p>
           </Typography>
           <div className="flex justify-end space-x-2 mt-4">
@@ -682,6 +682,7 @@ export default function MyOrders() {
             <Typography id="cancel-shipping-title" variant="h5" className="text-center font-bold text-white">
               Cancel Shipping
             </Typography>
+            <p className="text-center text-white font-[600] mt-2">According to our policy, 3.4% of the amount plus 14.7 AED will be non-refundable.</p>
             <p className="text-center text-red-100 mt-2">Provide a reason to cancel the shipment</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4 mb-4 border">

@@ -500,7 +500,7 @@ function Wallet() {
 
                   {/* Status + Buttons */}
                   <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-                    {!soldProd?.arrangeDelivery && (
+                    {soldProd?.orderStatus === "pending" && (
                       <button
                         className="bg-[#333333] h-[30px] text-[13px] font-[500] px-[15px] rounded-[10px] text-white cursor-pointer hover:bg-[#4e4e4e] transition duration-300"
                         onClick={() => router.push(`/arrange-delivery?orderId=${soldProd?._id}`)}
@@ -509,7 +509,7 @@ function Wallet() {
                         Arrange Delivery
                       </button>
                     )}
-                    {soldProd?.arrangeDelivery && soldProd?.orderStatus !== "Cancelled" && soldProd?.orderStatus !== "Delivered" && (
+                    {soldProd?.arrangeDelivery && soldProd?.orderStatus !== "Cancelled" && soldProd?.orderStatus !== "cancelled" && soldProd?.orderStatus !== "Delivered" && soldProd?.orderStatus !== "delivered" && (
                       <button
                         className="bg-[#741e1e] h-[30px] text-[13px] font-[500] px-[15px] rounded-[10px] text-white cursor-pointer hover:bg-[#6f4141] transition duration-300"
                         onClick={() => fn_getLabel(soldProd?._id)}

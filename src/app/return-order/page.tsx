@@ -298,9 +298,9 @@ function ReturnOrderContent() {
 
                                 {/* Image Preview Grid */}
                                 {images.length > 0 && (
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="flex flex-wrap gap-4">
                                         {images.map((img, index) => (
-                                            <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden shadow-md">
+                                            <div key={index} className="relative w-36 h-36 rounded-lg overflow-hidden shadow-md">
                                                 <Image
                                                     src={URL.createObjectURL(img)}
                                                     alt="Supporting evidence"
