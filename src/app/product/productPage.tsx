@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MessageCircle, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -66,11 +66,51 @@ const ProductPage = () => {
   }, [productId])
 
   const [mainImage, setMainImage] = useState(null);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (gettingProduct?.image?.[0]) {
       setMainImage(gettingProduct.image[0]);
     }
   }, [gettingProduct]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setZoomPosition({ x, y });
+  };
+
+  const handleMouseEnter = () => {
+    setIsZoomed(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsZoomed(false);
+  };
+
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return '/imageLogo2.jpg';
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    // Otherwise, it's from our system, add backend URL
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imagePath}`;
+  };
+
+  const getProductImageUrl = (imagePath: string) => {
+    if (!imagePath) return '/vercel.svg';
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    // Otherwise, it's from our system, add backend URL
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imagePath}`;
+  };
 
   const handleBuyNow = () => {
     if (!token) {
@@ -95,6 +135,13 @@ const ProductPage = () => {
   const [isBumpModalOpen, setIsBumpModalOpen] = useState(false);
   const [bumpDays, setBumpDays] = useState<Array<{ _id: string; day: string; percentage: string }>>([]);
   const [selectedBumpDays, setSelectedBumpDays] = useState<{ _id: string; day: string; percentage: string } | null>(null);
+
+  // Reserved modal states
+  const [isReservedModalOpen, setIsReservedModalOpen] = useState(false);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   useEffect(() => {
     const getBump = async () => {
@@ -125,6 +172,34 @@ const ProductPage = () => {
     localStorage.setItem("bumpDays", selectedDays)
     localStorage.setItem("percentage", selectedBumpDays.percentage)
     router.push(`/bump?id=${productId}`)
+  };
+
+  // Fetch all users for reserved modal
+  const fetchAllUsers = async () => {
+    try {
+      if (!token) {
+        toast.error("Please login first");
+        return;
+      }
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/getAll`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        setAllUsers(response.data.data);
+      } else {
+        toast.error("Error fetching users");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Error fetching users");
+    }
   };
 
 
@@ -169,7 +244,6 @@ const ProductPage = () => {
 
   const [isSoldModalOpen, setIsSoldModalOpen] = useState(false)
   const [selectedUserForSold, setSelectedUserForSold] = useState(null)
-  const [allUsers, setAllUsers] = useState(null)
 
   const handleSold = async () => {
     try {
@@ -233,11 +307,14 @@ const ProductPage = () => {
         return;
       }
 
-      // Use the *intended* new value before calling API
-      const newReservedValue = !reserve
+      if (!selectedUser) {
+        toast.error("Please select a user");
+        return;
+      }
 
       const formData = new FormData();
-      formData.append("reserved", newReservedValue.toString());
+      formData.append("reserved", "true");
+      formData.append("reservedUserId", selectedUser._id);
 
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
@@ -250,16 +327,85 @@ const ProductPage = () => {
       );
 
       if (response.status !== 200 || !response.data?.data) {
-        toast.error("Failed to update visibility");
+        toast.error("Failed to mark as reserved");
+        return;
+      }
+
+      const updatedReserved = response.data.data.reserved;
+      setReserved(updatedReserved);
+      setIsReservedModalOpen(false);
+      setSelectedUser(null);
+
+      toast.success("Item marked as reserved successfully");
+
+      // Refresh product data
+      const refreshResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (refreshResponse.status === 200) {
+        setGettingProduct(refreshResponse.data.data);
+        setReserved(refreshResponse.data.data.reserved);
+      }
+    } catch (error) {
+      console.error("Error marking product as reserved:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+
+  const handleOpenReservedModal = async () => {
+    setIsReservedModalOpen(true);
+    await fetchAllUsers();
+  };
+
+  const handleUnreserve = async () => {
+    try {
+      if (!loggedInUser || !token || !productId) {
+        toast.error("Missing user credentials or product ID");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("reserved", "false");
+      formData.append("reservedUserId", "");
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.status !== 200 || !response.data?.data) {
+        toast.error("Failed to unreserve product");
         return;
       }
 
       const updatedReserved = response.data.data.reserved;
       setReserved(updatedReserved);
 
-      toast.success(updatedReserved ? "Item is Reserved" : "Item is not reserved anymore");
+      toast.success("Item unreserved successfully");
+
+      // Refresh product data
+      const refreshResponse = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (refreshResponse.status === 200) {
+        setGettingProduct(refreshResponse.data.data);
+        setReserved(refreshResponse.data.data.reserved);
+      }
     } catch (error) {
-      console.error("Error updating product visibility:", error);
+      console.error("Error unreserving product:", error);
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -310,7 +456,7 @@ const ProductPage = () => {
               {gettingProduct?.image?.slice(0, 4)?.map((image: any, index: any) => (
                 <div key={index} className="relative">
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
+                    src={getProductImageUrl(image)}
                     alt={`Thumbnail ${index}` || "Image"}
                     width={80}
                     height={80}
@@ -331,16 +477,43 @@ const ProductPage = () => {
               ))}
             </div>
 
-            {/* Main Image */}
+            {/* Main Image with Zoom */}
             <div className="w-full px-6 md:px-0 order-1 md:order-2">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${mainImage}`}
-                alt="Product"
-                width={500}
-                height={600}
-                unoptimized
-                className="w-full h-[530px] object-cover rounded-lg shadow-lg"
-              />
+              <div
+                ref={imageRef}
+                className="relative w-full h-[530px] overflow-hidden rounded-lg shadow-lg cursor-crosshair"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Image
+                  src={getProductImageUrl(mainImage)}
+                  alt="Product"
+                  width={500}
+                  height={600}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                  style={{
+                    transform: isZoomed ? 'scale(2)' : 'scale(1)',
+                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                    transition: isZoomed ? 'none' : 'transform 0.3s ease-out'
+                  }}
+                />
+
+                {/* Zoom Indicator */}
+                {isZoomed && (
+                  <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    Zoomed In
+                  </div>
+                )}
+
+                {/* Reserved Label - Only show to non-owners when product is reserved */}
+                {reserve && gettingProduct?.userId?._id !== loggedInUser && (
+                  <div className="absolute bottom-0 left-0 right-0 w-full bg-gray-900 text-white text-center py-3 font-bold text-lg">
+                    RESERVED
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Carousel Modal */}
@@ -362,7 +535,7 @@ const ProductPage = () => {
                       className="w-full h-[600px] flex justify-center items-center"
                     >
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${image}`}
+                        src={getImageUrl(image)}
                         alt={`Product ${index}`}
                         width={950}
                         height={600}
@@ -488,6 +661,29 @@ const ProductPage = () => {
                   {hidden ? "Unhide Product" : "Hide"}
                 </button>
 
+                {/* Reserved Button */}
+                <button
+                  className={`text-lg mt-2 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition ${reserve
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950"
+                    }`}
+                  onClick={() => {
+                    if (!token) {
+                      toast.error("Login First");
+                      return;
+                    }
+                    if (reserve) {
+                      // If already reserved, unreserve it directly
+                      handleUnreserve();
+                    } else {
+                      // Open modal to select user
+                      handleOpenReservedModal();
+                    }
+                  }}
+                >
+                  {reserve ? "Unreserve Product" : "Mark as Reserved"}
+                </button>
+
                 {/* Delete Button */}
                 <button
                   className="text-lg mt-2 flex items-center justify-center gap-2 w-full px-7 py-2 rounded-lg transition cursor-pointer bg-red-800 text-white hover:bg-red-500"
@@ -522,7 +718,7 @@ const ProductPage = () => {
                 <SellerButton
                   seller={{
                     username: gettingProduct?.userId?.username,
-                    profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
+                    profileImage: getImageUrl(gettingProduct?.userId?.image),
                     rating: gettingProduct?.userId?.rating,
                     reviews: gettingProduct?.userId?.reviews,
                   }}
@@ -600,31 +796,196 @@ const ProductPage = () => {
                     </div>
                   </Box>
                 </Modal>
+
+                {/* Reserved Modal */}
+                <Modal open={isReservedModalOpen} onClose={() => {
+                  setIsReservedModalOpen(false);
+                  setSelectedUser(null);
+                  setUserSearchQuery("");
+                  setShowUserDropdown(false);
+                }}>
+                  <Box className="bg-white p-6 rounded-lg shadow-lg w-full max-w-[500px] max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <h2 className="text-xl font-semibold mb-4 text-center">Mark Product as Reserved</h2>
+
+                    {/* Product Info */}
+                    <div className="bg-gray-50 rounded-lg p-4 mb-4 border">
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={getImageUrl(gettingProduct?.image?.[0])}
+                          alt={gettingProduct?.name}
+                          width={60}
+                          height={60}
+                          unoptimized
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                        <div>
+                          <p className="font-semibold text-gray-800">{gettingProduct?.name}</p>
+                          <p className="text-gray-600 text-sm">Price: AED {gettingProduct?.price}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* User Search Input */}
+                    <div className="mb-4 relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Search User to Reserve For *
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedUser ? selectedUser.username : userSearchQuery}
+                        onChange={(e) => {
+                          setUserSearchQuery(e.target.value);
+                          setSelectedUser(null);
+                          setShowUserDropdown(e.target.value.length >= 2);
+                        }}
+                        onFocus={() => {
+                          if (userSearchQuery.length >= 2) {
+                            setShowUserDropdown(true);
+                          }
+                        }}
+                        placeholder="Type username or full name (min 2 characters)"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+
+                      {/* User Dropdown List */}
+                      {showUserDropdown && userSearchQuery.length >= 2 && !selectedUser && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {allUsers
+                            .filter((user: any) =>
+                              user.username?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                              user.fullName?.toLowerCase().includes(userSearchQuery.toLowerCase())
+                            )
+                            .map((user: any) => (
+                              <div
+                                key={user._id}
+                                className="flex items-center gap-3 p-3 hover:bg-gray-100 cursor-pointer transition"
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setUserSearchQuery(user.username);
+                                  setShowUserDropdown(false);
+                                }}
+                              >
+                                <Image
+                                  src={getImageUrl(user.image)}
+                                  alt={user.username}
+                                  width={40}
+                                  height={40}
+                                  unoptimized
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                                <div>
+                                  <p className="font-semibold text-gray-800">{user.username}</p>
+                                  {user.fullName && (
+                                    <p className="text-sm text-gray-600">{user.fullName}</p>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          }
+                          {allUsers.filter((user: any) =>
+                            user.username?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                            user.fullName?.toLowerCase().includes(userSearchQuery.toLowerCase())
+                          ).length === 0 && (
+                              <div className="p-3 text-center text-gray-500">
+                                No users found
+                              </div>
+                            )}
+                        </div>
+                      )}
+
+                      {/* Selected User Display */}
+                      {selectedUser && (
+                        <div className="mt-2 flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                          <Image
+                            src={getImageUrl(selectedUser.image)}
+                            alt={selectedUser.username}
+                            width={40}
+                            height={40}
+                            unoptimized
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-800">{selectedUser.username}</p>
+                            {selectedUser.fullName && (
+                              <p className="text-sm text-gray-600">{selectedUser.fullName}</p>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedUser(null);
+                              setUserSearchQuery("");
+                            }}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-4 mt-6">
+                      <button
+                        className="cursor-pointer bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+                        onClick={() => {
+                          setIsReservedModalOpen(false);
+                          setSelectedUser(null);
+                          setUserSearchQuery("");
+                          setShowUserDropdown(false);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        disabled={!selectedUser}
+                        className={`cursor-pointer px-4 py-2 rounded ${!selectedUser
+                          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                          : "bg-orange-600 text-white hover:bg-orange-700"
+                          }`}
+                        onClick={() => {
+                          if (selectedUser) {
+                            handleReserved();
+                          }
+                        }}
+                      >
+                        Confirm Reservation
+                      </button>
+                    </div>
+                  </Box>
+                </Modal>
               </>
             ) : (
               <>
                 {/* Buy Now */}
                 <button
-                  className="text-xl mt-5 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                  onClick={handleBuyNow}
+                  className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer hover:border border-gray-600"
+                    }`}
+                  onClick={reserve ? undefined : handleBuyNow}
+                  disabled={reserve}
                 >
                   Buy Now
                 </button>
 
                 {/* Chat */}
                 <button
-                  className="text-xl mt-3 flex items-center justify-center gap-2 w-full bg-gray-800 text-white px-7 py-2 rounded-lg hover:bg-gray-300 transition hover:text-gray-950 cursor-pointer"
-                  onClick={handleChat}
+                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer hover:border border-gray-600"
+                    }`}
+                  onClick={reserve ? undefined : handleChat}
+                  disabled={reserve}
                 >
                   Chat with Seller
-                  <MessageCircle size={20} className="shrink-0" />
+                  {!reserve && <MessageCircle size={20} className="shrink-0" />}
                 </button>
 
                 {/* Seller Info */}
                 <SellerButton
                   seller={{
                     username: gettingProduct?.userId?.username,
-                    profileImage: `${process.env.NEXT_PUBLIC_BACKEND_URL}/${gettingProduct?.userId?.image}`,
+                    profileImage: getImageUrl(gettingProduct?.userId?.image),
                     rating: gettingProduct?.userId?.rating,
                     reviews: gettingProduct?.userId?.reviews,
                   }}
