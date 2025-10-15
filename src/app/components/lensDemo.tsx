@@ -151,7 +151,7 @@ const ProductList = () => {
     const getSellerProducts = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?website=true`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?website=true&reserved=show`
         );
 
         if (response.status !== 200) {
