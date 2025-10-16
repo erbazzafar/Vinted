@@ -4,174 +4,270 @@ const TermsAndConditions = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white text-gray-900">
       <header className="text-center mb-12">
-        <h1 className="text-3xl font-bold text-teal-600">Terms and Conditions of Affare Doro</h1>
-        <p className="mt-2 text-lg text-gray-600">Date: 07/09/2025</p>
+        <h1 className="text-3xl font-bold text-teal-600">Affare Doro Terms and Conditions</h1>
+        <p className="mt-2 text-lg text-gray-600">Last Updated: 16/10/2025</p>
       </header>
 
       <section className="space-y-8">
-        <p className="text-xl">
-          Welcome to Affare Doro. These Terms and Conditions govern your access to and use of our platform available via our mobile application and website. By registering, accessing, or using the Platform, you agree to be bound by these Terms.
-        </p>
-
         <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-gray-500">1. Eligibility</h2>
-          <p>You must be at least 18 years old to use Affare Doro. By using the Platform, you confirm that you meet this requirement and are capable of entering into a legally binding agreement.</p>
+          <h2 className="text-2xl font-semibold text-gray-500">1. Our Role & Service Introduction</h2>
+          <p>Affare Doro operates as an intermediary online marketplace platform that facilitates transactions between individual buyers and sellers. We provide the technological infrastructure, payment processing, and community guidelines to enable users to trade pre-owned and new consumer goods directly with each other.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">2. Platform Purpose</h2>
-          <p>Affare Doro is a peer-to-peer marketplace for users to buy and sell new and second-hand items. Affare Doro is not a party to any transaction between users.</p>
-
-          <h2 className="text-2xl font-semibold text-gray-500">3. Account Registration</h2>
-          <p>To use certain features, you must register and create an account. You agree to provide accurate information and keep it updated. You are responsible for maintaining the confidentiality of your account credentials.</p>
-
-          <h2 className="text-2xl font-semibold text-gray-500">4. User Conduct</h2>
-          <p>You agree not to:</p>
-          <ul className="list-disc pl-6">
-            <li>Post false, misleading, or fraudulent content.</li>
-            <li>List or sell prohibited items.</li>
-            <li>Harass or abuse other users.</li>
-            <li>Interfere with the proper functioning of the Platform.</li>
+          <p>Key aspects of our role include:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li><strong>Platform Provider:</strong> We offer the digital marketplace where users can list, discover, and purchase items</li>
+            <li><strong>Transaction Facilitator:</strong> We provide secure payment processing through our escrow system and wallet service</li>
+            <li><strong>Dispute Resolution:</strong> We offer Buyer Protection services and mediate conflicts between users</li>
+            <li><strong>Community Manager:</strong> We establish and enforce rules to maintain a safe, fair trading environment</li>
           </ul>
-          <p>Affare Doro reserves the right to suspend or delete accounts that violate these rules.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">5. Listings and Sales</h2>
-          <p>Users are solely responsible for the content of their listings and the lawful sale of items. All sales are binding once the buyer has confirmed the purchase.</p>
+          <p><strong>What we are NOT:</strong></p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>We are not a direct retailer, merchant, or reseller of items on our platform</li>
+            <li>We are not the agent of any buyer or seller</li>
+            <li>We do not take ownership or possession of items being traded</li>
+            <li>We do not provide shipping or delivery services</li>
+            <li>We are not an insurance provider</li>
+          </ul>
 
-          <h2 className="text-2xl font-semibold text-gray-500">6. Fees and Payments</h2>
-          <p>Affare Doro may charge a commission or service fee on transactions. These fees will be clearly disclosed before confirming any transaction. Payments are processed via secure third-party payment providers.</p>
+          <h2 className="text-2xl font-semibold text-gray-500">2. User Eligibility</h2>
+          <p>By using Affare Doro, you confirm that you:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Are at least 18 years old</li>
+            <li>Use our service for personal, non-commercial purposes only</li>
+            <li>Possess legal capacity to enter binding contracts</li>
+            <li>Are responsible for all activities under your account</li>
+            <li>Agree to these Terms and our Privacy Policy</li>
+          </ul>
 
-          <h2 className="text-2xl font-semibold text-gray-500">7. Disputes</h2>
-          <p>Any disputes between users should be resolved directly. Affare Doro may assist but is not obligated to mediate or resolve conflicts.</p>
+          <h2 className="text-2xl font-semibold text-gray-500">3. Account Management</h2>
 
-          <h2 className="text-2xl font-semibold text-gray-500">8. Intellectual Property</h2>
-          <p>All content on the Platform, including logos, design, and text, is the property of Affare Doro or its licensors. Users may not use this content without written permission.</p>
+          <h3 className="text-xl font-semibold text-gray-500">3.1 Registration</h3>
+          <p>You must create an account to buy or sell on our platform. Provide accurate information and maintain account security.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">9. Termination</h2>
-          <p>We may suspend or terminate your account if you breach these Terms or if your use of the Platform could cause harm to us or others.</p>
+          <h3 className="text-xl font-semibold text-gray-500">3.2 Identity Verification (KYC)</h3>
+          <p>We require one-time identity verification to ensure community safety. You'll need to provide valid government-issued ID. Your data is protected per our Privacy Policy.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">10. Limitation of Liability</h2>
-          <p>Affare Doro is not responsible for any loss, damage, or harm resulting from transactions or interactions between users. The Platform is provided "as is" without warranties.</p>
+          <h3 className="text-xl font-semibold text-gray-500">3.3 Account Restrictions</h3>
+          <p>We reserve the right to restrict, suspend, or terminate accounts for violations of these Terms.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">11. Privacy</h2>
-          <p>Please refer to our <a href="/privacy-policy" className="text-indigo-600 hover:underline">Privacy Policy</a> for information on how we collect, use, and protect your personal data.</p>
+          <h2 className="text-2xl font-semibold text-gray-500">4. Permitted and Prohibited Conduct</h2>
 
-          <h2 className="text-2xl font-semibold text-gray-500">12. Modifications</h2>
-          <p>We reserve the right to modify these Terms at any time. Continued use of the Platform after such changes constitutes your acceptance.</p>
+          <h3 className="text-xl font-semibold text-gray-500">4.1 You MUST:</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Provide accurate information</li>
+            <li>Treat all users respectfully</li>
+            <li>Use services in compliance with applicable laws</li>
+          </ul>
 
-          <h2 className="text-2xl font-semibold text-gray-500">13. Governing Law</h2>
-          <p>These Terms are governed by the laws of the United Arab Emirates. Any disputes shall be resolved in the courts of UAE.</p>
+          <h3 className="text-xl font-semibold text-gray-500">4.2 You MUST NOT:</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Share personal contact information</li>
+            <li>Send spam or unsolicited mass messages (5+ users)</li>
+            <li>List prohibited items (Section 7)</li>
+            <li>Sell bulk-purchased or drop-shipped items</li>
+            <li>Circumvent our transaction system</li>
+          </ul>
 
-          <h2 className="text-2xl font-semibold text-gray-500">14. Buyer and Seller Protection</h2>
-          <p>Affare Doro is committed to creating a secure and fair marketplace. We offer the following protection guidelines:</p>
+          <h2 className="text-2xl font-semibold text-gray-500">5. Buying on Affare Doro</h2>
 
-          <div className="pl-6 space-y-4">
-            <h3 className="font-semibold text-gray-500">14.1. Buyer Protection</h3>
-            <p>Buyers are protected in the following situations:</p>
-            <ul className="list-disc pl-6">
-              <li>The item received is significantly not as described (e.g., wrong size, colour, or damaged item not mentioned in the listing).</li>
-              <li>The item does not arrive within the expected timeframe.</li>
-              <li>The seller cancels the transaction after payment.</li>
-            </ul>
-            <p>If any of the above occurs, the buyer must report the issue to Affare Doro within 2 days of delivery via the Platform. We may freeze the payment and assist in resolving the issue. Refunds may be issued if the claim is validated.</p>
-            <p>Buyers agree to:</p>
-            <ul className="list-disc pl-6">
-              <li>Make payments only through Affare Doro's payment system.</li>
-              <li>Avoid direct transactions outside the Platform.</li>
-              <li>Provide accurate delivery information.</li>
-            </ul>
+          <h3 className="text-xl font-semibold text-gray-500">5.1 Purchase Process</h3>
+          <ol className="list-decimal pl-6 space-y-1">
+            <li>Click "Buy" on desired item</li>
+            <li>Select payment method (Affare Doro Wallet)</li>
+            <li>Confirm delivery address</li>
+            <li>Complete checkout</li>
+          </ol>
 
-            <h3 className="font-semibold text-gray-500">14.2. Seller Protection</h3>
-            <p>Sellers are protected in the following situations:</p>
-            <ul className="list-disc pl-6">
-              <li>The buyer falsely claims non-receipt or item not as described, and the seller has valid proof of shipment.</li>
-              <li>The item is returned in a different condition than sent (e.g., damaged or swapped).</li>
-            </ul>
-            <p>To be eligible for protection, sellers must:</p>
-            <ul className="list-disc pl-6">
-              <li>Ship the item within the indicated time (e.g., 1 business days).</li>
-              <li>Use tracked shipping and retain a valid tracking number.</li>
-              <li>Accurately describe the item in the listing and upload real photos.</li>
-            </ul>
-            <p>If a dispute arises, Affare Doro will request evidence from both parties. Sellers may not receive payment until the issue is resolved.</p>
+          <h3 className="text-xl font-semibold text-gray-500">5.2 Costs Breakdown</h3>
+          <p>Total price includes:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Item price (set by seller)</li>
+            <li>Buyer Protection Fee (12% of item price)</li>
+            <li>Shipping Fee (14 AED + 5% VAT)</li>
+          </ul>
 
-            <h3 className="font-semibold text-gray-500">14.3. Returns and Refunds</h3>
-            <p>Affare Doro does not operate as a traditional retailer. Returns are only accepted in case of disputes where the item was:</p>
-            <ul className="list-disc pl-6">
-              <li>Misrepresented or fake.</li>
-              <li>Damaged in transit (and the damage wasn't disclosed in the listing).</li>
-            </ul>
-            <p>Refunds are processed only through our official dispute process. Users should not send or request refunds outside the Platform.</p>
+          <h3 className="text-xl font-semibold text-gray-500">5.3 Inspection Period</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>24 hours to inspect delivered items</li>
+            <li>Report issues via "Report an Issue" form for significantly not-as-described items</li>
+            <li>Automatic acceptance after 24 hours</li>
+            <li>Funds released to seller after acceptance</li>
+          </ul>
+          <p className="text-red-400 font-semibold">Important Warning: Off-platform transactions are at your own risk. We assume no responsibility for such deals.</p>
+
+          <h2 className="text-2xl font-semibold text-gray-500">6. Buyer Protection & Refunds</h2>
+
+          <h3 className="text-xl font-semibold text-gray-500">6.1 Coverage</h3>
+          <p>Full refunds available for:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Items lost/damaged during shipping</li>
+            <li>Significantly not-as-described items</li>
+          </ul>
+
+          <h3 className="text-xl font-semibold text-gray-500">6.2 Refund Structure & Payment Processing Fee</h3>
+          <p className="mb-4 text-red-400 font-semibold">Please note that all refunds are subject to a 3.4% payment processing fee, which is deducted to cover transaction costs incurred by our payment partner, Stripe. This fee is non-refundable.</p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-gray-300 px-4 py-2">Scenario</th>
+                  <th className="border border-gray-300 px-4 py-2">Protection Fee</th>
+                  <th className="border border-gray-300 px-4 py-2">Item Price</th>
+                  <th className="border border-gray-300 px-4 py-2">Shipping (To You)</th>
+                  <th className="border border-gray-300 px-4 py-2">Return Shipping</th>
+                  <th className="border border-gray-300 px-4 py-2">Stripe Fee (3.4%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2">Lost/Damaged</td>
+                  <td className="border border-gray-300 px-4 py-2">Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">Not Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">N/A</td>
+                  <td className="border border-gray-300 px-4 py-2">Deducted</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2">Not as Described</td>
+                  <td className="border border-gray-300 px-4 py-2">Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">Not Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">Not Refunded</td>
+                  <td className="border border-gray-300 px-4 py-2">Deducted</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+          <p>Sellers receive full item price refund for lost/damaged items.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">15. Shipping Policy</h2>
-          <p>Affare doro facilitates smooth transactions between buyers and sellers. Below are the terms related to shipping:</p>
+          <h3 className="text-xl font-semibold text-gray-500">6.3 Claims Process</h3>
+          <ol className="list-decimal pl-6 space-y-1">
+            <li>File claim within 24 hours of delivery</li>
+            <li>Return item (if applicable) at your expense</li>
+            <li>Receive refund after verification</li>
+          </ol>
+          <p><strong>Note:</strong> Buyer Protection is a service, not insurance. Mandatory for all on-platform purchases.</p>
 
-          <div className="pl-6 space-y-4">
-            <h3 className="font-semibold text-gray-500">15.1. Shipping Responsibility</h3>
-            <p>Sellers are responsible for shipping the item after the buyer has completed payment.</p>
-            <ul className="list-disc pl-6">
-              <li>Items must be shipped within 3 business days unless otherwise agreed by both parties.</li>
-              <li>Tracked shipping is required. The seller must provide a valid tracking number through the Platform.</li>
-            </ul>
+          <h2 className="text-2xl font-semibold text-gray-500">7. Selling on Affare Doro</h2>
 
-            <h3 className="font-semibold text-gray-500">15.2. Shipping Costs</h3>
-            <p>Shipping costs are either:</p>
-            <ul className="list-disc pl-6">
-              <li>Paid by the buyer, or</li>
-              <li>Included in the item price, as specified in the listing.</li>
-            </ul>
-            <p>Sellers must clearly state who is responsible for shipping fees in their listings.</p>
+          <h3 className="text-xl font-semibold text-gray-500">7.1 Permitted Items</h3>
+          <p>You may sell items you physically possess within these categories:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li><strong>Fashion:</strong> Women's, Men's, Children's Clothing, Footwear, Accessories (bags, belts, jewelry)</li>
+            <li><strong>Baby & Kids:</strong> Children's Toys, Childcare Equipment</li>
+            <li><strong>Home & Garden:</strong> Home & Kitchen Ware, Garden Equipment, Furniture (school furniture must be new)</li>
+            <li><strong>Entertainment & Hobbies:</strong> Books, Magazines, Music (CDs/DVDs), Collectables (games, stamps, memorabilia)</li>
+            <li><strong>Beauty:</strong> New Cosmetics, New Beauty Products</li>
+            <li><strong>Pet care:</strong> Pet Care Items</li>
+          </ul>
 
-            <h3 className="font-semibold text-gray-500">15.3. Delivery Timeframe</h3>
-            <ul className="list-disc pl-6">
-              <li>Estimated delivery times vary by location and shipping method.</li>
-              <li>Buyers should allow up to 10 business days for delivery after shipment, unless a shorter time is specified.</li>
-              <li>Delays caused by couriers or customs are beyond the responsibility of Affare Doro.</li>
-            </ul>
+          <h3 className="text-xl font-semibold text-gray-500">7.2 Prohibited Items</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Anything not listed above</li>
+            <li>Counterfeit/replica items</li>
+            <li>Illegal/hazardous goods</li>
+            <li>Weapons</li>
+            <li>Intellectual property infringements</li>
+            <li>Live animals</li>
+            <li>Perishables</li>
+            <li>Payment processor-violating items</li>
+            <li>Medicaments/Tests (COVID-19 tests, pregnancy tests, vitamins)</li>
+            <li>Electronics</li>
+          </ul>
 
-            <h3 className="font-semibold text-gray-500">15.4. Lost or Undelivered Packages</h3>
-            <p>If an item is not delivered:</p>
-            <ul className="list-disc pl-6">
-              <li>The buyer must notify Affare Doro through the Platform within 2 days of the expected delivery date.</li>
-              <li>The seller must cooperate by providing tracking details and shipping documentation.</li>
-              <li>If delivery cannot be confirmed, and the tracking is invalid or missing, a refund may be issued to the buyer.</li>
-            </ul>
+          <h3 className="text-xl font-semibold text-gray-500">7.3 Selling Process</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Create accurate listings with photos</li>
+            <li>Ship within 48 hours using prepaid label</li>
+            <li>Receive payment after buyer acceptance/auto-acceptance</li>
+          </ul>
 
-            <h3 className="font-semibold text-gray-500">15.5. Returned Items</h3>
-            <p>In the event of a return due to a dispute:</p>
-            <ul className="list-disc pl-6">
-              <li>The item must be returned in the same condition as received.</li>
-              <li>The buyer must use tracked shipping and provide the tracking number.</li>
-              <li>The cost of return shipping is generally borne by the buyer unless otherwise agreed during dispute resolution.</li>
-            </ul>
-          </div>
+          <h3 className="text-xl font-semibold text-gray-500">7.4 Listing Ranking</h3>
+          <p>Listings are ranked based on:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Quality (description, photos, categorization)</li>
+            <li>Pricing competitiveness</li>
+            <li>Seller performance (shipping speed, reviews)</li>
+          </ul>
 
-          <h2 className="text-2xl font-semibold text-gray-500">16. KYC (Know Your Customer) and AML Compliance</h2>
-          <div className="pl-6 space-y-4">
-            <h3 className="font-semibold text-gray-500">16.1. Purpose</h3>
-            <p>To maintain a secure and compliant marketplace, Affare doro requires users to complete Know Your Customer (KYC) verification. This process ensures identity confirmation, prevents fraud, and complies with Anti-Money Laundering (AML) and Counter-Terrorist Financing (CTF) regulations applicable in the United Arab Emirates and other relevant jurisdictions.</p>
+          <h2 className="text-2xl font-semibold text-gray-500">8. Financial Terms</h2>
 
-            <h3 className="font-semibold text-gray-500">16.2. Information Collected</h3>
-            <p>During the KYC process, users may be required to provide:</p>
-            <ul className="list-disc pl-6">
-              <li>Full name, date of birth, and nationality.</li>
-              <li>A valid government-issued identification document (passport, ID card, or equivalent).</li>
-              <li>A recent photograph or selfie for verification.</li>
-              <li>Additional documents if required by law or our payment service providers.</li>
-            </ul>
+          <h3 className="text-xl font-semibold text-gray-500">8.1 Payment Processing</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>All transactions use Affare Doro Wallet</li>
+            <li>Funds held in escrow until completion</li>
+            <li>Secure encryption protects financial data</li>
+          </ul>
 
-            <h3 className="font-semibold text-gray-500">16.3. Third-Party Verification</h3>
-            <p>While Affare doro collects KYC data via its platform, the verification, screening, and ongoing monitoring may be conducted by regulated third-party service providers, including payment partners, in accordance with applicable AML/CTF obligations.</p>
+          <h3 className="text-xl font-semibold text-gray-500">8.2 Fees</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Buyer Protection Fee: 12% of item price</li>
+            <li>Shipping: 14 AED + 5% VAT</li>
+          </ul>
 
-            <h3 className="font-semibold text-gray-500">16.4. User Obligations</h3>
-            <p>Users must provide accurate and up-to-date information. Affare doro reserves the right to restrict, suspend, or terminate accounts if KYC is not completed, is incomplete, or contains false or misleading information.</p>
+          <h2 className="text-2xl font-semibold text-gray-500">9. Communication & Reviews</h2>
 
-            <h3 className="font-semibold text-gray-500">16.5. Data Protection</h3>
-            <p>All KYC data is handled securely and in accordance with our Privacy Policy. Data may be shared only with authorized third parties where necessary to comply with legal and regulatory requirements.</p>
-          </div>
+          <h3 className="text-xl font-semibold text-gray-500">9.1 Messaging</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Use only for item-related discussions</li>
+            <li>No personal contact information sharing</li>
+            <li>No advertising or spam</li>
+          </ul>
+
+          <h3 className="text-xl font-semibold text-gray-500">9.2 Reviews</h3>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Leave honest reviews after transactions</li>
+            <li>Build community trust through feedback</li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-gray-500">10. Content Usage</h2>
+          <p>By posting content on our platform, you grant us license to use it for platform operation, promotion, and improvement.</p>
+
+          <h2 className="text-2xl font-semibold text-gray-500">11. Privacy Policy</h2>
+          <p>We protect your personal data per our separate Privacy Policy, which governs our data collection and usage practices.</p>
+
+          <h2 className="text-2xl font-semibold text-gray-500">12. Term and Termination</h2>
+
+          <h3 className="text-xl font-semibold text-gray-500">12.1 Account Deletion</h3>
+          <p>You may delete your account anytime free of charge via settings.</p>
+
+          <h3 className="text-xl font-semibold text-gray-500">12.2 Survival</h3>
+          <p>These Terms remain effective for pending transactions and payouts after account deletion.</p>
+
+          <h2 className="text-2xl font-semibold text-gray-500">13. Modifications</h2>
+          <p>We may update these Terms periodically. We'll notify you of significant changes. Continued use after changes constitutes acceptance.</p>
+
+          <h2 className="text-2xl font-semibold text-gray-500">14. Liability</h2>
+
+          <h3 className="text-xl font-semibold text-gray-500">14.1 User Responsibility</h3>
+          <p>You are responsible for:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Your content</li>
+            <li>Account activities</li>
+            <li>Listed/sold items</li>
+            <li>Published reviews</li>
+            <li>Disputes arising from your actions</li>
+          </ul>
+
+          <h3 className="text-xl font-semibold text-gray-500">14.2 Platform Liability</h3>
+          <p>We're liable for providing services as described. Our liability is limited to the fullest extent permitted by law.</p>
+
+          <h2 className="text-2xl font-semibold text-gray-500">15. Contact Information</h2>
+          <p>For questions or support:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li>Email: contact@affaredoro.com</li>
+            <li>WhatsApp: +971 506570211</li>
+          </ul>
+
+          <p className="text-center mt-12 text-lg font-semibold text-teal-600">
+            Thank you for being part of the Affare Doro community!
+          </p>
         </div>
       </section>
     </div>
   );
 };
 
-export default TermsAndConditions
+export default TermsAndConditions;

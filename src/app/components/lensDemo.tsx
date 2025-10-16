@@ -137,7 +137,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             height={15}
             unoptimized
           />
-          {product.totalPrice}
+          {product.price}
         </p>
       </div>
     </div>
