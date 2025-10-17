@@ -94,7 +94,7 @@ const TabsComponent = ({ sellerId }: any) => {
           return;
         }
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?userId=${sellerId}&admin=${userId === sellerId ? true : false}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?reserved=show&userId=${sellerId}&admin=${userId === sellerId ? true : false}`
         );
 
         if (response.status !== 200) {

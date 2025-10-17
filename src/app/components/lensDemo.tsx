@@ -89,7 +89,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   }, [product]);
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px]">
+    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px] hover:outline-1 outline-gray-200">
       <div className="relative">
         <Link
           href={`/product/${product._id}`}>
@@ -108,7 +108,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         <div className="flex justify-between items-center">
           <Link
             href={`/product/${product._id}`}
-            className="text-[13px] font-semibold text-gray-800 hover:underline"
+            className="text-[14px] font-[700] text-gray-800 hover:underline capitalize"
           >
             {product.name}
           </Link>
@@ -122,19 +122,19 @@ const ProductCard = ({ product }: { product: Product }) => {
           </button>
         </div>
 
-        <div className="flex items-center gap-1 mt-1">
+        {/* <div className="flex items-center gap-1 mt-1">
           {getStarRating(product.rating)}
-        </div>
+        </div> */}
 
 
-        <p className="text-[12px] text-gray-500">Size: {product?.sizeId?.name || "Other"}</p>
+        <p className="text-[12px] text-gray-500 mt-1">Size: {product?.sizeId?.name || "Other"}</p>
         <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length - 1]?.name || "Other"}</p>
-        <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+        <p className="mt-[5px] text-[14px] font-semibold text-teal-600 flex items-center gap-1">
           <Image
             src={`/dirhamlogo.png`}
             alt="dirham"
-            width={15}
-            height={15}
+            width={17}
+            height={17}
             unoptimized
           />
           {product.price}
