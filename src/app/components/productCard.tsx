@@ -662,9 +662,17 @@ const ProductCard = () => {
   const [searchBrand, setSearchBrand] = useState("");
 
   const filteredSortedBrands = useMemo(() => {
-    return brand
-      .filter((b) => b.name.toLowerCase().includes(searchBrand.toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const filtered = brand.filter((b) => b.name.toLowerCase().includes(searchBrand.toLowerCase()));
+
+    // Separate "Not Listed" from other brands
+    const notListed = filtered.find((b) => b.name.toLowerCase() === "not listed");
+    const otherBrands = filtered.filter((b) => b.name.toLowerCase() !== "not listed");
+
+    // Sort other brands alphabetically
+    const sortedOtherBrands = otherBrands.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Return "Not Listed" first, then alphabetically sorted brands
+    return notListed ? [notListed, ...sortedOtherBrands] : sortedOtherBrands;
   }, [brand, searchBrand]);
 
 
@@ -1050,7 +1058,7 @@ const ProductCard = () => {
                       className="cursor-pointer p-2 hover:bg-gray-100"
                       onClick={() => handleBrandSelect(brandName)}
                     >
-                      <strong>{brandName.name}</strong>
+                      <strong className="capitalize">{brandName.name}</strong>
                     </motion.div>
                   ))}
                 </motion.div>

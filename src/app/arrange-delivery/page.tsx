@@ -7,6 +7,8 @@ import Cookies from "js-cookie";
 import React, { useEffect, useState, Suspense } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 function ArrangeDeliveryContent() {
 
@@ -20,7 +22,7 @@ function ArrangeDeliveryContent() {
 
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(false);
-
+    const [phoneNumber, setPhoneNumber] = useState('+971');
 
     const [formData, setFormData] = useState({
         delivery_type: "Next Day",
@@ -84,10 +86,17 @@ function ArrangeDeliveryContent() {
             const savedOrigin = localStorage.getItem(originStorageKey);
             if (savedOrigin) {
                 const originData = JSON.parse(savedOrigin);
+
+                // Restore phone number if saved
+                if (originData.phoneNumber) {
+                    setPhoneNumber(originData.phoneNumber);
+                }
+
                 setFormData(prev => ({
                     ...prev,
                     origin_address_name: originData.origin_address_name || prev.origin_address_name,
                     origin_address_mobile_number: originData.origin_address_mobile_number || prev.origin_address_mobile_number,
+                    origin_address_mob_no_country_code: originData.origin_address_mob_no_country_code || prev.origin_address_mob_no_country_code,
                     origin_address_house_no: originData.origin_address_house_no || prev.origin_address_house_no,
                     origin_address_building_name: originData.origin_address_building_name || prev.origin_address_building_name,
                     origin_address_area: originData.origin_address_area || prev.origin_address_area,
@@ -108,11 +117,13 @@ function ArrangeDeliveryContent() {
             const originFields = {
                 origin_address_name: formData.origin_address_name,
                 origin_address_mobile_number: formData.origin_address_mobile_number,
+                origin_address_mob_no_country_code: formData.origin_address_mob_no_country_code,
                 origin_address_house_no: formData.origin_address_house_no,
                 origin_address_building_name: formData.origin_address_building_name,
                 origin_address_area: formData.origin_address_area,
                 origin_address_landmark: formData.origin_address_landmark,
                 origin_address_city: formData.origin_address_city,
+                phoneNumber: phoneNumber, // Save the full phone number for restoring
             };
             localStorage.setItem(originStorageKey, JSON.stringify(originFields));
         } catch (err) {
@@ -121,11 +132,13 @@ function ArrangeDeliveryContent() {
     }, [
         formData.origin_address_name,
         formData.origin_address_mobile_number,
+        formData.origin_address_mob_no_country_code,
         formData.origin_address_house_no,
         formData.origin_address_building_name,
         formData.origin_address_area,
         formData.origin_address_landmark,
         formData.origin_address_city,
+        phoneNumber,
         userId,
     ]);
 
@@ -176,6 +189,33 @@ function ArrangeDeliveryContent() {
             ...prev,
             [name]: value
         }));
+    };
+
+    const handlePhoneChange = (value: string) => {
+        setPhoneNumber(value || '+971');
+
+        // Extract country code and phone number using the library's parser
+        if (value) {
+            try {
+                const phoneNumberObj = parsePhoneNumber(value);
+
+                if (phoneNumberObj) {
+                    // Get the country calling code (e.g., "971" for UAE)
+                    const countryCode = phoneNumberObj.countryCallingCode;
+
+                    // Get the national number (phone without country code)
+                    const nationalNumber = phoneNumberObj.nationalNumber;
+
+                    setFormData(prev => ({
+                        ...prev,
+                        origin_address_mob_no_country_code: countryCode,
+                        origin_address_mobile_number: nationalNumber
+                    }));
+                }
+            } catch (error) {
+                console.error('Error parsing phone number:', error);
+            }
+        }
     };
 
     const formatDateForAPI = (dateString: string) => {
@@ -448,14 +488,16 @@ function ArrangeDeliveryContent() {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Mobile Number *
                                         </label>
-                                        <input
-                                            type="tel"
-                                            name="origin_address_mobile_number"
-                                            value={formData.origin_address_mobile_number}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            placeholder="Enter mobile number (e.g., +971501234567)"
-                                            required
+                                        <PhoneInput
+                                            international
+                                            defaultCountry="AE"
+                                            value={phoneNumber}
+                                            onChange={handlePhoneChange}
+                                            placeholder="Enter mobile number"
+                                            className="w-full phone-input-custom"
+                                            numberInputProps={{
+                                                className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                            }}
                                         />
                                     </div>
 

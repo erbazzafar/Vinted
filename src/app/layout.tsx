@@ -8,6 +8,7 @@ import { Toaster } from "sonner"; // 👈 Import ThemeProvider
 import { ThemeProvider } from "./components/theme-provider";
 import WhatsappFloatButton from "./components/whatsAppFloatButton";
 import ReduxProvider from "@/components/providers/ReduxProvider";
+import { ReviewModalProvider } from "@/components/ReviewModalProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
             <WhatsappFloatButton />
+            <ReviewModalProvider />
           </ReduxProvider>
         </ThemeProvider>
       </body>

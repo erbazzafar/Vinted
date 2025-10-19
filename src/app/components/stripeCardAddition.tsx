@@ -723,11 +723,13 @@ import {
 	useStripe,
 	useElements,
 } from "@stripe/react-stripe-js";
-import { CreditCard, Lock, CheckCircle } from "lucide-react";
+import { CreditCard, Lock, CheckCircle, AlertCircle, Settings } from "lucide-react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
 
 const stripePromise = loadStripe(
 	process.env.STRIPE_PUBLISH_KEY ||
@@ -756,6 +758,8 @@ function CheckoutForm({ formData }: { formData: any }) {
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [showKycModal, setShowKycModal] = useState(false);
+	const [kycModalType, setKycModalType] = useState<'not_created' | 'not_approved' | null>(null);
 
 	const handlePayment = async () => {
 		if (!stripe || !elements) {
@@ -806,13 +810,27 @@ function CheckoutForm({ formData }: { formData: any }) {
 			);
 
 			if (res.status === 200) {
-				toast.success("✅ Payment successful!");
+				toast.success("Payment successful!");
 				router.push("/orders");
 			}
 		} catch (err: any) {
 			console.error(err);
-			setError(err.message || "Payment failed");
-			toast.error(err.message || "Payment failed");
+
+			// Handle KYC errors
+			if (err.response?.status === 402) {
+				// User has not created KYC
+				setKycModalType('not_created');
+				setShowKycModal(true);
+				toast.error("KYC verification required");
+			} else if (err.response?.status === 403) {
+				// KYC not approved yet
+				setKycModalType('not_approved');
+				setShowKycModal(true);
+				toast.error("KYC verification pending");
+			} else {
+				setError(err.message || "Payment failed");
+				toast.error(err.message || "Payment failed");
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -904,6 +922,84 @@ function CheckoutForm({ formData }: { formData: any }) {
 				</svg>
 
 			</div>
+
+			{/* KYC Modal */}
+			<Modal
+				open={showKycModal}
+				onClose={() => setShowKycModal(false)}
+				className="flex justify-center items-center p-4"
+			>
+				<Box className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+					{kycModalType === 'not_created' ? (
+						// Modal for KYC not created (402)
+						<div className="text-center">
+							<div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+								<AlertCircle className="w-8 h-8 text-orange-600" />
+							</div>
+							<h2 className="text-2xl font-bold text-gray-800 mb-3">
+								KYC Verification Required
+							</h2>
+							<p className="text-gray-600 mb-6">
+								You need to complete your KYC verification before making a purchase.
+							</p>
+
+							<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+								<div className="flex items-center gap-2 text-blue-800 mb-2">
+									<Settings className="w-5 h-5" />
+									<p className="font-semibold">How to complete KYC:</p>
+								</div>
+								<p className="text-sm text-blue-700 text-left">
+									Settings &gt; KYC
+								</p>
+							</div>
+
+							<div className="flex gap-3">
+								<button
+									onClick={() => setShowKycModal(false)}
+									className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+								>
+									Cancel
+								</button>
+								<button
+									onClick={() => {
+										setShowKycModal(false);
+										router.push('/user-setting');
+									}}
+									className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+								>
+									Go to Settings
+								</button>
+							</div>
+						</div>
+					) : kycModalType === 'not_approved' ? (
+						// Modal for KYC not approved (403)
+						<div className="text-center">
+							<div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+								<AlertCircle className="w-8 h-8 text-yellow-600" />
+							</div>
+							<h2 className="text-2xl font-bold text-gray-800 mb-3">
+								KYC Verification Pending
+							</h2>
+							<p className="text-gray-600 mb-4">
+								Your KYC verification is currently under review.
+							</p>
+
+							<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+								<p className="text-sm text-yellow-800">
+									<strong>Please wait:</strong> Your KYC will be approved within 24 hours. You'll be able to make purchases once approved.
+								</p>
+							</div>
+
+							<button
+								onClick={() => setShowKycModal(false)}
+								className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
+							>
+								Okay, I Understand
+							</button>
+						</div>
+					) : null}
+				</Box>
+			</Modal>
 		</div>
 	);
 }

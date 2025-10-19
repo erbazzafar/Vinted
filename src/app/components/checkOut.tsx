@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from "next/link";
 import StripeCheckout from './stripeCardAddition';
+import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const CheckoutPage = () => {
   const [userDetails, setUserDetails] = useState({
@@ -29,6 +31,7 @@ const CheckoutPage = () => {
     shipPrice: 0,
     protectionFee: 0
   })
+  const [phoneNumber, setPhoneNumber] = useState('+971')
   const [productInfo, setProductInfo] = useState<any>(null)
   const searchParams = useSearchParams()
   const productId = searchParams.get('productId')
@@ -45,8 +48,42 @@ const CheckoutPage = () => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
   }
 
+  const handlePhoneChange = (value: string) => {
+    setPhoneNumber(value || '+971');
+
+    // Extract country code and phone number using the library's parser
+    if (value) {
+      try {
+        const phoneNumberObj = parsePhoneNumber(value);
+
+        if (phoneNumberObj) {
+          // Get the country calling code (e.g., "971" for UAE)
+          const countryCode = phoneNumberObj.countryCallingCode;
+
+          // Get the national number (phone without country code)
+          const nationalNumber = phoneNumberObj.nationalNumber;
+
+          setUserDetails(prev => ({
+            ...prev,
+            phoneCode: countryCode,
+            phone: nationalNumber
+          }));
+
+          console.log('Phone Code:', countryCode);
+          console.log('Phone Number:', nationalNumber);
+        }
+      } catch (error) {
+        console.error('Error parsing phone number:', error);
+      }
+    }
+  }
+
   useEffect(() => {
     const storedData = localStorage.getItem('productsInfo');
+
+    // Get user data from localStorage
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedFullName = localStorage.getItem('userFullName');
 
     if (storedData) {
       try {
@@ -69,7 +106,10 @@ const CheckoutPage = () => {
           totalPrice: finalInclPrice,
           vat: vat,
           shipPrice,
-          protectionFee
+          protectionFee,
+          // Pre-fill email and fullName from localStorage
+          email: storedEmail || prevDetails.email,
+          fullName: storedFullName || prevDetails.fullName
         }));
 
       } catch (error) {
@@ -158,7 +198,8 @@ const CheckoutPage = () => {
                   value={userDetails.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed"
                   required
                 />
               </div>
@@ -168,14 +209,16 @@ const CheckoutPage = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Phone Number *
               </label>
-              <input
-                type="tel"
-                name="phone"
-                value={userDetails.phone}
-                onChange={handleChange}
-                placeholder="Enter phone number (e.g., +971501234567)"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+              <PhoneInput
+                international
+                defaultCountry="AE"
+                value={phoneNumber}
+                onChange={handlePhoneChange}
+                placeholder="Enter phone number"
+                className="w-full phone-input-custom"
+                numberInputProps={{
+                  className: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                }}
               />
             </div>
           </div>
@@ -411,7 +454,7 @@ const CheckoutPage = () => {
           <div className="mt-6 space-y-4">
             <button
               onClick={() => {
-                if (!userDetails.fullName || !userDetails.email || !userDetails.phone || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city || !userDetails.zipCode) {
+                if (!userDetails.fullName || !userDetails.email || !phoneNumber || phoneNumber.length < 4 || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city || !userDetails.zipCode) {
                   toast.error("Please fill in all required fields")
                   return
                 }

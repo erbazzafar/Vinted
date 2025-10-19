@@ -62,6 +62,11 @@ export default function LoginFormDemo() {
       Cookies.set("user-token", response.data.token);
       Cookies.set("userId", response.data.data._id);
 
+      // Store user data in localStorage
+      localStorage.setItem("userEmail", response.data.data.email);
+      localStorage.setItem("userFullName", response.data.data.fullName || "");
+      localStorage.setItem("userUsername", response.data.data.username || "");
+
       if (response.data.data.image) {
         Cookies.set("photourl", response.data.data.image)
         Cookies.set("photoType", "backend")
@@ -570,6 +575,11 @@ const OTPModal = ({ open, setOpen, email, router, dispatch }) => {
       Cookies.set("userId", response.data.data._id)
       Cookies.set("photourl", response.data.data?.image)
       Cookies.set("photoType", "dummy")
+
+      // Store user data in localStorage
+      localStorage.setItem("userEmail", response.data.data.email);
+      localStorage.setItem("userFullName", response.data.data.fullName || "");
+      localStorage.setItem("userUsername", response.data.data.username || "");
 
 
       router.push("/")

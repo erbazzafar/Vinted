@@ -262,6 +262,9 @@ const OTPModal = ({ open, setOpen, email, router }) => {
       Cookies.set("user-token", response.data.token)
       Cookies.set("userId", response.data.data._id)
       Cookies.set("photourl", response.data.data?.image)
+      localStorage.setItem("userEmail", response.data.data.email);
+      localStorage.setItem("userFullName", response.data.data.fullName || "");
+      localStorage.setItem("userUsername", response.data.data.username || "");
       Cookies.set("photoType", "dummy")
 
 
