@@ -1,6 +1,6 @@
 "use client"
 import { useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import Cookies from 'js-cookie'
 import axios from 'axios'
 import { toast } from 'sonner'
@@ -24,7 +24,7 @@ interface Product {
     image: string
 }
 
-function BumpCheckOut() {
+function BumpCheckOutContent() {
 
 
     const now = new Date()
@@ -173,6 +173,14 @@ function BumpCheckOut() {
             </div>
         </div>
     )
+}
+
+function BumpCheckOut() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
+            <BumpCheckOutContent />
+        </Suspense>
+    );
 }
 
 export default BumpCheckOut

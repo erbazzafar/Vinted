@@ -3,9 +3,7 @@ import BumpCheckOut from '../components/bumpCheckOut';
 
 function BumpPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <BumpCheckOut />
-        </Suspense>
+        <BumpCheckOut />
     );
 }
 
