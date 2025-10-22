@@ -18,7 +18,6 @@ const CheckoutPage = () => {
     address1: '',
     city: '',
     country: 'AE',
-    zipCode: '',
     phone: '',
     phoneCode: '971',
     houseNo: '',
@@ -95,8 +94,8 @@ const CheckoutPage = () => {
 
         const finalPrice = matchedBid?.price || parsedData?.price;
         const finalTotalPrice = matchedBid?.totalPrice || parsedData?.totalPrice;
-        const vat = parsedData?.vat || 0.7;
-        const shipPrice = parsedData?.shipPrice || 0.7;
+        const vat = parsedData?.vat || 0.83;
+        const shipPrice = parsedData?.shipPrice || 16.53;
         const finalInclPrice = finalTotalPrice;
         const protectionFee = matchedBid?.inclPrice || parsedData?.inclPrice || 0;
 
@@ -140,7 +139,6 @@ const CheckoutPage = () => {
         address1: userDetails.address1,
         city: userDetails.city,
         country: userDetails.country,
-        zipCode: userDetails.zipCode,
         phone: userDetails.phone,
         phoneCode: userDetails.phoneCode,
         houseNo: userDetails.houseNo,
@@ -167,7 +165,7 @@ const CheckoutPage = () => {
     <div className="max-w-7xl mx-auto mt-8 py-10 px-5">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Left Side: Address Form */}
-        <div className="bg-white p-6 rounded-xl shadow-md">
+        <div className="bg-white p-6 rounded-xl shadow-md h-[max-content]">
           <h2 className="text-xl font-bold mb-6">Shipping Information</h2>
 
           {/* Personal Information */}
@@ -302,43 +300,26 @@ const CheckoutPage = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City *
-                </label>
-                <select
-                  name="city"
-                  value={userDetails.city}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select City</option>
-                  <option value="Dubai">Dubai</option>
-                  <option value="Abu Dhabi">Abu Dhabi</option>
-                  <option value="Sharjah">Sharjah</option>
-                  <option value="Ajman">Ajman</option>
-                  <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                  <option value="Fujairah">Fujairah</option>
-                  <option value="Umm Al Quwain">Umm Al Quwain</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ZIP Code *
-                </label>
-                <input
-                  type="text"
-                  name="zipCode"
-                  value={userDetails.zipCode}
-                  onChange={handleChange}
-                  placeholder="ZIP Code"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                City *
+              </label>
+              <select
+                name="city"
+                value={userDetails.city}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select City</option>
+                <option value="Dubai">Dubai</option>
+                <option value="Abu Dhabi">Abu Dhabi</option>
+                <option value="Sharjah">Sharjah</option>
+                <option value="Ajman">Ajman</option>
+                <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                <option value="Fujairah">Fujairah</option>
+                <option value="Umm Al Quwain">Umm Al Quwain</option>
+              </select>
             </div>
 
 
@@ -358,7 +339,7 @@ const CheckoutPage = () => {
         </div>
 
         {/* Right Side: Product Preview + Card Input */}
-        <div className=" grid-cols-2 p-6 rounded-xl shadow-sm">
+        <div className=" grid-cols-2 p-6 rounded-xl shadow-sm h-[max-content]">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
           <div className="flex flex-col mb-4">
             {productInfo?.image?.[0] && (
@@ -454,7 +435,7 @@ const CheckoutPage = () => {
           <div className="mt-6 space-y-4">
             <button
               onClick={() => {
-                if (!userDetails.fullName || !userDetails.email || !phoneNumber || phoneNumber.length < 4 || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city || !userDetails.zipCode) {
+                if (!userDetails.fullName || !userDetails.email || !phoneNumber || phoneNumber.length < 4 || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city) {
                   toast.error("Please fill in all required fields")
                   return
                 }

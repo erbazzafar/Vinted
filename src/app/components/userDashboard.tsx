@@ -35,11 +35,11 @@ const pages = [
       />
     )
   },
-  {
-    name: "Terms & Conditions", icon: FileText, content: () => (
-      <UserSettingsTermsCondition />
-    )
-  },
+  // {
+  //   name: "Terms & Conditions", icon: FileText, content: () => (
+  //     <UserSettingsTermsCondition />
+  //   )
+  // },
   {
     name: "Add Withdraw Bank", icon: Banknote, content: () => (
       <UserAddBank />
@@ -54,7 +54,7 @@ export default function Dashboard() {
     image: null as string | File | null, about: "", country: "United States", city: "", language: "English", phone: "", emailLink: false, fullName: "", gender: "", birthDay: null as string | null,
   });
   const router = useRouter()
-  
+
   const id = Cookies.get("userId");
   const token = Cookies.get("user-token");
 

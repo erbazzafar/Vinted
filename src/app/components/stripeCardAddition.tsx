@@ -732,8 +732,8 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 
 const stripePromise = loadStripe(
-	process.env.STRIPE_PUBLISH_KEY ||
-	"pk_test_51RH3dwI5tAyGjw2REiKEXU1UjR8QfdvJZyY1SOcxZS48JxJEGi8eJ84F2MVV1cjMPWuuTlI9v4LOt4xfQXqhqmP800sHniLIA9"
+	process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY ||
+	"pk_live_51RH3dwI5tAyGjw2Rp3HBCt8bccCA0LHEmntYBd2dme4f5zxqTXn6q4eh1q1B0X7SKdNBdCnfmrOfJ8CUQWXrDPNV00GqpOYoMi"
 );
 
 const ELEMENT_OPTIONS = {
@@ -760,6 +760,10 @@ function CheckoutForm({ formData }: { formData: any }) {
 	const [error, setError] = useState<string | null>(null);
 	const [showKycModal, setShowKycModal] = useState(false);
 	const [kycModalType, setKycModalType] = useState<'not_created' | 'not_approved' | null>(null);
+
+	// Debug: Check if Stripe is loading
+	console.log('Stripe loaded:', !!stripe);
+	console.log('Elements loaded:', !!elements);
 
 	const handlePayment = async () => {
 		if (!stripe || !elements) {
@@ -835,6 +839,18 @@ function CheckoutForm({ formData }: { formData: any }) {
 			setLoading(false);
 		}
 	};
+
+	// Show loading state while Stripe is initializing
+	if (!stripe || !elements) {
+		return (
+			<div className="w-full max-w-md mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-lg">
+				<div className="flex flex-col items-center justify-center py-8">
+					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+					<p className="text-gray-600">Loading payment form...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="w-full max-w-md mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-lg">
@@ -1005,6 +1021,36 @@ function CheckoutForm({ formData }: { formData: any }) {
 }
 
 export default function StripeCheckout({ formData }: { formData: any }) {
+	const [stripeError, setStripeError] = useState<string | null>(null);
+
+	// Verify Stripe promise
+	stripePromise.then((stripe) => {
+		if (!stripe) {
+			console.error('Stripe failed to load');
+			setStripeError('Failed to load payment system. Please refresh the page.');
+		}
+	}).catch((err) => {
+		console.error('Stripe loading error:', err);
+		setStripeError('Failed to initialize payment system. Please check your internet connection.');
+	});
+
+	if (stripeError) {
+		return (
+			<div className="w-full max-w-md mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-lg">
+				<div className="flex flex-col items-center justify-center py-8">
+					<AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+					<p className="text-red-600 text-center">{stripeError}</p>
+					<button
+						onClick={() => window.location.reload()}
+						className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer"
+					>
+						Refresh Page
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<Elements stripe={stripePromise}>
 			<CheckoutForm formData={formData} />

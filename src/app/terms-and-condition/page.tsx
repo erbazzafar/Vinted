@@ -83,8 +83,8 @@ const TermsAndConditions = () => {
           <p>Total price includes:</p>
           <ul className="list-disc pl-6 space-y-1">
             <li>Item price (set by seller)</li>
-            <li>Buyer Protection Fee (12% of item price)</li>
-            <li>Shipping Fee (14 AED + 5% VAT)</li>
+            <li>Platform Service Fee (12% of item price)</li>
+            <li>Shipping Fee (16.53 AED + 5% VAT)</li>
           </ul>
 
           <h3 className="text-xl font-semibold text-gray-500">5.3 Inspection Period</h3>
@@ -94,9 +94,9 @@ const TermsAndConditions = () => {
             <li>Automatic acceptance after 24 hours</li>
             <li>Funds released to seller after acceptance</li>
           </ul>
-          <p className="text-red-400 font-semibold">Important Warning: Off-platform transactions are at your own risk. We assume no responsibility for such deals.</p>
+          <p className="text-red-400 font-semibold">⚠️ Important Warning: Off-platform transactions are at your own risk. We assume no responsibility for such deals.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">6. Buyer Protection & Refunds</h2>
+          <h2 className="text-2xl font-semibold text-gray-500">6. Buyer Service & Refunds</h2>
 
           <h3 className="text-xl font-semibold text-gray-500">6.1 Coverage</h3>
           <p>Full refunds available for:</p>
@@ -105,9 +105,7 @@ const TermsAndConditions = () => {
             <li>Significantly not-as-described items</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-gray-500">6.2 Refund Structure & Payment Processing Fee</h3>
-          <p className="mb-4 text-red-400 font-semibold">Please note that all refunds are subject to a 3.4% payment processing fee, which is deducted to cover transaction costs incurred by our payment partner, Stripe. This fee is non-refundable.</p>
-
+          <h3 className="text-xl font-semibold text-gray-500">6.2 Refund Structure</h3>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
@@ -117,7 +115,6 @@ const TermsAndConditions = () => {
                   <th className="border border-gray-300 px-4 py-2">Item Price</th>
                   <th className="border border-gray-300 px-4 py-2">Shipping (To You)</th>
                   <th className="border border-gray-300 px-4 py-2">Return Shipping</th>
-                  <th className="border border-gray-300 px-4 py-2">Stripe Fee (3.4%)</th>
                 </tr>
               </thead>
               <tbody>
@@ -127,7 +124,6 @@ const TermsAndConditions = () => {
                   <td className="border border-gray-300 px-4 py-2">Refunded</td>
                   <td className="border border-gray-300 px-4 py-2">Not Refunded</td>
                   <td className="border border-gray-300 px-4 py-2">N/A</td>
-                  <td className="border border-gray-300 px-4 py-2">Deducted</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-300 px-4 py-2">Not as Described</td>
@@ -135,12 +131,12 @@ const TermsAndConditions = () => {
                   <td className="border border-gray-300 px-4 py-2">Refunded</td>
                   <td className="border border-gray-300 px-4 py-2">Not Refunded</td>
                   <td className="border border-gray-300 px-4 py-2">Not Refunded</td>
-                  <td className="border border-gray-300 px-4 py-2">Deducted</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p>Sellers receive full item price refund for lost/damaged items.</p>
+          <p className="mt-2">Sellers receive full item price refund for lost/damaged items.</p>
+          <p className="mt-2 font-semibold">Refunds are processed according to UAE Consumer Protection Law (Cabinet Decision No.66 of 2022)</p>
 
           <h3 className="text-xl font-semibold text-gray-500">6.3 Claims Process</h3>
           <ol className="list-decimal pl-6 space-y-1">
@@ -148,12 +144,12 @@ const TermsAndConditions = () => {
             <li>Return item (if applicable) at your expense</li>
             <li>Receive refund after verification</li>
           </ol>
-          <p><strong>Note:</strong> Buyer Protection is a service, not insurance. Mandatory for all on-platform purchases.</p>
+          <p className="mt-2"><strong>Note:</strong> The platform Service Fee is a platform service charge and does not constitute an insurance product under UAE law.</p>
 
           <h2 className="text-2xl font-semibold text-gray-500">7. Selling on Affare Doro</h2>
 
           <h3 className="text-xl font-semibold text-gray-500">7.1 Permitted Items</h3>
-          <p>You may sell items you physically possess within these categories:</p>
+          <p>You may sell items you physically possess in these categories:</p>
           <ul className="list-disc pl-6 space-y-1">
             <li><strong>Fashion:</strong> Women's, Men's, Children's Clothing, Footwear, Accessories (bags, belts, jewelry)</li>
             <li><strong>Baby & Kids:</strong> Children's Toys, Childcare Equipment</li>
@@ -175,6 +171,10 @@ const TermsAndConditions = () => {
             <li>Payment processor-violating items</li>
             <li>Medicaments/Tests (COVID-19 tests, pregnancy tests, vitamins)</li>
             <li>Electronics</li>
+            <li>Alcoholic beverages or tobacco products</li>
+            <li>Religious or culturally sensitive materials</li>
+            <li>Gambling or betting-related items</li>
+            <li>Used undergarments or personal hygiene items</li>
           </ul>
 
           <h3 className="text-xl font-semibold text-gray-500">7.3 Selling Process</h3>
@@ -196,15 +196,19 @@ const TermsAndConditions = () => {
 
           <h3 className="text-xl font-semibold text-gray-500">8.1 Payment Processing</h3>
           <ul className="list-disc pl-6 space-y-1">
-            <li>All transactions use Affare Doro Wallet</li>
-            <li>Funds held in escrow until completion</li>
-            <li>Secure encryption protects financial data</li>
+            <li>All transactions use Stripe</li>
+            <li>Funds are held securely by Affare Doro until buyer acceptance or 24-hour auto-acceptance</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-gray-500">8.2 Fees</h3>
+          <h3 className="text-xl font-semibold text-gray-500">8.2 Manual Payment Handling & Fund Release</h3>
+          <p>Payments on Affare Doro are processed via Stripe. While Stripe provides secure transaction processing, the escrow mechanism (temporary fund holding and release upon buyer confirmation) is managed manually by Affare Doro's internal system.</p>
+          <p className="mt-2">Affare Doro does not operate as a licensed financial institution. All payments are processed exclusively through Stripe in compliance with UAE e-commerce regulations.</p>
+
+          <h3 className="text-xl font-semibold text-gray-500">8.3 Fees & VAT</h3>
           <ul className="list-disc pl-6 space-y-1">
-            <li>Buyer Protection Fee: 12% of item price</li>
-            <li>Shipping: 14 AED + 5% VAT</li>
+            <li>Platform Service Fee: 12% of item price</li>
+            <li>Shipping: 16.53 AED + 5% VAT</li>
+            <li>Currently VAT (5%) is applicable only to shipping services, as required by UAE tax regulations</li>
           </ul>
 
           <h2 className="text-2xl font-semibold text-gray-500">9. Communication & Reviews</h2>
@@ -226,7 +230,7 @@ const TermsAndConditions = () => {
           <p>By posting content on our platform, you grant us license to use it for platform operation, promotion, and improvement.</p>
 
           <h2 className="text-2xl font-semibold text-gray-500">11. Privacy Policy</h2>
-          <p>We protect your personal data per our separate Privacy Policy, which governs our data collection and usage practices.</p>
+          <p>We protect your personal data in accordance with our separate Privacy Policy, which governs the collection and use of your information.</p>
 
           <h2 className="text-2xl font-semibold text-gray-500">12. Term and Termination</h2>
 
@@ -239,9 +243,12 @@ const TermsAndConditions = () => {
           <h2 className="text-2xl font-semibold text-gray-500">13. Modifications</h2>
           <p>We may update these Terms periodically. We'll notify you of significant changes. Continued use after changes constitutes acceptance.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">14. Liability</h2>
+          <h2 className="text-2xl font-semibold text-gray-500">14. Dispute Resolution & Governing Law</h2>
+          <p>These terms are governed by the laws of the United Arab Emirates. Any disputes shall be subject to the exclusive jurisdiction of the courts of Sharjah (SPC Free Zone).</p>
 
-          <h3 className="text-xl font-semibold text-gray-500">14.1 User Responsibility</h3>
+          <h2 className="text-2xl font-semibold text-gray-500">15. Liability</h2>
+
+          <h3 className="text-xl font-semibold text-gray-500">15.1 User Responsibility</h3>
           <p>You are responsible for:</p>
           <ul className="list-disc pl-6 space-y-1">
             <li>Your content</li>
@@ -251,10 +258,10 @@ const TermsAndConditions = () => {
             <li>Disputes arising from your actions</li>
           </ul>
 
-          <h3 className="text-xl font-semibold text-gray-500">14.2 Platform Liability</h3>
+          <h3 className="text-xl font-semibold text-gray-500">15.2 Platform Liability</h3>
           <p>We're liable for providing services as described. Our liability is limited to the fullest extent permitted by law.</p>
 
-          <h2 className="text-2xl font-semibold text-gray-500">15. Contact Information</h2>
+          <h2 className="text-2xl font-semibold text-gray-500">16. Contact Information</h2>
           <p>For questions or support:</p>
           <ul className="list-disc pl-6 space-y-1">
             <li>Email: contact@affaredoro.com</li>
@@ -262,7 +269,7 @@ const TermsAndConditions = () => {
           </ul>
 
           <p className="text-center mt-12 text-lg font-semibold text-teal-600">
-            Thank you for being part of the Affare Doro community!
+            Thank you for being part of the Affare Doro community where smart users hunt great deals!
           </p>
         </div>
       </section>
