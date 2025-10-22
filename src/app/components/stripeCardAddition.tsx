@@ -832,8 +832,8 @@ function CheckoutForm({ formData }: { formData: any }) {
 				setShowKycModal(true);
 				toast.error("KYC verification pending");
 			} else {
-				setError(err.message || "Payment failed");
-				toast.error(err.message || "Payment failed");
+				setError(err?.response?.data?.message || "Payment failed");
+				toast.error(err?.response?.data?.message || "Payment failed");
 			}
 		} finally {
 			setLoading(false);
