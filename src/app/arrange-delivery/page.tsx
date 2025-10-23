@@ -166,6 +166,7 @@ function ArrangeDeliveryContent() {
                     customer_reference_number: orderData._id || "",
                     // Customer address fields are kept in formData but not displayed for privacy
                     destination_address_name: orderData.fullName || "",
+                    destination_address_mob_no_country_code: orderData.phoneCode || "971",
                     destination_address_mobile_number: orderData.phone || "",
                     destination_address_house_no: orderData.houseNo || "",
                     destination_address_building_name: orderData.buildingName || "",
