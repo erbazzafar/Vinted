@@ -159,6 +159,22 @@ function ArrangeDeliveryContent() {
 
             if (response.data.data) {
                 const orderData = response.data.data;
+
+                // Calculate default pickup date based on current time
+                const now = new Date();
+                const currentHour = now.getHours();
+                let defaultPickupDate;
+
+                // If after 4PM, default to tomorrow
+                if (currentHour >= 16) {
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    defaultPickupDate = tomorrow.toISOString().split('T')[0];
+                } else {
+                    // If before 4PM, default to today
+                    defaultPickupDate = now.toISOString().split('T')[0];
+                }
+
                 setFormData(prev => ({
                     ...prev,
                     description: orderData?.productId?.[0]?.name || "",
@@ -174,7 +190,7 @@ function ArrangeDeliveryContent() {
                     destination_address_landmark: orderData.landmark || "",
                     destination_address_street: orderData.address1 || "",
                     destination_address_city: orderData.city || "Dubai",
-                    pickup_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    pickup_date: defaultPickupDate
                 }));
             }
         } catch (error) {
@@ -456,12 +472,30 @@ function ArrangeDeliveryContent() {
                                         name="pickup_date"
                                         value={formData.pickup_date}
                                         onChange={handleInputChange}
-                                        disabled
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 cursor-not-allowed"
+                                        min={(() => {
+                                            const now = new Date();
+                                            const currentHour = now.getHours();
+                                            // If after 4PM (16:00), minimum date is tomorrow
+                                            if (currentHour >= 16) {
+                                                const tomorrow = new Date(now);
+                                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                                return tomorrow.toISOString().split('T')[0];
+                                            }
+                                            // If before 4PM, minimum date is today
+                                            return now.toISOString().split('T')[0];
+                                        })()}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         required
                                     />
                                     <p className="text-sm text-gray-500 mt-1">
-                                        Pickup scheduled for next day
+                                        {(() => {
+                                            const now = new Date();
+                                            const currentHour = now.getHours();
+                                            if (currentHour >= 16) {
+                                                return "Orders placed after 4PM can only be scheduled from tomorrow onwards";
+                                            }
+                                            return "Select your preferred pickup date";
+                                        })()}
                                     </p>
                                 </div>
                             </div>
