@@ -1,0 +1,12 @@
+[
+    {
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.affaredoro",
+        "sha256_cert_fingerprints": [
+          "0F:33:E6:4E:DD:F4:4D:25:F2:F9:C9:4E:B4:C2:FB:33:B4:28:9F:20:AD:4B:DF:B9:D7:43:99:31:15:9A:75:83"
+        ]
+      }
+    }
+  ]

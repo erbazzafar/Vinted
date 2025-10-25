@@ -8,7 +8,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
-const stripePromise = loadStripe('pk_test_51RBcQQE27Rk7i1fToNUajjO8Sxgd1kVVqPTl1xxtxCR9ay4juutWl5GWd76EqbK4qdhg6HFhuebp695kvjONkoy900I1jlgMfN');
+const stripePromise = loadStripe(
+    process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY ||
+    'pk_live_51RH3dwI5tAyGjw2Rp3HBCt8bccCA0LHEmntYBd2dme4f5zxqTXn6q4eh1q1B0X7SKdNBdCnfmrOfJ8CUQWXrDPNV00GqpOYoMi'
+);
 
 const StripeCardForm = ({ onSuccess, formData, productId }: any) => {
 
