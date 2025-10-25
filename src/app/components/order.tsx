@@ -554,20 +554,20 @@ export default function MyOrders() {
                   </div>
                 </div>
 
-                {/* Ongoing Tab: Cancel & Track Buttons */}
+                {/* Ongoing Tab: Track Button */}
                 {activeTab === "Ongoing" && (
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                     {/* Only show Cancel Order button if status is pending */}
-                    {order.orderStatus === "pending" && (
+                    {/* {order.orderStatus === "pending" && (
                       <button
                         onClick={() => handleOpen(order)}
                         className="px-3 py-2 border-white bg-gray-800 text-white rounded-md hover:bg-gray-600 cursor-pointer shadow-lg w-full sm:w-auto"
                       >
                         Cancel Order
                       </button>
-                    )}
+                    )} */}
                     {/* Show Cancel Shipping for in-transit statuses (not pending/cancelled/undelivered/delivered) */}
-                    {order.orderStatus !== "pending" &&
+                    {/* {order.orderStatus !== "pending" &&
                       order.orderStatus !== "Cancelled" &&
                       order.orderStatus !== "cancelled" &&
                       order.orderStatus !== "Undelivered" &&
@@ -579,7 +579,7 @@ export default function MyOrders() {
                         >
                           Cancel Shipping
                         </button>
-                      )}
+                      )} */}
                     <button
                       onClick={() => handleTrack(order)}
                       className="px-3 py-2 border-1 bg-gray-100 text-black rounded-md hover:bg-gray-200 cursor-pointer shadow-lg w-full sm:w-auto"
@@ -641,8 +641,8 @@ export default function MyOrders() {
           )}
       </div>
 
-      {/* Cancel Confirmation Modal */}
-      <Modal open={cancelOpen} onClose={handleClose} aria-labelledby="cancel-modal-title">
+      {/* Cancel Confirmation Modal - COMMENTED OUT - Orders are only refunded, not cancelled */}
+      {/* <Modal open={cancelOpen} onClose={handleClose} aria-labelledby="cancel-modal-title">
         <Box sx={modalStyle} className="w-full sm:w-auto">
           <Typography
             id="cancel-modal-title"
@@ -673,10 +673,10 @@ export default function MyOrders() {
             </button>
           </div>
         </Box>
-      </Modal>
+      </Modal> */}
 
-      {/* Cancel Shipping Modal */}
-      <Modal open={cancelShippingOpen} onClose={handleCloseCancelShipping} aria-labelledby="cancel-shipping-title">
+      {/* Cancel Shipping Modal - COMMENTED OUT - Orders are only refunded, not cancelled */}
+      {/* <Modal open={cancelShippingOpen} onClose={handleCloseCancelShipping} aria-labelledby="cancel-shipping-title">
         <Box sx={modalStyle} className="w-full sm:w-auto">
           <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-t-lg -m-4 mb-4 p-6">
             <Typography id="cancel-shipping-title" variant="h5" className="text-center font-bold text-white">
@@ -737,7 +737,7 @@ export default function MyOrders() {
             </button>
           </div>
         </Box>
-      </Modal>
+      </Modal> */}
 
       {/* Track Order Modal */}
       <Modal open={trackOpen} onClose={handleTrackClose} aria-labelledby="track-modal-title">

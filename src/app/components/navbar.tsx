@@ -97,8 +97,39 @@ const Navbar = () => {
         return <MessageSquare size={20} className="text-gray-700 dark:text-white" />;
       case "offer":
         return <Percent size={20} className="text-gray-700 dark:text-white" />;
+      case "order":
+        return <Package size={20} className="text-gray-700 dark:text-white" />;
+      case "product":
+        return <Search size={20} className="text-gray-700 dark:text-white" />;
       default:
         return <Bell size={20} className="text-gray-700 dark:text-white" />; // default icon
+    }
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    setIsNotifOpen(false); // Close notification dropdown
+
+    switch (notification.type) {
+      case "chat":
+        router.push(`/inbox/${id}`);
+        break;
+      case "offer":
+        router.push(`/inbox/${id}`);
+        break;
+      case "order":
+        // Check if title is "New Order" to redirect to wallet, otherwise go to orders
+        if (notification.title === "New Order") {
+          router.push("/wallet");
+        } else {
+          router.push("/orders");
+        }
+        break;
+      case "product":
+        router.push("/");
+        break;
+      default:
+        // For any other type, you can add a default redirect or do nothing
+        break;
     }
   };
 
@@ -351,17 +382,19 @@ const Navbar = () => {
                       {notifications.length > 0 ? (
                         <div className="max-h-80 overflow-y-auto">
                           {notifications.map((notif) => (
-                            <Link key={notif._id} href="#" className="block">
-                              <button className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
-                                  {getNotifIcon(notif.type)}
-                                </div>
-                                <div className="flex-1 text-left">
-                                  <h4 className="text-gray-900 dark:text-white font-medium">{notif.title}</h4>
-                                  <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.subTitle}</p>
-                                </div>
-                              </button>
-                            </Link>
+                            <button
+                              key={notif._id}
+                              onClick={() => handleNotificationClick(notif)}
+                              className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                            >
+                              <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
+                                {getNotifIcon(notif.type)}
+                              </div>
+                              <div className="flex-1 text-left">
+                                <h4 className="text-gray-900 dark:text-white font-medium">{notif.title}</h4>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.subTitle}</p>
+                              </div>
+                            </button>
                           ))}
                         </div>
                       ) : (
@@ -499,17 +532,19 @@ const Navbar = () => {
                       {notifications.length > 0 ? (
                         <div className="max-h-80 overflow-y-auto">
                           {notifications.map((notif) => (
-                            <Link key={notif._id} href="#" className="block">
-                              <button className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                                <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
-                                  {getNotifIcon(notif.type)}
-                                </div>
-                                <div className="flex-1 text-left">
-                                  <h4 className="text-gray-900 dark:text-white font-medium">{notif.title}</h4>
-                                  <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.subTitle}</p>
-                                </div>
-                              </button>
-                            </Link>
+                            <button
+                              key={notif._id}
+                              onClick={() => handleNotificationClick(notif)}
+                              className="flex items-start gap-3 px-4 py-3 w-full hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                            >
+                              <div className="bg-gray-200 dark:bg-gray-700 rounded-full p-2">
+                                {getNotifIcon(notif.type)}
+                              </div>
+                              <div className="flex-1 text-left">
+                                <h4 className="text-gray-900 dark:text-white font-medium">{notif.title}</h4>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">{notif.subTitle}</p>
+                              </div>
+                            </button>
                           ))}
                         </div>
                       ) : (

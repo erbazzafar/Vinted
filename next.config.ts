@@ -18,11 +18,11 @@ const nextConfig: NextConfig = {
         hostname: 'test-backend.affaredoro.com',
         pathname: '/**',
       },
-      // {
-      //   protocol: 'https',
-      //   hostname: 'affari-doro-backend.shubhexchange.com',
-      //   pathname: '/**',
-      // },
+      {
+        protocol: 'http',
+        hostname: '89.116.134.164',
+        pathname: '/**',
+      },
     ],
   },
 };
