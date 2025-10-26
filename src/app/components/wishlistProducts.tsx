@@ -65,31 +65,46 @@ const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: strin
   };
 
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px] z-[10]">
+    <div className="bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px] hover:outline-1 outline-gray-200">
       {/* Product Image */}
       <div className="relative">
-        <Image
-          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
-          alt={product.name}
-          height={300}
-          width={300}
-          unoptimized
-          className="w-full h-[200px] object-contain rounded-lg"
-        />
+        <Link
+          href={`/product/${product._id}`}
+        >
+          <Image
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+            alt={product.name}
+            height={200}
+            width={10}
+            unoptimized
+            className="w-full h-[200px] object-contain rounded-lg"
+          />
+        </Link>
+        {/* Status Labels */}
+        {product.sold && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+            Sold
+          </div>
+        )}
+        {product.reserved && (
+          <div className="absolute top-2 left-2 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+            Reserved
+          </div>
+        )}
       </div>
 
       {/* Product Details */}
       <div className="mt-3 px-3">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <Link
             href={`/product/${product._id}`}
-            className="text-[13px] font-semibold text-gray-800 hover:underline"
+            className="text-[14px] font-[700] text-gray-800 hover:underline capitalize"
           >
             {product.name}
           </Link>
 
           <button
-            className={`text-[11px] transition-colors ${isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
+            className={`cursor-pointer transition-colors ${isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-300"
               }`}
             onClick={handleWishList}
           >
@@ -97,24 +112,17 @@ const ProductCard = ({ product, onRemove }: { product: any; onRemove: (id: strin
           </button>
         </div>
 
-        <div className="flex items-center gap-1 mt-1">
-          {getStarRating(product.rating)}
-        </div>
-
-        <p className="text-[12px] text-gray-500">Size: {product.sizeId?.name ?? "N/A"}</p>
-        <p className="text-[12px] text-gray-500">
-          Category: {product.categoryId?.[product.categoryId.length - 1]?.name ?? "N/A"}
-        </p>
-        <p className="mt-1 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+        <p className="text-[12px] text-gray-500 mt-1">Size: {product?.sizeId?.name || "Other"}</p>
+        <p className="text-[12px] text-gray-500">Category: {product.categoryId?.[product.categoryId?.length - 1]?.name || "Other"}</p>
+        <p className="mt-[5px] text-[14px] font-semibold text-teal-600 flex items-center gap-1">
           <Image
             src={`/dirhamlogo.png`}
             alt="dirham"
-            width={15}
-            height={15}
+            width={17}
+            height={17}
             unoptimized
           />
-          {product.inclPrice}
-          <span className="text-[10px] text-teal-600">incl.</span>
+          {product.price}
         </p>
       </div>
     </div>

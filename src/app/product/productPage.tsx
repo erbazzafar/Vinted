@@ -512,6 +512,13 @@ const ProductPage = () => {
                     RESERVED
                   </div>
                 )}
+
+                {/* Sold Label - Only show to non-owners when product is sold */}
+                {sold && gettingProduct?.userId?._id !== loggedInUser && (
+                  <div className="absolute bottom-0 left-0 right-0 w-full bg-red-900 text-white text-center py-3 font-bold text-lg">
+                    SOLD
+                  </div>
+                )}
               </div>
             </div>
 
@@ -961,27 +968,27 @@ const ProductPage = () => {
               <>
                 {/* Buy Now */}
                 <button
-                  className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve
+                  className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
                     ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                     : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer hover:border border-gray-600"
                     }`}
-                  onClick={reserve ? undefined : handleBuyNow}
-                  disabled={reserve}
+                  onClick={reserve || sold ? undefined : handleBuyNow}
+                  disabled={reserve || sold}
                 >
                   Buy Now
                 </button>
 
                 {/* Chat */}
                 <button
-                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve
+                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
                     ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                     : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer hover:border border-gray-600"
                     }`}
-                  onClick={reserve ? undefined : handleChat}
-                  disabled={reserve}
+                  onClick={reserve || sold ? undefined : handleChat}
+                  disabled={reserve || sold}
                 >
                   Chat with Seller
-                  {!reserve && <MessageCircle size={20} className="shrink-0" />}
+                  {!reserve && !sold && <MessageCircle size={20} className="shrink-0" />}
                 </button>
 
                 {/* Seller Info */}

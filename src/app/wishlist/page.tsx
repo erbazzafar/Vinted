@@ -8,12 +8,12 @@ function wishlistPage() {
 
     const router = useRouter()
     return (
-        <> 
-            <h2 className="mt-5 mb-5 text-xl container mx-auto max-w-screen-2xl rounded-xl font-bold flex items-center gap-2 lg:px-[50px]">
-                Favorited Items
+        <>
+            <h2 className="pt-[50px] text-xl container mx-auto max-w-screen-2xl font-bold flex items-center gap-2 lg:px-[50px]">
                 <Heart size={35} />
+                Favorite Items
             </h2>
-           <WishlistPage/>
+            <WishlistPage />
         </>
     )
 }
