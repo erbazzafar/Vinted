@@ -286,10 +286,18 @@ const ProductCard = () => {
           return;
         }
 
-        const materialList = response.data.data.map((item: { name: string, _id: string }) => ({
-          name: item.name,
-          _id: item._id,
-        }))
+        const mappedMaterials = response.data.data
+          .map((item: { name: string, _id: string }) => ({
+            name: item.name,
+            _id: item._id,
+          }))
+
+        const notListed = mappedMaterials.find((m: { name: string }) => m.name.toLowerCase() === "not listed")
+        const otherMaterials = mappedMaterials
+          .filter((m: { name: string }) => m.name.toLowerCase() !== "not listed")
+          .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+
+        const materialList = notListed ? [notListed, ...otherMaterials] : otherMaterials
         setMaterial(materialList);
       } catch (err) {
         console.error("Error fetching colors", err);
@@ -737,13 +745,13 @@ const ProductCard = () => {
         {/* Dynamic Grid Layout */}
         <div className="grid grid-cols-3 md:grid-cols-5 gap-4 w-full">
           {images.map((img, index) => (
-            <div key={index} className="relative w-full h-24 rounded-lg overflow-hidden shadow-md">
+            <div key={index} className="relative w-full aspect-square rounded-lg overflow-hidden shadow-md">
               <Image
                 src={URL.createObjectURL(img)} // Create an object URL for preview
                 alt="Product"
-                height={24}
-                width={24}
-                className="w-full h-full object-cover rounded-lg"
+                fill
+                sizes="(max-width: 768px) 33vw, 20vw"
+                className="object-cover rounded-lg"
               />
               <button
                 className="absolute top-1 right-1 bg-gray-100 text-black rounded-full p-1 shadow-md hover:bg-gray-200 transition duration-200 cursor-pointer"
@@ -757,7 +765,7 @@ const ProductCard = () => {
           {/* Upload New Image */}
           {images.length < 15 && (
             <div
-              className="w-full h-24 flex flex-col items-center justify-center border border-gray-300 rounded-lg cursor-pointer bg-white shadow-md hover:bg-gray-200 transition duration-300 relative"
+              className="w-full aspect-square flex flex-col items-center justify-center border border-gray-300 rounded-lg cursor-pointer bg-white shadow-md hover:bg-gray-200 transition duration-300 relative"
               onClick={() => fileInputRef.current?.click()}
             >
               <UploadCloud size={32} className="text-gray-500" />
@@ -922,7 +930,7 @@ const ProductCard = () => {
               className="w-full p-3 border rounded-lg bg-white cursor-pointer flex justify-between items-center"
               onClick={() => setIsMaterialOpen(!isMaterialOpen)}
             >
-              <span className="text-gray-700">
+              <span className="text-gray-700 capitalize">
                 {selectedMaterial.length
                   ? selectedMaterial.map((m) => m.name).join(", ")
                   : "Select up to 3 Materials"}
@@ -941,7 +949,7 @@ const ProductCard = () => {
                   {material.map((m) => (
                     <motion.div
                       key={m._id}
-                      className={`p-2 hover:bg-gray-100 flex justify-between items-center ${selectedMaterial.some((sm) => sm._id === m._id)
+                      className={`capitalize p-2 hover:bg-gray-100 flex justify-between items-center ${selectedMaterial.some((sm) => sm._id === m._id)
                         ? "text-blue-600 font-semibold"
                         : "cursor-pointer"
                         }`}
@@ -961,7 +969,7 @@ const ProductCard = () => {
                 {selectedMaterial.map((m) => (
                   <div
                     key={m._id}
-                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1"
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-1 capitalize"
                   >
                     {m.name}
                     <X
