@@ -733,72 +733,91 @@ const ProductPage = () => {
 
                 {/* Bump Modal */}
                 <Modal open={isBumpModalOpen} onClose={() => setIsBumpModalOpen(false)}>
-                  <Box className="bg-white p-6 rounded-lg shadow-lg w-full max-w-[500px] max-h-[70vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <h2 className="text-[13px] font-semibold mb-4">
-                      Select how many days you want to bump your product
-                    </h2>
+                  <Box className="bg-white rounded-lg shadow-lg w-full max-w-[560px] max-h-[75vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+                      <div>
+                        <h2 className="text-[16px] font-semibold text-gray-900">Boost your product visibility</h2>
+                        <p className="text-[12px] text-gray-600 mt-1">Choose a bump duration. The fee is a small percentage of your price.</p>
+                      </div>
+                      <button
+                        aria-label="Close"
+                        className="cursor-pointer text-gray-500 hover:text-gray-800"
+                        onClick={() => setIsBumpModalOpen(false)}
+                      >
+                        ✕
+                      </button>
+                    </div>
 
-                    {/* Options */}
-                    <div className="flex gap-3 overflow-x-auto pb-2">
-                      {Array.isArray(bumpDays) &&
-                        bumpDays?.map((option) => {
-                          const isSelected =
-                            selectedBumpDays?.day === option.day;
-                          const bumpPrice = (
-                            (Number(option.percentage) / 100) *
-                            Number(gettingProduct?.price || 0)
-                          ).toFixed(2);
-
+                    {/* Content */}
+                    <div className="px-6 py-5 space-y-5">
+                      {/* Options */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {Array.isArray(bumpDays) && bumpDays?.map((option) => {
+                          const isSelected = selectedBumpDays?.day === option.day;
+                          const basePrice = Number(gettingProduct?.price || 0);
+                          const fee = ((Number(option.percentage) / 100) * basePrice);
+                          const total = basePrice + fee;
                           return (
                             <button
                               key={option._id}
-                              className={`cursor-pointer min-w-[140px] flex items-center justify-center gap-2 text-[13px] px-3 py-2 rounded-lg border whitespace-nowrap transition-colors duration-200 ${isSelected
-                                ? "bg-gray-800 text-white border-gray-900"
-                                : "bg-gray-100 text-black border-gray-300"
-                                }`}
+                              className={`cursor-pointer text-left rounded-lg border transition-colors duration-200 px-4 py-3 focus:outline-none ${isSelected ? "border-gray-900 bg-gray-100" : "border-gray-300 bg-white hover:bg-gray-50"}`}
                               onClick={() => setSelectedBumpDays(option)}
                             >
-                              {option.day} days –
-                              <div className="flex items-center gap-1">
-                                <Image
-                                  src="/dirhamlogo.png"
-                                  alt="dirham"
-                                  height={15}
-                                  width={15}
-                                />
-                                <span>{bumpPrice}</span>
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <p className="text-[14px] font-semibold text-gray-900">{option.day} days</p>
+                                  <p className="text-[12px] text-gray-600 mt-1">Fee {Number(option.percentage).toFixed(0)}%</p>
+                                </div>
+                                <div className="text-right">
+                                  <div className="flex items-center gap-1 justify-end text-[14px] font-semibold text-gray-900">
+                                    <Image src="/dirhamlogo.png" alt="dirham" height={16} width={16} />
+                                    <span>{fee.toFixed(2)}</span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-500">Bump fee</p>
+                                </div>
                               </div>
                             </button>
                           );
                         })}
-                    </div>
+                      </div>
 
-                    {/* Action Buttons */}
-                    <div className="mt-6 flex justify-end gap-4">
-                      <button
-                        className="cursor-pointer bg-gray-300 text-[13px] text-black px-4 py-2 rounded hover:bg-gray-400"
-                        onClick={() => setIsBumpModalOpen(false)}
-                      >
-                        Cancel
-                      </button>
+                      {/* Summary: show only selected bump price */}
+                      <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                        <h3 className="text-[13px] font-semibold text-gray-900 mb-3">Bump price</h3>
+                        <div className="flex items-center justify-between text-[13px] text-gray-700">
+                          <span>{selectedBumpDays ? `${selectedBumpDays.day}-day bump (${Number(selectedBumpDays.percentage).toFixed(0)}%)` : "Select a bump duration"}</span>
+                          <div className="flex items-center gap-1 text-gray-900 font-medium">
+                            <Image src="/dirhamlogo.png" alt="dirham" height={16} width={16} />
+                            <span>{selectedBumpDays ? ((Number(selectedBumpDays.percentage) / 100) * Number(gettingProduct?.price || 0)).toFixed(2) : "—"}</span>
+                          </div>
+                        </div>
+                      </div>
 
-                      <button
-                        disabled={bump || !selectedBumpDays}
-                        className={`cursor-pointer text-[13px] px-4 py-2 rounded ${bump
-                          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                          : "bg-gray-600 text-white hover:bg-gray-700"
-                          }`}
-                        onClick={async () => {
-                          if (bump) {
-                            toast.error("This product is already bumped");
-                            return;
-                          }
-                          await handleBump(selectedBumpDays.day);
-                          setIsBumpModalOpen(false);
-                        }}
-                      >
-                        {bump ? "Already Bumped" : "Confirm Bump"}
-                      </button>
+                      {/* Actions */}
+                      <div className="flex items-center justify-end gap-3">
+                        <button
+                          className="cursor-pointer bg-gray-200 text-[13px] text-gray-900 px-4 py-2 rounded hover:bg-gray-300"
+                          onClick={() => setIsBumpModalOpen(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          disabled={bump || !selectedBumpDays}
+                          className={`cursor-pointer text-[13px] px-4 py-2 rounded ${bump || !selectedBumpDays ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-gray-900 text-white hover:bg-gray-800"}`}
+                          onClick={async () => {
+                            if (bump) {
+                              toast.error("This product is already bumped");
+                              return;
+                            }
+                            if (!selectedBumpDays) return;
+                            await handleBump(selectedBumpDays.day);
+                            setIsBumpModalOpen(false);
+                          }}
+                        >
+                          {bump ? "Already Bumped" : selectedBumpDays ? `Confirm ${selectedBumpDays.day}-day Bump` : "Select a duration"}
+                        </button>
+                      </div>
                     </div>
                   </Box>
                 </Modal>

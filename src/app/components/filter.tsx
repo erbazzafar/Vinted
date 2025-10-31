@@ -88,53 +88,56 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   }, [product.like])
 
   return (
-    <div className="mt-5 bg-white shadow-md rounded-xl overflow-hidden py-2 relative w-full max-w-[250px] ">
-      <div className="relative">
-        <Image
-          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
-          alt={product.name}
-          height={200}
-          width={10}
-          unoptimized
-          className="w-full h-[200px] object-contain rounded-lg"
-        />
+    <div className="group shadow-md relative w-full max-w-[250px] overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:-translate-y-0.5 hover:border-yellow-300">
+      {/* Image */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-white">
+        <Link href={`/product/${product._id}`}>
+          <Image
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
+            alt={product.name}
+            height={240}
+            width={320}
+            unoptimized
+            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+          />
+        </Link>
+
+        {/* Wishlist */}
+        <button
+          aria-label="wishlist"
+          className={`absolute right-2 top-2 z-10 rounded-full border border-gray-200 bg-white/90 p-2 shadow-sm transition-colors ${isWishlisted ? 'text-red-600' : 'text-gray-700 hover:text-red-500'}`}
+          onClick={handleWishList}
+        >
+          <Heart size={16} fill={isWishlisted ? 'red' : 'none'} />
+        </button>
       </div>
 
-      <div className="mt-3 px-2">
-        <div className="flex justify-between items-center">
-          <Link
-            href={`/product/${product._id}`}
-            className="text-[13px] font-semibold text-gray-800 hover:underline"
-          >
-            {product.name}
-          </Link>
+      {/* Body */}
+      <div className="space-y-2 p-3">
+        <Link
+          href={`/product/${product._id}`}
+          className="line-clamp-2 text-[13px] font-semibold capitalize text-gray-800 hover:text-teal-700"
+        >
+          {product.name}
+        </Link>
 
-          <button
-            className={`cursor-pointer transition-colors ${isWishlisted ? 'text-red-500' : 'text-gray-500 hover:text-red-300'
-              }`}
-            onClick={handleWishList}
-          >
-            <Heart size={20} fill={isWishlisted ? 'red' : 'none'} />
-          </button>
+        {/* Meta chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
+            {product?.sizeId?.name || 'Size: Other'}
+          </span>
+          {product.categoryId?.[product.categoryId?.length - 1]?.name ? (
+            <span className="rounded-full border border-yellow-300 bg-yellow-50 px-2 py-0.5 text-[11px] text-yellow-700">
+              {product.categoryId[product.categoryId.length - 1].name}
+            </span>
+          ) : null}
         </div>
 
-        <div className="flex items-center gap-1 mt-1">
-          {getStarRating(product.rating)}
+        {/* Price */}
+        <div className="mt-1 flex items-center gap-1 text-[14px] font-semibold text-yellow-600">
+          <Image src="/dirhamlogo.png" alt="dirham" width={16} height={16} unoptimized />
+          <span>{Number(product.price).toFixed(2)}</span>
         </div>
-
-        <p className="text-[12px] text-gray-500">
-          Size: {product.sizeId?.name || 'None'}
-        </p>
-        <p className="text-[12px] text-gray-500">
-          Category: {product.categoryId?.at(-1)?.name || 'N/A'}
-        </p>
-        <p className="text-[13px] font-semibold text-teal-600">
-          ${product.price}
-        </p>
-        <p className="text-[13px] font-semibold text-teal-600">
-          ${product.inclPrice}{' '}
-          <span className="text-xs text-gray-400">incl.</span>
-        </p>
       </div>
     </div>
   )
@@ -300,7 +303,7 @@ function Filter() {
           </ul>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-6 justify-items-center mt-10">
           {filteredProducts.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}

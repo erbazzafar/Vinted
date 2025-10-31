@@ -123,7 +123,7 @@ function BumpCheckOutContent() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="w-full max-w-md p-6 rounded-xl shadow-sm bg-gray-100">
-                <h2 className="text-xl font-bold mb-4 text-center">Bump Summary</h2>
+                <h2 className="text-xl font-bold mb-4 text-center">Bump Order Summary</h2>
 
                 <div className="flex flex-col items-center mb-4">
                     {product?.image?.[0] && (
@@ -148,6 +148,9 @@ function BumpCheckOutContent() {
                             />
                             {bumpPrice.toFixed(2)}
                         </p>
+                        <p className="mt-2 text-sm text-gray-600">
+                            This product will be added to featured products for {bumpInformation.bumpDays || "—"} day{Number(bumpInformation.bumpDays || 0) > 1 ? "s" : ""}.
+                        </p>
                     </div>
                 </div>
 
@@ -167,7 +170,7 @@ function BumpCheckOutContent() {
 
                 <Modal open={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)}>
                     <Box className="bg-white p-6 rounded-lg shadow-lg w-128 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <AddNewCardModal formData={bumpData} productId={productId} />
+                        <AddNewCardModal formData={bumpData} productId={productId} bumpPrice={bumpPrice} />
                     </Box>
                 </Modal>
             </div>

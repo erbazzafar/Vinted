@@ -80,51 +80,62 @@ const ProductCard = ({ product }: { product: any }) => {
   }, [product]);
 
   return (
-    <div className="bg-white py-2 shadow-md rounded-xl overflow-hidden w-full max-w-[250px] mx-auto">
-      <div className="relative">
-        <Link
-          href={`/product/${product._id}`}>
+    <div className="group shadow-md relative w-full max-w-[250px] overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:-translate-y-0.5 hover:border-yellow-300">
+      {/* Image */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-white">
+        <Link href={`/product/${product._id}`}>
           <Image
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
-            alt={product?.name}
-            height={250}
-            width={300}
+            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
+            alt={product.name}
+            height={240}
+            width={320}
             unoptimized
-            className="w-full h-[200px] object-contain rounded-lg"
+            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
           />
         </Link>
+
+        {/* Wishlist */}
+        <button
+          aria-label="wishlist"
+          className={`absolute right-2 top-2 z-10 rounded-full border border-gray-200 bg-white/90 p-2 shadow-sm transition-colors ${isWishlisted ? "text-red-600" : "text-gray-700 hover:text-red-500"}`}
+          onClick={() => handleWishList()}
+        >
+          <Heart size={16} fill={isWishlisted ? "red" : "none"} />
+        </button>
       </div>
 
-      <div className="mt-3">
-        <div className="flex justify-between items-center">
-          <Link
-            href={`/product/${product._id}`}
-            className="ml-2 text-[13px] font-semibold text-gray-800 hover:underline"
-          >
-            {product?.name}
-          </Link>
-          <button
-            className={`mr-3 transition-colors cursor-pointer ${isWishlisted ? "text-red-500" : "text-gray-500 hover:text-red-500"
-              }`}
-            onClick={() => handleWishList()}
-          >
-            <Heart size={20} fill={isWishlisted ? "red" : "none"} />
-          </button>
+      {/* Body */}
+      <div className="space-y-2 p-3">
+        <Link
+          href={`/product/${product._id}`}
+          className="line-clamp-2 text-[13px] font-semibold capitalize text-gray-800 hover:text-teal-700"
+        >
+          {product.name}
+        </Link>
+
+        {/* Meta chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
+            {product?.sizeId?.name || "Size: Other"}
+          </span>
+          {product.categoryId?.[product.categoryId?.length - 1]?.name ? (
+            <span className="rounded-full border border-yellow-300 bg-yellow-50 px-2 py-0.5 text-[11px] text-yellow-700">
+              {product.categoryId[product.categoryId.length - 1].name}
+            </span>
+          ) : null}
         </div>
 
-        <div className="ml-2 flex items-center gap-1 mt-1">{getStarRating(product?.rating)}</div>
-        <p className="ml-2 text-[12px] text-gray-500">Size: {product?.sizeId?.name || "Other  "}</p>
-        <p className="ml-2 text-[12px] text-gray-500">Category: {product?.categoryId?.[product?.categoryId?.length - 1]?.name ?? "Other "}</p>
-        <p className="mt-1 ml-1.5 text-[12px] font-semibold text-teal-600 flex items-center gap-1">
+        {/* Price */}
+        <div className="mt-1 flex items-center gap-1 text-[14px] font-semibold text-yellow-600">
           <Image
             src={`/dirhamlogo.png`}
             alt="dirham"
-            width={15}
-            height={15}
+            width={16}
+            height={16}
             unoptimized
           />
-          {product.totalPrice}
-        </p>
+          <span>{Number(product.price).toFixed(2)}</span>
+        </div>
       </div>
     </div>
   );

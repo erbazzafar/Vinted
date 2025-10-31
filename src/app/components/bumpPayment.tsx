@@ -7,13 +7,11 @@ import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useElem
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
 
-const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY ||
-    'pk_live_51RH3dwI5tAyGjw2Rp3HBCt8bccCA0LHEmntYBd2dme4f5zxqTXn6q4eh1q1B0X7SKdNBdCnfmrOfJ8CUQWXrDPNV00GqpOYoMi'
-);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
-const StripeCardForm = ({ onSuccess, formData, productId }: any) => {
+const StripeCardForm = ({ onSuccess, formData, productId, bumpPrice }: any) => {
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -46,32 +44,56 @@ const StripeCardForm = ({ onSuccess, formData, productId }: any) => {
                 throw createError;
             }
 
-            console.log('Payment method created:', paymentMethod);
+            // Single API: backend handles payment and bump creation
+            try {
+                const daysStr = (formData instanceof FormData) ? (formData.get("bumpDay") as string) : "";
+                const days = Number(daysStr || 0);
+                const email = typeof window !== 'undefined' ? (localStorage.getItem('userEmail') || '') : '';
 
-            const fn_bumpProduct = async () => {
-                try {
-                    const response = await axios.put(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
-                        formData,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${Cookies.get("user-token")}`,
-                                "Content-Type": "multipart/form-data"
-                            },
-                        }
-                    );
-                    console.log('Response from create order:', response.data);
-                } catch (error) {
-                    console.log("Error updating the product BUMP", error)
-                    toast.error("Error in bumping the Product")
-                    return
+                const res = await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/bump-order/create`,
+                    {
+                        days,
+                        product: productId,
+                        subTotal: Number(bumpPrice || 0),
+                        cardId: paymentMethod.id,
+                        email,
+                        status: 'active',
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get("user-token")}`,
+                            "Content-Type": "application/json",
+                        },
+                        validateStatus: () => true,
+                    }
+                );
+
+                if (res.status === 200 && res?.data?.status === 'ok') {
+                    onSuccess();
+                    toast.success("Payment successful!");
+                    toast.success("Bump order created.");
+                    router.push(`/`);
+                    return;
                 }
+
+                if (res.status === 402) {
+                    toast.error(res?.data?.message || "Payment required/failed");
+                    return;
+                }
+
+                if (res.status === 500) {
+                    toast.error(res?.data?.message || "Server error while creating bump order");
+                    return;
+                }
+
+                toast.error(res?.data?.message || "Failed to create bump order");
+                return;
+            } catch (err: any) {
+                console.error("Bump order create error:", err);
+                toast.error(err?.response?.data?.message || "Failed to create bump order");
+                return;
             }
-            fn_bumpProduct();
-            onSuccess();
-            toast.success("Payment successful!");
-            toast.success("Your Product is bumped!");
-            router.push(`/`);
 
         } catch (error: any) {
             console.error("Payment error:", error);
@@ -152,7 +174,15 @@ const StripeCardForm = ({ onSuccess, formData, productId }: any) => {
                     disabled={isLoading}
                     className="cursor-pointer w-full h-[48px] bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
                 >
-                    {isLoading ? 'Processing...' : 'Bump'}
+                    {isLoading ? 'Processing...' : (
+                        <span className="flex items-center gap-2">
+                            <span>Bump Order -</span>
+                            <span className="flex items-center gap-1">
+                                <Image src="/dirhamlogo.png" alt="dirham" width={16} height={16} unoptimized />
+                                <span>{Number(bumpPrice || 0).toFixed(2)}</span>
+                            </span>
+                        </span>
+                    )}
                 </button>
 
                 <div className="mt-4 p-3 bg-gray-50 border border-gray-100 rounded-lg">
@@ -188,7 +218,7 @@ const StripeCardForm = ({ onSuccess, formData, productId }: any) => {
     );
 };
 
-const AddNewCardModal = ({ formData, productId }: any) => {
+const AddNewCardModal = ({ formData, productId, bumpPrice }: any) => {
     console.log('Form data in modal:', formData);
     return (
         <div>
@@ -198,6 +228,7 @@ const AddNewCardModal = ({ formData, productId }: any) => {
                     <StripeCardForm
                         formData={formData}
                         productId={productId}
+                        bumpPrice={bumpPrice}
                         onSuccess={() => { }}
                     />
                 </Elements>
