@@ -124,7 +124,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
         {/* Meta chips */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
+          <span className="hidden sm:block rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
             {product?.sizeId?.name || "Size: Other"}
           </span>
           {product.categoryId?.[product.categoryId?.length - 1]?.name ? (
@@ -170,10 +170,10 @@ const ProductList = () => {
   }, []);
 
   return (
-    <div className="lg:px-[50px] container mx-auto px-3 max-w-screen-2xl py-6 -mt-[35px]">
+    <div className="lg:px-[50px] container mx-auto px-3 max-w-screen-2xl mb-6">
       {Array.isArray(products) && products.length > 0 ? (
         <>
-          <h2 className="text-3xl rounded-xl font-bold ">
+          <h2 className="text-xl sm:text-3xl rounded-xl font-bold ">
             Our Recent Products
           </h2>
 

@@ -44,7 +44,14 @@ const Footer = () => {
           <h3 className="text-[15px] font-[700] mb-2">Contact</h3>
           <ul className="space-y-2">
             <li>
-              <a href="mailto:contact@affaredoro.com">Help Center</a>
+              <a href="mailto:contact@affaredoro.com" className="hover:underline">
+                Email: contact@affaredoro.com
+              </a>
+            </li>
+            <li>
+              <a href="https://wa.me/971506570211" target="_blank" className="hover:underline">
+                WhatsApp: +971 506570211
+              </a>
             </li>
           </ul>
         </div>

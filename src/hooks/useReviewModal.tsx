@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Cookies from 'js-cookie';
 import ReviewModal from '@/components/ReviewModal';
 
 export const useReviewModal = () => {
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [sellerId, setSellerId] = useState('');
+    const [reviewerId, setReviewerId] = useState('');
     const [orderId, setOrderId] = useState('');
     const [sellerName, setSellerName] = useState('');
     const searchParams = useSearchParams();
@@ -15,11 +15,12 @@ export const useReviewModal = () => {
     useEffect(() => {
         const reviewParam = searchParams.get('review');
         const orderParam = searchParams.get('order');
-        const userToken = Cookies.get('user-token');
+        const fromParam = searchParams.get('from');
 
-        // Only open modal if user is logged in AND review parameter exists
-        if (reviewParam && userToken) {
+        // Open modal if review parameter exists, regardless of login status
+        if (reviewParam) {
             setSellerId(reviewParam);
+            setReviewerId(fromParam || '');
             setOrderId(orderParam || '');
             setIsReviewModalOpen(true);
 
@@ -27,16 +28,11 @@ export const useReviewModal = () => {
             // For now, we'll use a placeholder
             setSellerName('Seller');
 
-            // Clean up the URL by removing the review and order parameters
+            // Clean up the URL by removing the review, order, and from parameters
             const url = new URL(window.location.href);
             url.searchParams.delete('review');
             url.searchParams.delete('order');
-            window.history.replaceState({}, '', url.toString());
-        } else if (reviewParam && !userToken) {
-            // If review parameter exists but user is not logged in, just clean up the URL
-            const url = new URL(window.location.href);
-            url.searchParams.delete('review');
-            url.searchParams.delete('order');
+            url.searchParams.delete('from');
             window.history.replaceState({}, '', url.toString());
         }
     }, [searchParams]);
@@ -44,6 +40,7 @@ export const useReviewModal = () => {
     const closeReviewModal = () => {
         setIsReviewModalOpen(false);
         setSellerId('');
+        setReviewerId('');
         setOrderId('');
         setSellerName('');
     };
@@ -53,6 +50,7 @@ export const useReviewModal = () => {
             isOpen={isReviewModalOpen}
             onClose={closeReviewModal}
             sellerId={sellerId}
+            reviewerId={reviewerId}
             orderId={orderId}
             sellerName={sellerName}
         />
@@ -61,6 +59,7 @@ export const useReviewModal = () => {
     return {
         isReviewModalOpen,
         sellerId,
+        reviewerId,
         orderId,
         sellerName,
         closeReviewModal,

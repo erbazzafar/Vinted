@@ -1,6 +1,6 @@
 "use client";
-import { use, useEffect, useState } from "react";
-import { MapPin, Clock, Rss, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MapPin, Rss, CheckCircle, Star } from "lucide-react";
 import TabsComponent from "../../components/tabsSeller";
 import Image from "next/image";
 import Cookies from "js-cookie"
@@ -18,15 +18,9 @@ const SellerProfile = () => {
 
   const router = useRouter()
 
-  const params = useParams()
-  console.log("Params: ", params);
-
   const { id: sellerId } = useParams()
-  console.log("seller id: ", sellerId);
 
   const loggedInUserId = Cookies.get("userId")
-  console.log("Logged In User ID: ", loggedInUserId);
-
 
   const isOwnProfile = sellerId === loggedInUserId
 
@@ -35,6 +29,10 @@ const SellerProfile = () => {
   const [isFollowerModalOpen, setIsFollowerModalOpen] = useState(false)
   const [followingList, setFollowingList] = useState([])
   const [followerList, setFollowerList] = useState([])
+  const [reviewStats, setReviewStats] = useState({
+    averageRating: 0,
+    totalReviews: 0
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -148,26 +146,76 @@ const SellerProfile = () => {
     }
   }
 
-
-
   useEffect(() => {
     getFollowerList()
   }, [sellerId])
 
+  // Fetch review statistics
+  useEffect(() => {
+    const fetchReviewStats = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/review/seller/${sellerId}`,
+          {
+            params: {
+              page: 1,
+              limit: 1 // We only need statistics, not all reviews
+            }
+          }
+        )
+
+        if (response.status === 200 && response.data.status === 'ok') {
+          setReviewStats({
+            averageRating: response.data.statistics.averageRating || 0,
+            totalReviews: response.data.statistics.totalReviews || 0
+          })
+        }
+      } catch (error) {
+        console.log("Error fetching review statistics:", error)
+        // Keep default values if error
+      }
+    }
+
+    if (sellerId) {
+      fetchReviewStats()
+    }
+  }, [sellerId])
+
   const getStarRating = (rating: number) => {
     const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-    console.log("Seller Data", seller);
-
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
-      <span className="text-yellow-500 text-2xl">
-        {"★".repeat(fullStars)}
-        {halfStar && "☆"}
-        {"☆".repeat(emptyStars)}
-      </span>
+      <div className="flex items-center gap-0.5">
+        {/* Full Stars */}
+        {Array.from({ length: fullStars }).map((_, i) => (
+          <Star
+            key={`full-${i}`}
+            size={24}
+            className="text-yellow-400 fill-yellow-400"
+          />
+        ))}
+
+        {/* Half Star */}
+        {hasHalfStar && (
+          <div className="relative">
+            <Star size={24} className="text-yellow-400" />
+            <div className="absolute inset-0 overflow-hidden w-1/2">
+              <Star size={24} className="text-yellow-400 fill-yellow-400" />
+            </div>
+          </div>
+        )}
+
+        {/* Empty Stars */}
+        {Array.from({ length: emptyStars }).map((_, i) => (
+          <Star
+            key={`empty-${i}`}
+            size={24}
+            className="text-yellow-400"
+          />
+        ))}
+      </div>
     );
   };
 
@@ -226,9 +274,9 @@ const SellerProfile = () => {
 
               {/* Seller Rating and Reviews */}
               <div className="flex items-center justify-center md:justify-start mt-2">
-                {getStarRating(seller.rating)}
+                {getStarRating(reviewStats.averageRating)}
                 <span className="text-gray-600 text-lg ml-2">
-                  {seller.reviews} reviews
+                  {reviewStats.totalReviews} {reviewStats.totalReviews === 1 ? 'review' : 'reviews'}
                 </span>
               </div>
 

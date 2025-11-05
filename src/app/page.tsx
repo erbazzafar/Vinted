@@ -12,7 +12,6 @@ export default function Home() {
       <Categories />
       <br />
       <ProductCarousel />
-      <br />
       <LensDemo />
     </>
   );

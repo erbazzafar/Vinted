@@ -378,8 +378,18 @@ const Chatbox = () => {
             </div>
           </div>
           <button
-            className="bg-gray-800 text-[13px] text-white px-6 py-2 rounded-lg transition duration-300 hover:bg-gray-600 cursor-pointer"
-            onClick={() => setShowOffer(true)}
+            className={`text-[13px] px-6 py-2 rounded-lg transition duration-300 ${(newChat?.reserved || selectedChat?.productId?.[0]?.reserved)
+              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+              : "bg-gray-800 text-white hover:bg-gray-600 cursor-pointer"
+              }`}
+            onClick={() => {
+              if (newChat?.reserved || selectedChat?.productId?.[0]?.reserved) {
+                toast.error("This product is reserved");
+                return;
+              }
+              setShowOffer(true);
+            }}
+            disabled={newChat?.reserved || selectedChat?.productId?.[0]?.reserved}
           >
             Make an Offer
           </button>
@@ -436,8 +446,18 @@ const Chatbox = () => {
                           // Only show Buy Now if current user is the original offer sender (buyer)
                           msg.userId?._id === loggedInUser ? (
                             <button
-                              onClick={() => handleBuyNow(msg._id)}
-                              className="text-[13px] px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 w-fit cursor-pointer">
+                              onClick={() => {
+                                if (newChat?.reserved || selectedChat?.productId?.[0]?.reserved) {
+                                  toast.error("This product is reserved");
+                                  return;
+                                }
+                                handleBuyNow(msg._id);
+                              }}
+                              disabled={newChat?.reserved || selectedChat?.productId?.[0]?.reserved}
+                              className={`text-[13px] px-6 py-2 rounded-md w-fit ${(newChat?.reserved || selectedChat?.productId?.[0]?.reserved)
+                                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                                : "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
+                                }`}>
                               Buy Now
                             </button>
                           ) : (

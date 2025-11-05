@@ -55,7 +55,7 @@ const Categories: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white lg:py-4 sm:mt-0 md:mt-6 -mt-[75px] rounded-b-lg max-w-screen-2xl mx-auto">
+    <div className="bg-white lg:py-4 sm:mt-0 md:mt-6rounded-b-lg max-w-screen-2xl mx-auto">
       {/* Desktop View */}
       <div className="hidden lg:flex justify-center gap-6">
         {categories.slice(0, maxDesktopCategories).map((category, index) => {

@@ -999,15 +999,15 @@ const ProductPage = () => {
 
                 {/* Chat */}
                 <button
-                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
+                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${sold
                     ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                     : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer hover:border border-gray-600"
                     }`}
-                  onClick={reserve || sold ? undefined : handleChat}
-                  disabled={reserve || sold}
+                  onClick={sold ? undefined : handleChat}
+                  disabled={sold}
                 >
                   Chat with Seller
-                  {!reserve && !sold && <MessageCircle size={20} className="shrink-0" />}
+                  {!sold && <MessageCircle size={20} className="shrink-0" />}
                 </button>
 
                 {/* Seller Info */}

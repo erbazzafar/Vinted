@@ -14,7 +14,7 @@ const responsive = {
   superLargeDesktop: { breakpoint: { max: 4000, min: 1024 }, items: 5 },
   desktop: { breakpoint: { max: 1030, min: 768 }, items: 4 },
   tablet: { breakpoint: { max: 768, min: 464 }, items: 2 },
-  mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
+  mobile: { breakpoint: { max: 564, min: 0 }, items: 2 },
 };
 
 // Function to generate star ratings
@@ -115,7 +115,7 @@ const ProductCard = ({ product }: { product: any }) => {
 
         {/* Meta chips */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
+          <span className="hidden sm:block rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
             {product?.sizeId?.name || "Size: Other"}
           </span>
           {product.categoryId?.[product.categoryId?.length - 1]?.name ? (

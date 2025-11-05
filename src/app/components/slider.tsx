@@ -27,7 +27,7 @@ export function ImagesSliderDemo() {
         sliderRef.slickNext();
       }
     }, 2500);
-    
+
     return () => clearInterval(interval);
   }, [sliderRef]);
 
@@ -42,7 +42,7 @@ export function ImagesSliderDemo() {
     autoplay: false, // We're handling autoplay manually with our interval
     fade: false, // Disable fade to get the slide effect
     cssEase: "ease",
-    className: "w-full h-[400px] sm:h-[800px] md:h-[550px] lg:h-[600px]",
+    className: "w-full h-[200px] sm:h-[400px] md:h-[500px] lg:h-[600px]",
     dotsClass: "slick-dots custom-dots",
     customPaging: () => (
       <div className="w-3 h-3 mx-1 rounded-full bg-white/50 hover:bg-white/80"></div>
@@ -53,20 +53,20 @@ export function ImagesSliderDemo() {
   };
 
   return (
-    <div className="bg-white sm:mt-15 w-[90%] m-auto sm:w-full mt-[-50px]">
+    <div className="bg-white m-auto sm:w-full mt-3.5 mx-3 sm:mx-0 sm:mt-6 md:mt-8">
       {/* Full-width slider container matching the navbar */}
-      <div className="container rounded mx-auto max-w-screen-2xl lg:px-[50px] relative">
-        <div className="w-full overflow-hidden rounded">
+      <div className="container mx-auto max-w-screen-2xl lg:px-[50px] relative z-0">
+        <div className="w-full overflow-hidden rounded-[13px]">
           <Slider ref={setSliderRef} {...settings}>
             {images.map((src, index) => (
               <div key={index} className="outline-none">
-                <div className="w-full h-[400px] sm:h-[800px] md:h-[550px] lg:h-[600px]">
-                  <Image 
-                    src={src} 
+                <div className="w-full h-[200px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
+                  <Image
+                    src={src}
                     alt={`Slider Image ${index + 1}`}
                     width={1920}
                     height={1080}
-                    className="w-full h-full object-contain sm:object-cover rounded-lg max-h-full"
+                    className="w-full h-full object-cover max-h-full rounded-[13px]"
                     priority={index === 0}
                   />
                 </div>
@@ -87,7 +87,7 @@ export function ImagesSliderDemo() {
         }
         
         .slick-dots {
-          bottom: 20px;
+          bottom: 10px;
         }
         
         .custom-dots li button:before {
