@@ -3,15 +3,17 @@
 import axios from "axios";
 import Link from 'next/link';
 import { toast } from "sonner";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
 import OtpInput from 'react-otp-input';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { IconBrandGoogle, IconEye, IconEyeOff } from "@tabler/icons-react";
+import { updateUserLoggedIn, updateUserToken } from "@/features/features";
 
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/firbaseConfig";
@@ -19,15 +21,42 @@ import { auth, provider } from "@/firbaseConfig";
 export default function SignupFormDemo() {
 
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [firstname, setFirstname] = useState("")
   const [lastname, setLastname] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [username, setUsername] = useState("")
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const [openOTP, setOpenOTP] = useState(false);
   const [checkTerms, setCheckTerms] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setImageFile(null);
+      setImagePreview(null);
+      return;
+    }
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    const previewUrl = URL.createObjectURL(file);
+    setImageFile(file);
+    setImagePreview(previewUrl);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,24 +65,37 @@ export default function SignupFormDemo() {
         toast.error("Please Enter the Email and Password");
         return
       }
+      if (!username) {
+        toast.error("Please Enter the Username");
+        return
+      }
       if (!checkTerms) {
         toast.error("Please Accept the Terms and Conditions");
         return
       }
-      const userName = firstname + " " + lastname;
+      const fullName = [firstname, lastname].filter(Boolean).join(" ").trim();
+      if (!fullName) {
+        toast.error("Please Enter the First and Last Name");
+        return
+      }
+
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("username", username);
+      formData.append("fullName", fullName);
+      formData.append("first_name", firstname);
+      formData.append("last_name", lastname);
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/create`,
-        {
-          email,
-          password,
-          username: userName,
-          first_name: firstname,
-          last_name: lastname
-        }, // Body data
+        formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -66,19 +108,11 @@ export default function SignupFormDemo() {
       setOpenOTP(true);
       toast.success("Check your Email for OTP");
       return;
-
-      console.log("Sign Up Successful");
-      console.log("Response", response)
-      Cookies.set("user-token", response.data.token)
-      Cookies.set("userId", response.data.data._id)
-      Cookies.set("photourl", response.data.data?.image)
-      Cookies.set("photoType", "dummy")
-
-
-      router.push("/")
     } catch (error) {
-      if (error?.status === 409) {
-        toast.error(error?.response?.data?.message || "Something went wrong");
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      } else {
+        toast.error("Something went wrong");
       }
       console.log("SignUp failed", error);
     }
@@ -141,6 +175,41 @@ export default function SignupFormDemo() {
         </p>
 
         <form className="my-8 w-full" onSubmit={handleSubmit}>
+          <div className="mb-6 flex justify-center">
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="image"
+              className="w-24 h-24 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center cursor-pointer border border-dashed border-neutral-400 dark:border-neutral-600 overflow-hidden"
+            >
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Selected profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs text-neutral-600 dark:text-neutral-400 text-center px-2">
+                  Tap to upload
+                </span>
+              )}
+            </label>
+          </div>
+          <LabelInputContainer className="mb-4">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              id="username"
+              placeholder="tylerdurden"
+              type="text"
+            />
+          </LabelInputContainer>
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
             <LabelInputContainer>
               <Label htmlFor="firstname">First name</Label>
@@ -217,7 +286,7 @@ export default function SignupFormDemo() {
           </div>
         </form>
       </div>
-      <OTPModal open={openOTP} setOpen={setOpenOTP} email={email} router={router} />
+      <OTPModal open={openOTP} setOpen={setOpenOTP} email={email} router={router} dispatch={dispatch} />
     </>
   );
 };
@@ -245,7 +314,7 @@ const LabelInputContainer = ({
   );
 };
 
-const OTPModal = ({ open, setOpen, email, router }) => {
+const OTPModal = ({ open, setOpen, email, router, dispatch }) => {
 
   const [otp, setOtp] = useState("");
   const [loader, setLoader] = useState(false);
@@ -259,15 +328,25 @@ const OTPModal = ({ open, setOpen, email, router }) => {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
       console.log("response", response);
 
-      Cookies.set("user-token", response.data.token)
-      Cookies.set("userId", response.data.data._id)
-      Cookies.set("photourl", response.data.data?.image)
+      dispatch(updateUserLoggedIn(true));
+      dispatch(updateUserToken(response.data.token));
+
+      Cookies.set("user-token", response.data.token);
+      Cookies.set("userId", response.data.data._id);
+
+      if (response.data.data?.image) {
+        Cookies.set("photourl", response.data.data.image);
+        Cookies.set("photoType", "backend");
+      } else {
+        Cookies.remove("photourl");
+        Cookies.set("photoType", "dummy");
+      }
+
       localStorage.setItem("userEmail", response.data.data.email);
       localStorage.setItem("userFullName", response.data.data.fullName || "");
       localStorage.setItem("userUsername", response.data.data.username || "");
-      Cookies.set("photoType", "dummy")
 
-
+      setOpen(false);
       router.push("/")
 
     } catch (error) {
