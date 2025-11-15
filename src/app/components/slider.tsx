@@ -9,12 +9,15 @@ import "slick-carousel/slick/slick-theme.css";
 export function ImagesSliderDemo() {
   // For demonstration, using the same image three times
   const images = [
-    "/slider1.jpg",
-    "/st.jpg",
-    "/banner-2.jpg",
-    "/banner-4.jpg",
-    "/banner-5.jpg",
-    "/banner-6.jpg",
+    // "/slider1.jpg",
+    // "/st.jpg",
+    // "/banner-2.jpg",
+    // "/banner-4.jpg",
+    // "/banner-5.jpg",
+    // "/banner-6.jpg",
+    "/new_banner_1.jpeg",
+    "/new_banner_2.jpeg",
+    "/new_banner_3.jpeg",
   ];
 
   // Create a reference to the slider
@@ -26,7 +29,7 @@ export function ImagesSliderDemo() {
       if (sliderRef) {
         sliderRef.slickNext();
       }
-    }, 2500);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [sliderRef]);

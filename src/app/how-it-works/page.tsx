@@ -61,7 +61,7 @@ export default function HowItWorks() {
         {
             icon: <BadgeEuro size={36} className="text-[colors.vintedPurple]" />,
             title: 'Checkout',
-            description: 'Pay securely using Vinted’s protected checkout system.',
+            description: 'Pay securely using Affare Doro protected checkout system.',
         },
         {
             icon: <ShieldCheck size={36} className="text-[colors.vintedBlue]" />,
@@ -73,13 +73,13 @@ export default function HowItWorks() {
     const shippingSteps = [
         {
             icon: <Send size={36} className="text-[colors.vintedPink]" />,
-            title: 'Shipping Made Easy',
-            description: 'Use pre-paid labels, just print and ship from nearby drop-offs.',
+            title: 'Place Your Order',
+            description: 'Provide your shipping information during checkout.',
         },
         {
             icon: <Truck size={36} className="text-[colors.vintedGreen]" />,
-            title: 'Track Your Package',
-            description: 'Follow your item every step of the way with real-time tracking.',
+            title: 'Next-Day Delivery',
+            description: 'After order approval, we provide next-day delivery service.',
         },
     ];
 
@@ -108,7 +108,7 @@ export default function HowItWorks() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="bg-white p-6 rounded-xl shadow-lg border group hover:shadow-xl transition duration-300 text-center relative"
+                        className="bg-white p-6 rounded-xl shadow-lg border group hover:shadow-xl transition duration-300 text-center relative flex flex-col items-center justify-center min-h-[220px]"
                     >
                         <div
                             className={`absolute inset-0 bg-gradient-to-r from-[colors.vintedGreen] to-[colors.vintedBlue] opacity-20 rounded-xl group-hover:opacity-30 transition duration-300`}

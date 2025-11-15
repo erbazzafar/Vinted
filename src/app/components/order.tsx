@@ -599,7 +599,7 @@ export default function MyOrders() {
                       Track Order
                     </button>
                     {/* Show Return Order button only if order can be returned */}
-                    {canReturnOrder(order) && (
+                    {!order.correctOrder && canReturnOrder(order) && (
                       <button
                         onClick={() => handleReturnOrder(order)}
                         className="px-3 py-2 border-white bg-orange-600 text-white rounded-md hover:bg-orange-500 cursor-pointer shadow-lg w-full sm:w-auto"

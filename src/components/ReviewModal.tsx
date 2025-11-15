@@ -6,6 +6,8 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 interface ReviewModalProps {
     isOpen: boolean;
@@ -24,6 +26,10 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
     const [reviewExists, setReviewExists] = useState(false);
     const [existingReviewData, setExistingReviewData] = useState<any>(null);
     const [isCheckingReview, setIsCheckingReview] = useState(false);
+    const [initialChoice, setInitialChoice] = useState<'pending' | 'ok' | 'issue'>('pending');
+    const [isUpdatingOrderStatus, setIsUpdatingOrderStatus] = useState(false);
+    const [canReturn, setCanReturn] = useState<boolean>(false);
+    const router = useRouter();
 
     const handleStarClick = (starValue: number) => {
         setRating(starValue);
@@ -63,11 +69,19 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
                 } else {
                     setReviewExists(false);
                     setExistingReviewData(null);
+                    // Set canReturn from backend response
+                    const canReturnValue = response.data.canReturn || false;
+                    setCanReturn(canReturnValue);
+                    // If canReturn is false, automatically show review form
+                    if (!canReturnValue) {
+                        setInitialChoice('ok');
+                    }
                 }
             } catch (error) {
                 console.error('Error checking review existence:', error);
                 // If check fails, allow user to proceed
                 setReviewExists(false);
+                setCanReturn(false);
             } finally {
                 setIsCheckingReview(false);
             }
@@ -75,6 +89,13 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
 
         checkReviewExists();
     }, [isOpen, orderId, sellerId, reviewerId]);
+
+    // Reset intro step when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setInitialChoice('pending');
+        }
+    }, [isOpen]);
 
     const handleSubmit = async () => {
         if (rating === 0) {
@@ -140,6 +161,51 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
         setHoveredStar(0);
         setReviewExists(false);
         setExistingReviewData(null);
+        setInitialChoice('pending');
+        setCanReturn(false);
+        onClose();
+    };
+
+    const handleEverythingOk = async () => {
+        // Mark order as correct, then proceed to review
+        if (!orderId) {
+            setInitialChoice('ok');
+            return;
+        }
+        setIsUpdatingOrderStatus(true);
+        try {
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/order/update/${orderId}`,
+                { correctOrder: true },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            toast.error('Failed to update order status. You can still continue.');
+        } finally {
+            setIsUpdatingOrderStatus(false);
+            setInitialChoice('ok');
+        }
+    };
+
+    const handleIssueClick = () => {
+        if (!orderId) {
+            toast.error('Order ID missing');
+            return;
+        }
+        const cookieUserId = Cookies.get('userId') || null;
+        if (!cookieUserId) {
+            toast.error('Please log in to continue');
+            router.push('/login');
+            onClose();
+            return;
+        }
+        if (reviewerId && cookieUserId !== reviewerId) {
+            toast.error('Please log in with that account which you used to place the order');
+            onClose();
+            return;
+        }
+        router.push(`/return-order?orderId=${orderId}`);
         onClose();
     };
 
@@ -161,14 +227,38 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
                 {/* Header */}
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                        {reviewExists ? 'Review Already Submitted' : 'Rate Your Experience'}
+                        {reviewExists
+                            ? 'Review Already Submitted'
+                            : initialChoice === 'issue'
+                                ? 'Report an Issue'
+                                : 'Rate Your Experience'}
                     </h2>
-                    {sellerName && (
-                        <p className="text-gray-600">
-                            Review for <span className="font-semibold">{sellerName}</span>
-                        </p>
-                    )}
                 </div>
+
+                {/* Intro Step - Show only if canReturn is true */}
+                {!isCheckingReview && !reviewExists && initialChoice === 'pending' && canReturn && (
+                    <div className="">
+                        <div className="space-y-3">
+                            <p className="text-sm text-gray-600 my-4">
+                                If the product matches its description, click "Everything is Ok".
+                                Otherwise, click "I have an issue" and tell us what went wrong.
+                            </p>
+                            <button
+                                onClick={handleEverythingOk}
+                                disabled={isUpdatingOrderStatus}
+                                className={`w-full cursor-pointer px-4 py-3 rounded-md text-white transition-colors ${isUpdatingOrderStatus ? 'bg-gray-300 cursor-not-allowed' : 'bg-[#1B1B1B] hover:bg-[#222222]'}`}
+                            >
+                                {isUpdatingOrderStatus ? 'Please wait...' : 'Everything is Ok'}
+                            </button>
+                            <button
+                                onClick={handleIssueClick}
+                                className="w-full cursor-pointer px-4 py-3 border border-gray-300 rounded-md text-gray-800 hover:bg-gray-50 transition-colors"
+                            >
+                                I have an issue
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Loading State */}
                 {isCheckingReview && (
@@ -238,7 +328,7 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
                 )}
 
                 {/* New Review Form */}
-                {!isCheckingReview && !reviewExists && (
+                {!isCheckingReview && !reviewExists && initialChoice !== 'pending' && (
                     <>
                         {/* Star Rating */}
                         <div className="mb-6">
@@ -278,12 +368,12 @@ const ReviewModal = ({ isOpen, onClose, sellerId, reviewerId, orderId, sellerNam
                         {/* Description */}
                         <div className="mb-6">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Description (Optional)
+                                {'Description (Optional)'}
                             </label>
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Share your experience with this seller..."
+                                placeholder={'Share your experience with this seller...'}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 rows={4}
                                 maxLength={500}
