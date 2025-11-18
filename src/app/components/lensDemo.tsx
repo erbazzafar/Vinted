@@ -146,12 +146,16 @@ const ProductCard = ({ product }: { product: Product }) => {
 
 const ProductList = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getSellerProducts = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll?website=true&reserved=show`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll/paginated?website=true&reserved=show&page=1&limit=20`
         );
 
         if (response.status !== 200) {
@@ -160,14 +164,43 @@ const ProductList = () => {
         }
 
         setProducts(response.data.data);
+        setHasMore(response.data.pagination?.hasMore || false);
+        setPage(1);
       } catch (error) {
         toast.error("Error fetching the products");
         console.error("Error fetching the products", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     getSellerProducts();
   }, []);
+
+  const loadMore = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    try {
+      const nextPage = page + 1;
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/viewAll/paginated?website=true&reserved=show&page=${nextPage}&limit=20`
+      );
+
+      if (response.status === 200) {
+        setProducts((prevProducts) => [...prevProducts, ...response.data.data]);
+        setHasMore(response.data.pagination?.hasMore || false);
+        setPage(nextPage);
+      } else {
+        toast.error("Error loading more products");
+      }
+    } catch (error) {
+      toast.error("Error loading more products");
+      console.error("Error loading more products", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="lg:px-[50px] container mx-auto px-3 max-w-screen-2xl mb-6">
@@ -182,6 +215,18 @@ const ProductList = () => {
               <ProductCard key={product._id || index} product={product} />
             ))}
           </div>
+
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={loadMore}
+                disabled={loading}
+                className="px-4 text-sm py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Loading..." : "Load More"}
+              </button>
+            </div>
+          )}
         </>
       ) : null}
     </div>

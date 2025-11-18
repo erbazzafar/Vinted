@@ -7,7 +7,7 @@ function Page() {
       {/* Background Beams */}
 
       {/* Signup Form */}
-      <div className="absolute ">
+      <div className="my-[25px] sm:my-[50px] mx-[15px]">
         <SignupFormDemo />
       </div>
     </div>

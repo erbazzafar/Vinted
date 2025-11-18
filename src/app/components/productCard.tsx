@@ -686,9 +686,9 @@ const ProductCard = () => {
 
   return (
 
-    <div className="relative max-w-4xl mx-auto shadow-lg rounded-lg bg-white p-6 mb-15">
+    <div className="relative max-w-4xl mx-auto shadow-lg rounded-lg bg-white my-[10px] pb-4 sm:p-6 mb-15">
       {/* Image Upload */}
-      <div className="relative w-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded-lg p-5 ">
+      <div className="relative border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded-lg p-5 mx-4">
         <p className="text-gray-600 text-[11px] mb-3 font-medium">
           Upload Product Images LIMIT: 15
           <span
@@ -785,7 +785,7 @@ const ProductCard = () => {
       </div>
 
       {/* Product Details */}
-      <div className="mt-8 space-y-4">
+      <div className="mt-[15px] sm:mt-[30px] space-y-1">
         {/* Product Title */}
         <div className="p-4 ">
           <label className="block text-gray-600 font-medium mb-1">Product Title</label>
@@ -1167,7 +1167,7 @@ const ProductCard = () => {
       {/* Upload Button */}
       <button
         onClick={handleUploadProduct}
-        className="text-xl mt-6 w-full bg-gray-800 text-white py-3 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 cursor-pointer"
+        className="text-xl my-4 mx-[15px] px-[15px] bg-gray-800 text-white py-3 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 cursor-pointer"
       >
         {isUpload ? (productId ? "Updating..." : "Uploading...") : (productId ? "Update Product" : "Upload Product")}
       </button>

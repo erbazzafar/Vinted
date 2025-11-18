@@ -278,6 +278,7 @@ const Navbar = () => {
             width={100}
             height={50}
             unoptimized
+            className="md:w-[100px] md:h-[80px] w-[70px] h-[55px] object-contain ms-1 md:ms-0"
           />
         </Link>
 
@@ -486,24 +487,24 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center gap-4">
+        <div className="md:hidden flex items-center gap-1.5">
           {isLoggedIn ? (
             <>
               {/* Inbox and Wishlist Icons */}
-              <Link href={`/inbox/${id}`} className="p-2">
-                <Inbox size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+              <Link href={`/inbox/${id}`} className="p-1.5">
+                <Inbox size={20} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
               </Link>
-              <Link href="/wishlist" className="p-2">
-                <Heart size={25} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
+              <Link href="/wishlist" className="p-1.5">
+                <Heart size={20} className="text-gray-900 dark:text-white hover:text-gray-900 transition" />
               </Link>
 
               {/* Notification Bell for Mobile */}
               <div className="relative" ref={notifRef}>
                 <button
-                  className="p-2 rounded-lg flex items-center gap-2 relative cursor-pointer"
+                  className="p-1.5 rounded-lg flex items-center gap-2 relative cursor-pointer"
                   onClick={() => setIsNotifOpen(!isNotifOpen)}
                 >
-                  <Bell size={25} className="text-gray-700 dark:text-white" />
+                  <Bell size={20} className="text-gray-700 dark:text-white" />
                   {notifications.length > 0 && (
                     <span className="absolute top-0 right-0 bg-red-400 text-white text-xs px-2 py-1 rounded-full">
                       {notifications.length}
@@ -560,7 +561,7 @@ const Navbar = () => {
               {/* Profile Dropdown for Mobile */}
               <div className="relative" ref={dropdownRef}>
                 <button
-                  className="p-2 rounded-lg cursor-pointer"
+                  className="p-1.5 rounded-lg cursor-pointer"
                   onClick={() => setIsOpen(!isOpen)}
                 >
                   <Image
@@ -607,6 +608,14 @@ const Navbar = () => {
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* Sell Now Button for Mobile */}
+              <button
+                onClick={handleSellNowClick}
+                className="text-[11px] bg-gray-800 text-white px-3 py-1.5 mr-1 rounded-lg transition duration-300 cursor-pointer hover:bg-gray-600 ml-1"
+              >
+                Sell Now
+              </button>
             </>
           ) : (
             <div className="flex items-center gap-2">
