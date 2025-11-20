@@ -6,9 +6,9 @@ import Image from "next/image";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { DatePicker } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Settings, User, FileText, Camera, PlusCircle, Menu, X, Shield, Banknote } from "lucide-react";
+import { Settings, User, FileText, Camera, PlusCircle, Menu, X, Shield, ShieldCheck, Banknote } from "lucide-react";
 
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -18,11 +18,202 @@ import UserSettings from "@/components/user-settings";
 import UserSettingsTermsCondition from "@/components/user-settings-terms-condition";
 import UserAddBank from "./userAddBank";
 
+const AuthenticityTab = () => {
+  const [records, setRecords] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const token = Cookies.get("user-token");
+
+  const getImageUrl = (imagePath?: string) => {
+    if (!imagePath) return "/imageLogo2.jpg";
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/${imagePath}`;
+  };
+
+  const statusClasses: Record<string, string> = {
+    pending: "bg-gray-100 text-gray-800 border border-gray-200",
+    "in review": "bg-yellow-100 text-yellow-800 border border-yellow-200",
+    authenticated: "bg-green-100 text-green-800 border border-green-200",
+    decline: "bg-red-100 text-red-800 border border-red-200",
+    "not authenticated": "bg-orange-100 text-orange-800 border border-orange-200",
+  };
+
+  const statusLabels: Record<string, string> = {
+    pending: "Pending",
+    "in review": "In Review",
+    authenticated: "Authenticated",
+    decline: "Declined",
+    "not authenticated": "Not Authenticated",
+  };
+
+  const paymentClasses: Record<string, string> = {
+    paid: "bg-emerald-100 text-emerald-800 border border-emerald-200",
+    pending: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+    failed: "bg-red-100 text-red-700 border border-red-200",
+  };
+
+  const fetchAuthenticityRecords = useCallback(async () => {
+    if (!token) {
+      setError("Please log in to view authenticity requests.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/authenticity/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setRecords(response.data?.data || []);
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "Failed to fetch authenticity records.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    fetchAuthenticityRecords();
+  }, [fetchAuthenticityRecords]);
+
+  const renderStatusBadge = (status?: string) => {
+    const normalized = status?.toLowerCase() || "pending";
+    const className = statusClasses[normalized] || statusClasses.pending;
+    const label = statusLabels[normalized] || normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+    return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${className}`}>{label}</span>;
+  };
+
+  const renderPaymentBadge = (status?: string) => {
+    const normalized = status?.toLowerCase() || "pending";
+    const className = paymentClasses[normalized] || "bg-gray-100 text-gray-700 border border-gray-200";
+    const label = normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+    return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${className}`}>{label}</span>;
+  };
+
+  const formatDate = (date?: string) => {
+    if (!date) return "—";
+    return moment(date).format("DD MMM YYYY, hh:mm A");
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">Authenticity Applications</h2>
+          <p className="text-sm text-gray-500">Track the verification status of the products you submitted.</p>
+        </div>
+        <button
+          onClick={fetchAuthenticityRecords}
+          className="cursor-pointer inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition disabled:opacity-60"
+          disabled={loading}
+        >
+          Refresh
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-gray-800" />
+        </div>
+      ) : error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-700">{error}</div>
+      ) : records.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center">
+          <p className="text-lg font-semibold text-gray-900">No authenticity requests yet</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Apply for authenticity from a product page. Your applications will appear here once submitted.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <tr>
+                <th className="px-4 py-3">Product</th>
+                <th className="px-4 py-3">Seller</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Payment</th>
+                <th className="px-4 py-3">Timeline</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {records.map((record) => {
+                const product = record?.productId;
+                const seller = record?.sellerId;
+                const productImage = Array.isArray(product?.image) ? product.image[0] : product?.image;
+                return (
+                  <tr key={record?._id}>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-14 w-14 overflow-hidden rounded-lg border border-gray-200">
+                          <Image
+                            src={getImageUrl(productImage)}
+                            alt={product?.title || "Product image"}
+                            width={56}
+                            height={56}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{product?.title || "Product"}</p>
+                          {product?.price && (
+                            <p className="text-sm text-gray-600">AED {Number(product.totalPrice).toFixed(2)}</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 overflow-hidden rounded-full border border-gray-200">
+                          <Image
+                            src={getImageUrl(seller?.image)}
+                            alt={seller?.username || "Seller image"}
+                            width={40}
+                            height={40}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{seller?.username || seller?.fullName || "—"}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">{renderStatusBadge(record?.status)}</td>
+                    <td className="px-4 py-4">{renderPaymentBadge(record?.paymentStatus)}</td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      <p>Applied: {formatDate(record?.createdAt)}</p>
+                      {record?.updatedAt && <p>Updated: {formatDate(record.updatedAt)}</p>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const pages = [
   { name: "Profile", icon: User },
   {
     name: "KYC", icon: Shield, content: () => (
       <KfcSetting />
+    )
+  },
+  {
+    name: "Authenticity", icon: ShieldCheck, content: () => (
+      <AuthenticityTab />
     )
   },
   {

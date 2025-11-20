@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { MessageCircle, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import SellerButton from "../components/routeSellerButton";
 import ProductCarousel from "../components/productCorousel";
+import AuthenticityModal from "../components/authenticityModal";
 
 const ProductPage = () => {
   const [showCarousel, setShowCarousel] = useState(false);
@@ -30,40 +31,41 @@ const ProductPage = () => {
   const { id: productId } = useParams()
   console.log("product id: ", productId)
 
-  useEffect(() => {
-    const fetchingProduct = async () => {
-      try {
-        if (!productId) {
-          toast.error("Product id not Found")
-          return
-        }
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        )
-        if (response.status !== 200) {
-          toast.error("Error fetching the Product, please try later")
-          return
-        }
-        console.log("Fetching product response: ", response);
-        setGettingProduct(response.data.data)
-        setBump(response.data.data.bump)
-        setBumpDayCheck(response.data.data.bumpDay)
-        setHidden(response.data.data.hidden)
-        setSold(response.data.data.sold)
-        setReserved(response.data.data.reserved)
-
-
-      } catch (error) {
-        console.log("Error fetching that Product");
+  const fetchProductDetails = useCallback(async () => {
+    try {
+      if (!productId) {
+        toast.error("Product id not Found")
         return
       }
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product/get/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      if (response.status !== 200) {
+        toast.error("Error fetching the Product, please try later")
+        return
+      }
+      console.log("Fetching product response: ", response);
+      setGettingProduct(response.data.data)
+      setBump(response.data.data.bump)
+      setBumpDayCheck(response.data.data.bumpDay)
+      setHidden(response.data.data.hidden)
+      setSold(response.data.data.sold)
+      setReserved(response.data.data.reserved)
+
+
+    } catch (error) {
+      console.log("Error fetching that Product");
+      return
     }
-    fetchingProduct()
-  }, [productId])
+  }, [productId, token])
+
+  useEffect(() => {
+    fetchProductDetails()
+  }, [fetchProductDetails])
 
   const [mainImage, setMainImage] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -142,6 +144,9 @@ const ProductPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  // Authenticity modal state
+  const [isAuthenticityModalOpen, setIsAuthenticityModalOpen] = useState(false);
 
   useEffect(() => {
     const getBump = async () => {
@@ -985,9 +990,23 @@ const ProductPage = () => {
               </>
             ) : (
               <>
+                {/* Apply for Authenticity */}
+                {gettingProduct?.price > 599 && (
+                  <button
+                    className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
+                      ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                      : "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer hover:border border-teal-800"
+                      }`}
+                    onClick={reserve || sold ? undefined : !loggedInUser ? () => toast.error("Please login first") : () => setIsAuthenticityModalOpen(true)}
+                    disabled={reserve || sold}
+                  >
+                    Apply for Authenticity
+                  </button>
+                )}
+
                 {/* Buy Now */}
                 <button
-                  className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
+                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
                     ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                     : "bg-gray-800 text-white hover:bg-gray-300 hover:text-gray-950 cursor-pointer hover:border border-gray-600"
                     }`}
@@ -1025,6 +1044,17 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Authenticity Modal */}
+      <AuthenticityModal
+        open={isAuthenticityModalOpen}
+        onClose={() => setIsAuthenticityModalOpen(false)}
+        productId={productId as string}
+        sellerId={gettingProduct?.userId?._id}
+        productTitle={gettingProduct?.title}
+        sellerName={gettingProduct?.userId?.username || gettingProduct?.userId?.fullName}
+        onPaymentCompleted={fetchProductDetails}
+      />
 
       {/* Related Products */}
       <div className="mt-12">

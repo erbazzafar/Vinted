@@ -10,6 +10,7 @@ import Modal from "@mui/material/Modal";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { useSearchParams, useRouter } from "next/navigation";
+import ProductTipsModal from "./productTipsModal";
 
 interface Category {
   _id: string;
@@ -660,12 +661,6 @@ const ProductCard = () => {
   };
 
   const [showCarousel, setShowCarousel] = useState(false);
-  const dummyImages = [
-    `/comp2.jpg`,
-    `/comp3.jpg`,
-    `/comp4.PNG`,
-    `/comp5.PNG`,
-  ]
 
   const [searchBrand, setSearchBrand] = useState("");
 
@@ -699,48 +694,10 @@ const ProductCard = () => {
           </span>
         </p>
         {/* Tips Modal */}
-        <Modal open={showCarousel} onClose={() => setShowCarousel(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-[90%] md:w-[500px] max-w-xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999]">
-
-            {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Photo Hints</h2>
-              <button onClick={() => setShowCarousel(false)} className="cursor-pointer text-gray-500 hover:text-red-500 text-xl font-bold">
-                &times;
-              </button>
-            </div>
-
-            {/* Tip Text */}
-            <p className="text-gray-600 text-sm mb-3">
-              📸 Take photos in a well-lit area. Bright daylight is best.
-            </p>
-
-            {/* Carousel */}
-            <Carousel
-              responsive={{
-                all: { breakpoint: { max: 4000, min: 0 }, items: 1 },
-              }}
-              infinite
-              autoPlay={false}
-              keyBoardControl
-              showDots
-              arrows
-            >
-              {dummyImages.map((image, index) => (
-                <div key={index} className="w-full h-[250px] flex justify-center items-center">
-                  <Image
-                    src={image}
-                    alt={`Product ${index}`}
-                    width={350}
-                    height={250}
-                    unoptimized
-                    className="rounded-lg object-contain max-h-[250px]"
-                  />
-                </div>
-              ))}
-            </Carousel>
-          </div>
-        </Modal>
+        <ProductTipsModal
+          open={showCarousel}
+          onClose={() => setShowCarousel(false)}
+        />
 
         {/* Dynamic Grid Layout */}
         <div className="grid grid-cols-3 md:grid-cols-5 gap-4 w-full">
