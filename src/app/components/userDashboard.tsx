@@ -164,7 +164,7 @@ const AuthenticityTab = () => {
                           />
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">{product?.title || "Product"}</p>
+                          <p className="font-semibold text-gray-900">{product?.name || "Product"}</p>
                           {product?.price && (
                             <p className="text-sm text-gray-600">AED {Number(product.totalPrice).toFixed(2)}</p>
                           )}
