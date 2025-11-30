@@ -1,12 +1,13 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft } from "lucide-react";
+import { UploadCloud, X, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { motion, AnimatePresence, color } from "framer-motion"
 import { toast } from "sonner"
 import axios from "axios";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -221,6 +222,27 @@ const ProductCard = () => {
 
   useEffect(() => {
     fetchCategories();
+  }, []);
+
+  {/*Bump Days Fetching API Call */}
+  useEffect(() => {
+    const getBump = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/bump/viewAll`);
+
+        if (response.status !== 200) {
+          toast.error("Error fetching the bump prices");
+          return;
+        }
+
+        setBumpDays(response.data.data);
+      } catch (error) {
+        console.log("Error fetching the Bump Prices", error);
+        toast.error("Error fetching the Bump Prices");
+      }
+    };
+
+    getBump();
   }, []);
 
   {/*Product Size Fetching API Call */ }
@@ -549,6 +571,9 @@ const ProductCard = () => {
         return;
       }
 
+      // Set loading state at the start of API call
+      setIsUpload(true);
+
       // 🟢 Convert Data to FormData
       const formData = new FormData();
       formData.append("name", title);
@@ -604,7 +629,7 @@ const ProductCard = () => {
           }
         )
       } else {
-        response = axios.put(
+        response = await axios.put(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/product/update/${productId}`,
           formData,
           {
@@ -616,11 +641,22 @@ const ProductCard = () => {
       }
 
       if (response.status !== 200) {
+        setIsUpload(false);
         toast.error("Error uploading product, please try again later.");
         return;
       }
 
-      setIsUpload(true);
+      const newProductId = response.data?.data?._id || null;
+      
+      // If it's a new product and user wants to bump, open bump modal
+      if (!productId && wantToBump && newProductId) {
+        setCreatedProductId(newProductId);
+        setIsUpload(false);
+        setIsBumpModalOpen(true);
+        // Don't clear form or redirect yet - wait for bump selection
+        return;
+      }
+
       setTimeout(() => {
         setIsUpload(false);
         setImages([]);
@@ -643,8 +679,9 @@ const ProductCard = () => {
         setSelectedMaterial([]);
         setIsMaterialOpen(false);
         setIsColorOpen(false);
-        setIsUpload(false);
         setIsPackageSizeOpen(false);
+        setWantToBump(false);
+        setCreatedProductId(null);
 
         toast.success("Product uploaded successfully!");
       }, 1000);
@@ -653,6 +690,7 @@ const ProductCard = () => {
 
 
     } catch (error) {
+      setIsUpload(false);
       toast.error("Error uploading product, please try again later.");
       console.log("Error uploading product: ", error);
       return
@@ -663,6 +701,49 @@ const ProductCard = () => {
   const [showCarousel, setShowCarousel] = useState(false);
 
   const [searchBrand, setSearchBrand] = useState("");
+
+  // Bump functionality states
+  const [wantToBump, setWantToBump] = useState(false);
+  const [isBumpModalOpen, setIsBumpModalOpen] = useState(false);
+  const [bumpDays, setBumpDays] = useState<Array<{ _id: string; day: string; percentage: string }>>([]);
+  const [selectedBumpDays, setSelectedBumpDays] = useState<{ _id: string; day: string; percentage: string } | null>(null);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
+
+  const handleBump = async (selectedDays: string) => {
+    if (!createdProductId) {
+      toast.error("Product ID not found");
+      return;
+    }
+    localStorage.setItem("bumpDays", selectedDays);
+    localStorage.setItem("percentage", selectedBumpDays?.percentage || "");
+    
+    // Clear form and redirect
+    setImages([]);
+    setTitle("");
+    setSelectedQuality("");
+    setSelectedBrand("");
+    setSelectedPackageSize("");
+    setSelectedSize("");
+    setIsSizeOpen(false);
+    setPath([]);
+    setIsOpen(false);
+    setIsBrandOpen(false);
+    setQuality([]);
+    setSelectedQuality("");
+    setSelectedBrand("");
+    setPackageSize([]);
+    setPrice("");
+    setDescription("");
+    setSelectedColors([]);
+    setSelectedMaterial([]);
+    setIsMaterialOpen(false);
+    setIsColorOpen(false);
+    setIsPackageSizeOpen(false);
+    setWantToBump(false);
+    setCreatedProductId(null);
+    
+    router.push(`/bump?id=${createdProductId}`);
+  };
 
   const filteredSortedBrands = useMemo(() => {
     const filtered = brand.filter((b) => b.name.toLowerCase().includes(searchBrand.toLowerCase()));
@@ -764,6 +845,14 @@ const ProductCard = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+        </div>
+
+        {/* Authenticity Note */}
+        <div className="mx-4 mb-2 p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+          <p className="text-gray-700 text-sm">
+            <span className="font-semibold text-amber-800">Note:</span>{" "}
+            If you select a <b>designer category</b> and the product price is above <b>600 AED</b>, the <b>authenticity verification</b> will be applied. Please ensure your product images are <b>clear</b> and detailed as described in the <b>photo tips</b>, so they can be easily authenticated by our experts.
+          </p>
         </div>
 
         {/* Product Category */}
@@ -1111,23 +1200,174 @@ const ProductCard = () => {
         {/* Product Price */}
         <div className="p-4  rounded-lg ">
           <label className="block text-gray-600 font-medium mb-1">Product Price</label>
-          <input
-            type="text"
-            placeholder="Enter product price"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+              <Image
+                src="/dirhamlogo.png"
+                alt="AED"
+                width={20}
+                height={20}
+                unoptimized
+                className="object-contain"
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Enter product price"
+              className="w-full p-3 pl-10 border rounded-lg focus:ring-2 focus:ring-gray-300 outline-none"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
         </div>
       </div>
+
+      {/* Bump Checkbox - Only show when creating new product */}
+      {!productId && (
+        <div className="mx-[15px] mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={wantToBump}
+              onChange={(e) => setWantToBump(e.target.checked)}
+              className="w-5 h-5 text-gray-800 border-gray-300 rounded focus:ring-gray-500 cursor-pointer"
+            />
+            <span className="text-gray-700 font-medium">
+              Boost product visibility with bump (optional)
+            </span>
+          </label>
+          <p className="text-sm text-gray-500 mt-2 ml-8">
+            Select a bump duration after product upload to increase visibility. A small fee applies.
+          </p>
+        </div>
+      )}
 
       {/* Upload Button */}
       <button
         onClick={handleUploadProduct}
-        className="text-xl my-4 mx-[15px] px-[15px] bg-gray-800 text-white py-3 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 cursor-pointer"
+        disabled={isUpload}
+        className={`text-xl my-4 mx-[15px] px-[15px] bg-gray-800 text-white py-3 rounded-lg shadow-md transition duration-300 flex items-center justify-center gap-2 ${isUpload
+          ? "opacity-70 cursor-not-allowed"
+          : "hover:bg-gray-600 cursor-pointer"
+          }`}
       >
+        {isUpload && <Loader2 className="animate-spin" size={20} />}
         {isUpload ? (productId ? "Updating..." : "Uploading...") : (productId ? "Update Product" : "Upload Product")}
       </button>
+
+      {/* Bump Modal */}
+      <Modal open={isBumpModalOpen} onClose={() => setIsBumpModalOpen(false)}>
+        <Box className="bg-white rounded-lg shadow-lg w-full max-w-[560px] max-h-[75vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+            <div>
+              <h2 className="text-[16px] font-semibold text-gray-900">Boost your product visibility</h2>
+              <p className="text-[12px] text-gray-600 mt-1">Choose a bump duration. The fee is a small percentage of your price.</p>
+            </div>
+            <button
+              aria-label="Close"
+              className="cursor-pointer text-gray-500 hover:text-gray-800"
+              onClick={() => setIsBumpModalOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="px-6 py-5 space-y-5">
+            {/* Options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {Array.isArray(bumpDays) && bumpDays?.map((option) => {
+                const isSelected = selectedBumpDays?.day === option.day;
+                const basePrice = Number(price || 0);
+                const fee = ((Number(option.percentage) / 100) * basePrice);
+                return (
+                  <button
+                    key={option._id}
+                    className={`cursor-pointer text-left rounded-lg border transition-colors duration-200 px-4 py-3 focus:outline-none ${isSelected ? "border-gray-900 bg-gray-100" : "border-gray-300 bg-white hover:bg-gray-50"}`}
+                    onClick={() => setSelectedBumpDays(option)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-[14px] font-semibold text-gray-900">{option.day} days</p>
+                        <p className="text-[12px] text-gray-600 mt-1">Fee {Number(option.percentage).toFixed(0)}%</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 justify-end text-[14px] font-semibold text-gray-900">
+                          <Image src="/dirhamlogo.png" alt="dirham" height={16} width={16} unoptimized />
+                          <span>{fee.toFixed(2)}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-500">Bump fee</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Summary: show only selected bump price */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-white">
+              <h3 className="text-[13px] font-semibold text-gray-900 mb-3">Bump price</h3>
+              <div className="flex items-center justify-between text-[13px] text-gray-700">
+                <span>{selectedBumpDays ? `${selectedBumpDays.day}-day bump (${Number(selectedBumpDays.percentage).toFixed(0)}%)` : "Select a bump duration"}</span>
+                <div className="flex items-center gap-1 text-gray-900 font-medium">
+                  <Image src="/dirhamlogo.png" alt="dirham" height={16} width={16} unoptimized />
+                  <span>{selectedBumpDays ? ((Number(selectedBumpDays.percentage) / 100) * Number(price || 0)).toFixed(2) : "—"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3">
+              <button
+                className="cursor-pointer bg-gray-200 text-[13px] text-gray-900 px-4 py-2 rounded hover:bg-gray-300"
+                onClick={() => {
+                  setIsBumpModalOpen(false);
+                  setSelectedBumpDays(null);
+                  // Clear form and redirect to seller page
+                  setImages([]);
+                  setTitle("");
+                  setSelectedQuality("");
+                  setSelectedBrand("");
+                  setSelectedPackageSize("");
+                  setSelectedSize("");
+                  setIsSizeOpen(false);
+                  setPath([]);
+                  setIsOpen(false);
+                  setIsBrandOpen(false);
+                  setQuality([]);
+                  setSelectedQuality("");
+                  setSelectedBrand("");
+                  setPackageSize([]);
+                  setPrice("");
+                  setDescription("");
+                  setSelectedColors([]);
+                  setSelectedMaterial([]);
+                  setIsMaterialOpen(false);
+                  setIsColorOpen(false);
+                  setIsPackageSizeOpen(false);
+                  setWantToBump(false);
+                  setCreatedProductId(null);
+                  router.push(`/seller/${id}`);
+                }}
+              >
+                Skip
+              </button>
+              <button
+                disabled={!selectedBumpDays}
+                className={`cursor-pointer text-[13px] px-4 py-2 rounded ${!selectedBumpDays ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-gray-900 text-white hover:bg-gray-800"}`}
+                onClick={async () => {
+                  if (!selectedBumpDays) return;
+                  await handleBump(selectedBumpDays.day);
+                  setIsBumpModalOpen(false);
+                }}
+              >
+                {selectedBumpDays ? `Confirm ${selectedBumpDays.day}-day Bump` : "Select a duration"}
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };

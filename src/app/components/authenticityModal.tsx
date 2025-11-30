@@ -298,12 +298,18 @@ const AuthenticityModal = ({
                     {/* Content */}
                     <div className="px-6 py-5 space-y-4">
                         {/* Description */}
-                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <p className="text-[15px] text-gray-700 leading-relaxed text-justify">
-                                We will <strong>verify</strong> <strong>{productTitle || "this product"}</strong> with the <strong>brand</strong> to
-                                confirm whether it is authentic. For this service, a <strong>payment of AED 100 will be charged</strong>, and the item
-                                will be <strong>reserved for you</strong>. Once we receive the <strong>brand&apos;s certificate</strong>, it will be sent
-                                to your email. After that, You can <strong>contact with seller</strong> on chat to <strong>unreserved</strong> the product.
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-3">
+                            <p className="text-[15px] text-gray-700 leading-relaxed">
+                                We will verify <strong>{productTitle || "this product"}</strong> using <strong>AI analysis and expert review</strong> to confirm its authenticity.
+                            </p>
+                            <p className="text-[15px] text-gray-700 leading-relaxed">
+                                The service costs <strong>AED 100</strong>, and the item will be <strong>reserved for you during the verification process</strong>.
+                            </p>
+                            <p className="text-[15px] text-gray-700 leading-relaxed">
+                                Once verification is complete, you will receive the <strong>result by email</strong>.
+                            </p>
+                            <p className="text-[15px] text-gray-700 leading-relaxed">
+                                After receiving the verification result, you can <strong>contact the seller</strong> to <strong>unlock the reservation</strong> and proceed with the purchase.
                             </p>
                         </div>
 

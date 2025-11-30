@@ -991,18 +991,20 @@ const ProductPage = () => {
             ) : (
               <>
                 {/* Apply for Authenticity */}
-                {gettingProduct?.price > 599 && (
-                  <button
-                    className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
-                      ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                      : "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer hover:border border-teal-800"
-                      }`}
-                    onClick={reserve || sold ? undefined : !loggedInUser ? () => toast.error("Please login first") : () => setIsAuthenticityModalOpen(true)}
-                    disabled={reserve || sold}
-                  >
-                    Apply for Authenticity
-                  </button>
-                )}
+                {gettingProduct?.categoryId?.[0]?._id === process.env.NEXT_PUBLIC_DESIGNER_ID &&
+                  gettingProduct?.price >= 600 &&
+                  !gettingProduct?.authenticity && (
+                    <button
+                      className={`text-[16px] font-[600] mt-5 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
+                        ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                        : "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer hover:border border-teal-800"
+                        }`}
+                      onClick={reserve || sold ? undefined : !loggedInUser ? () => toast.error("Please login first") : () => setIsAuthenticityModalOpen(true)}
+                      disabled={reserve || sold}
+                    >
+                      Apply for Authenticity
+                    </button>
+                  )}
 
                 {/* Buy Now */}
                 <button
