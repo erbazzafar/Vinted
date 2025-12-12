@@ -61,6 +61,7 @@ export default function UserAddBank() {
         if (!formBank.accountHolderName.trim())
             return toast.error('Account Holder Name is required.')
         if (!formBank.accountNo) return toast.error('Please Enter your account number')
+        if (!formBank.iban || !formBank.iban.trim()) return toast.error('IBAN is required')
         if (!formBank.bankName) return toast.error('Please Enter the Bank Name')
 
         try {
@@ -108,6 +109,14 @@ export default function UserAddBank() {
 
     const editBank = async () => {
         if (!currentBankId) return toast.error('No bank selected to edit')
+        if (!formBank.accountHolderName.trim())
+            return toast.error('Account Holder Name is required.')
+        if (!formBank.accountNo || !formBank.accountNo.trim())
+            return toast.error('Account Number is required')
+        if (!formBank.iban || !formBank.iban.trim())
+            return toast.error('IBAN is required')
+        if (!formBank.bankName || !formBank.bankName.trim())
+            return toast.error('Bank Name is required')
         try {
             const payload = {
                 accountHolderName: formBank.accountHolderName,
@@ -195,10 +204,12 @@ export default function UserAddBank() {
         return (
             <div
                 onClick={onClick}
-                className={`cursor-pointer w-12 h-6 rounded-full flex items-center p-1 transition-colors ${isActive ? 'bg-green-500 justify-end' : 'bg-red-500 justify-start'
+                className={`cursor-pointer w-14 h-7 rounded-full flex items-center p-1 transition-all duration-300 shadow-inner ${isActive
+                    ? 'bg-green-500 justify-end hover:bg-green-600'
+                    : 'bg-gray-300 justify-start hover:bg-gray-400'
                     }`}
             >
-                <div className="w-4 h-4 bg-white rounded-full shadow-md transition-transform" />
+                <div className="w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300" />
             </div>
         )
     }
@@ -209,7 +220,7 @@ export default function UserAddBank() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
                     <p className="text-sm text-gray-600">Manage your withdrawal bank account(s)</p>
                     <button
-                        className="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded flex items-center justify-center gap-2 w-full sm:w-auto"
+                        className="bg-gray-700 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg flex items-center justify-center gap-2 w-full sm:w-auto font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
                         onClick={() => {
                             setFormBank({
                                 accountHolderName: '',
@@ -222,47 +233,50 @@ export default function UserAddBank() {
                             setAddBankModalOpen(true)
                         }}
                     >
-                        Add Withdrawl Bank <PlusCircle className="w-5 h-5" />
+                        <PlusCircle className="w-5 h-5" />
+                        Add Withdrawal Bank
                     </button>
                 </div>
 
                 {withdrawBanks.length === 0 ? (
-                    <div className="p-4 bg-white rounded border text-center text-gray-500">
-                        No bank added yet.
+                    <div className="p-8 bg-white rounded-lg border-2 border-dashed border-gray-300 text-center">
+                        <p className="text-gray-500 text-lg">No bank added yet.</p>
+                        <p className="text-gray-400 text-sm mt-2">Add your first bank account to get started</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white border rounded">
-                            <thead className="bg-gray-100">
+                    <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                        <table className="min-w-full bg-white divide-y divide-gray-200">
+                            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                                 <tr>
-                                    <th className="py-2 px-3 border text-left">#</th>
-                                    <th className="py-2 px-3 border text-left">Account Title</th>
-                                    <th className="py-2 px-3 border text-left">Account No</th>
-                                    <th className="py-2 px-3 border text-left">IBAN</th>
-                                    <th className="py-2 px-3 border text-left">Bank Name</th>
-                                    <th className="py-2 px-3 border text-left">Status</th>
-                                    <th className="py-2 px-3 border text-center">Change Status</th>
-                                    <th className="py-2 px-3 border text-center">Edit</th>
-                                    <th className="py-2 px-3 border text-center">Delete</th>
+                                    <th className="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">#</th>
+                                    <th className="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Account Title</th>
+                                    <th className="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Account No</th>
+                                    <th className="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">IBAN</th>
+                                    <th className="py-4 px-6 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Bank Name</th>
+                                    <th className="py-4 px-6 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                                    <th className="py-4 px-6 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Change Status</th>
+                                    <th className="py-4 px-6 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="bg-white divide-y divide-gray-200">
                                 {withdrawBanks.map((bank, index) => (
-                                    <tr key={bank._id} className="hover:bg-gray-50">
-                                        <td className="py-2 px-3 border">{index + 1}</td>
-                                        <td className="py-2 px-3 border">{bank.accountHolderName}</td>
-                                        <td className="py-2 px-3 border">{bank.accountNo}</td>
-                                        <td className="py-2 px-3 border">{bank.iban}</td>
-                                        <td className="py-2 px-3 border">{bank.bankName}</td>
-                                        <td className="py-2 px-3 border text-center">
+                                    <tr key={bank._id} className="hover:bg-gray-50 transition-colors duration-150">
+                                        <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{bank.accountHolderName}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">{bank.accountNo}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700 font-mono">{bank.iban || '-'}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">{bank.bankName}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap text-center">
                                             <span
-                                                className={`px-2 py-1 font-medium rounded-xl ${bank.bankStatus === 'active' ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'
+                                                className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${bank.bankStatus === 'active'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-red-100 text-red-800'
                                                     }`}
                                             >
-                                                {bank.bankStatus}
+                                                {bank.bankStatus.charAt(0).toUpperCase() + bank.bankStatus.slice(1)}
                                             </span>
                                         </td>
-                                        <td className="py-2 px-3 border text-center">
+                                        <td className="py-4 px-6 whitespace-nowrap text-center">
                                             <div className="flex justify-center">
                                                 <StatusToggle
                                                     status={bank.bankStatus}
@@ -270,19 +284,23 @@ export default function UserAddBank() {
                                                 />
                                             </div>
                                         </td>
-
-                                        <td className="py-2 px-3 border text-center">
-                                            <button onClick={() => openEditModalWithBank(bank)} title="edit">
-                                                <Edit3 size={20} />
-                                            </button>
-                                        </td>
-                                        <td className="py-2 px-3 border text-center">
-                                            <button
-                                                onClick={() => confirmDeleteOrChangeStatus(bank._id || '')}
-                                                title="delete"
-                                            >
-                                                <Trash2 size={20} />
-                                            </button>
+                                        <td className="py-4 px-6 whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center gap-3">
+                                                <button
+                                                    onClick={() => openEditModalWithBank(bank)}
+                                                    title="Edit"
+                                                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-150"
+                                                >
+                                                    <Edit3 size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => confirmDeleteOrChangeStatus(bank._id || '')}
+                                                    title="Delete"
+                                                    className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-150"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -293,117 +311,185 @@ export default function UserAddBank() {
             </div>
 
             {/* Add Bank Modal */}
-            <Modal open={addBankModalOpen} onClose={() => setAddBankModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-96 md:w-[500px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <h2 className="text-lg font-semibold mb-4">Add Bank</h2>
-                    <div className="grid grid-cols-1 gap-3">
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="Account Holder Name"
-                            value={formBank.accountHolderName}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, accountHolderName: e.target.value })
-                            }
-                        />
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="Account Number"
-                            value={formBank.accountNo}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, accountNo: e.target.value })
-                            }
-                        />
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="IBAN"
-                            value={formBank.iban}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, iban: e.target.value })
-                            }
-                        />
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="Bank Name"
-                            value={formBank.bankName}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, bankName: e.target.value })
-                            }
-                        />
-                        {/* Read-only status input */}
-                        <input
-                            className="border p-2 rounded bg-gray-200 cursor-not-allowed"
-                            value="Active"
-                            readOnly
-                        />
-                        <button
-                            className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
-                            onClick={addNewBank}
-                        >
-                            Submit
-                        </button>
+            <Modal
+                open={addBankModalOpen}
+                onClose={() => setAddBankModalOpen(false)}
+                className="flex items-center justify-center"
+            >
+                <Box className="bg-white rounded-xl shadow-2xl w-11/12 sm:w-96 md:w-[500px] max-h-[90vh] overflow-y-auto">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-2xl font-bold text-gray-800">Add Bank Account</h2>
+                        <p className="text-sm text-gray-500 mt-1">Enter your bank details to enable withdrawals</p>
+                    </div>
+                    <div className="p-6 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Account Holder Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                                placeholder="Enter account holder name"
+                                value={formBank.accountHolderName}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, accountHolderName: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Account Number <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                                placeholder="Enter account number"
+                                value={formBank.accountNo}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, accountNo: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                IBAN <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none font-mono"
+                                placeholder="Enter IBAN"
+                                value={formBank.iban}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, iban: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Bank Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                                placeholder="Enter bank name"
+                                value={formBank.bankName}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, bankName: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Status
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg bg-gray-50 cursor-not-allowed text-gray-600"
+                                value="Active"
+                                readOnly
+                            />
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                className="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg hover:bg-gray-800 font-medium transition-colors duration-200 shadow-sm"
+                                onClick={addNewBank}
+                            >
+                                Add Bank
+                            </button>
+                            <button
+                                className="px-4 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition-colors duration-200"
+                                onClick={() => setAddBankModalOpen(false)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </Box>
             </Modal>
 
             {/* Edit Bank Modal */}
-            <Modal open={editBankModalOpen} onClose={() => setEditBankModalOpen(false)}>
-                <Box className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-96 md:w-[500px] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <h2 className="text-lg font-semibold mb-4">Edit Bank</h2>
-                    <div className="grid grid-cols-1 gap-3">
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="Account Holder Name"
-                            value={formBank.accountHolderName}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, accountHolderName: e.target.value })
-                            }
-                        />
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="Account Number"
-                            value={formBank.accountNo}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, accountNo: e.target.value })
-                            }
-                        />
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="IBAN "
-                            value={formBank.iban}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, iban: e.target.value })
-                            }
-                        />
-                        <input
-                            className="border p-2 rounded"
-                            placeholder="Bank Name"
-                            value={formBank.bankName}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, bankName: e.target.value })
-                            }
-                        />
-                        {/* Updated dropdown */}
-                        <select
-                            value={formBank.bankStatus}
-                            onChange={(e) =>
-                                setFormBank({ ...formBank, bankStatus: e.target.value })
-                            }
-                            className="border p-2 rounded w-full"
-                        >
-                            <option value={formBank.bankStatus}>{formBank.bankStatus}</option>
-                            <option value={formBank.bankStatus === 'active' ? 'inactive' : 'active'}>
-                                {formBank.bankStatus === 'active' ? 'Inactive' : 'Active'}
-                            </option>
-                        </select>
-                        <div className="flex flex-col sm:flex-row gap-y-2 sm:gap-y-0 sm:gap-x-4">
+            <Modal
+                open={editBankModalOpen}
+                onClose={() => setEditBankModalOpen(false)}
+                className="flex items-center justify-center"
+            >
+                <Box className="bg-white rounded-xl shadow-2xl w-11/12 sm:w-96 md:w-[500px] max-h-[90vh] overflow-y-auto">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-2xl font-bold text-gray-800">Edit Bank Account</h2>
+                        <p className="text-sm text-gray-500 mt-1">Update your bank account information</p>
+                    </div>
+                    <div className="p-6 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Account Holder Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                                placeholder="Enter account holder name"
+                                value={formBank.accountHolderName}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, accountHolderName: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Account Number <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                                placeholder="Enter account number"
+                                value={formBank.accountNo}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, accountNo: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                IBAN <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none font-mono"
+                                placeholder="Enter IBAN"
+                                value={formBank.iban}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, iban: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Bank Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                                placeholder="Enter bank name"
+                                value={formBank.bankName}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, bankName: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                Status
+                            </label>
+                            <select
+                                value={formBank.bankStatus}
+                                onChange={(e) =>
+                                    setFormBank({ ...formBank, bankStatus: e.target.value })
+                                }
+                                className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
+                            >
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div className="flex gap-3 pt-2">
                             <button
-                                className="cursor-pointer flex-1 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
+                                className="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg hover:bg-gray-800 font-medium transition-colors duration-200 shadow-sm"
                                 onClick={editBank}
                             >
                                 Update Bank
                             </button>
                             <button
-                                className="cursor-pointer flex-1 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                className="px-4 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition-colors duration-200"
                                 onClick={() => {
                                     setEditBankModalOpen(false)
                                     setFormBank({
@@ -411,6 +497,7 @@ export default function UserAddBank() {
                                         accountHolderName: '',
                                         accountNo: '',
                                         bankName: '',
+                                        iban: '',
                                     })
                                     setCurrentBankId(null)
                                 }}
