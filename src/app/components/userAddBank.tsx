@@ -60,7 +60,6 @@ export default function UserAddBank() {
     const addNewBank = async () => {
         if (!formBank.accountHolderName.trim())
             return toast.error('Account Holder Name is required.')
-        if (!formBank.accountNo) return toast.error('Please Enter your account number')
         if (!formBank.iban || !formBank.iban.trim()) return toast.error('IBAN is required')
         if (!formBank.bankName) return toast.error('Please Enter the Bank Name')
 
@@ -111,8 +110,6 @@ export default function UserAddBank() {
         if (!currentBankId) return toast.error('No bank selected to edit')
         if (!formBank.accountHolderName.trim())
             return toast.error('Account Holder Name is required.')
-        if (!formBank.accountNo || !formBank.accountNo.trim())
-            return toast.error('Account Number is required')
         if (!formBank.iban || !formBank.iban.trim())
             return toast.error('IBAN is required')
         if (!formBank.bankName || !formBank.bankName.trim())
@@ -263,7 +260,7 @@ export default function UserAddBank() {
                                     <tr key={bank._id} className="hover:bg-gray-50 transition-colors duration-150">
                                         <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
                                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{bank.accountHolderName}</td>
-                                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">{bank.accountNo}</td>
+                                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">{bank.accountNo || '-'}</td>
                                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700 font-mono">{bank.iban || '-'}</td>
                                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">{bank.bankName}</td>
                                         <td className="py-4 px-6 whitespace-nowrap text-center">
@@ -337,11 +334,11 @@ export default function UserAddBank() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Account Number <span className="text-red-500">*</span>
+                                Account Number
                             </label>
                             <input
                                 className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
-                                placeholder="Enter account number"
+                                placeholder="Enter account number (optional)"
                                 value={formBank.accountNo}
                                 onChange={(e) =>
                                     setFormBank({ ...formBank, accountNo: e.target.value })
@@ -429,11 +426,11 @@ export default function UserAddBank() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                Account Number <span className="text-red-500">*</span>
+                                Account Number
                             </label>
                             <input
                                 className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all outline-none"
-                                placeholder="Enter account number"
+                                placeholder="Enter account number (optional)"
                                 value={formBank.accountNo}
                                 onChange={(e) =>
                                     setFormBank({ ...formBank, accountNo: e.target.value })
