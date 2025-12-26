@@ -513,16 +513,55 @@ export default function MyOrders() {
                 className={`flex flex-col sm:flex-row items-center justify-between p-4 border rounded-lg shadow-md bg-white gap-4 ${activeTab === "Cancelled / Undeliverd" ? "cursor-pointer hover:bg-gray-50" : ""}`}
               >
                 <div className="flex items-center space-x-4 w-full sm:w-auto">
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order?.productId?.[0]?.image?.[0]}`}
-                    alt={order?.productId?.[0]?.name}
-                    width={32}
-                    height={32}
-                    unoptimized
-                    className="w-32 h-32 rounded-md object-cover"
-                  />
+                  {/* Bundle Products Grid */}
+                  {order?.isBundle ? (
+                    <div className={`grid gap-1 w-32 h-32 ${order?.productId?.length === 2 ? 'grid-cols-2 grid-rows-1' : 'grid-cols-2 grid-rows-2'}`}>
+                      {order?.productId?.slice(0, 4).map((product: any, index: number) => {
+                        // Show "+" text for 4th position if there are more than 4 products
+                        if (index === 3 && order?.productId?.length > 4) {
+                          return (
+                            <div
+                              key={index}
+                              className="bg-gray-200 rounded-md flex items-center justify-center text-sm font-semibold text-gray-600"
+                            >
+                              {order?.productId?.length - 3}+
+                            </div>
+                          );
+                        }
+                        // Show image for products (up to 4 if exactly 4, or up to 3 if more than 4)
+                        if (index < 3 || (index === 3 && order?.productId?.length === 4)) {
+                          return (
+                            <Image
+                              key={product._id || index}
+                              src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                              alt={product?.name || `Product ${index + 1}`}
+                              width={64}
+                              height={64}
+                              unoptimized
+                              className="w-full h-full rounded-md object-cover"
+                            />
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  ) : (
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order?.productId?.[0]?.image?.[0]}`}
+                      alt={order?.productId?.[0]?.name}
+                      width={32}
+                      height={32}
+                      unoptimized
+                      className="w-32 h-32 rounded-md object-cover"
+                    />
+                  )}
                   <div className="flex-1 sm:flex-none">
-                    <h2 className="text-lg font-semibold ml-4 sm:ml-0">{order?.productId?.[0]?.name}</h2>
+                    <h2 className="text-lg font-semibold ml-4 sm:ml-0">
+                      {order?.isBundle
+                        ? `${order?.productId?.length} ${order?.productId?.length === 1 ? 'Product' : 'Products'} Bundle`
+                        : order?.productId?.[0]?.name
+                      }
+                    </h2>
                     <p className="m-2 text-gray-600 ml-4 sm:ml-0 flex items-center gap-1">
                       {/* Dirham image */}
                       <Image
@@ -688,16 +727,52 @@ export default function MyOrders() {
           <div className="bg-gray-50 rounded-lg p-4 mb-4 border">
             <h4 className="text-sm font-semibold text-gray-700 mb-2">Order</h4>
             <div className="flex items-center gap-3">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
-                alt={selectedOrder?.productId?.[0]?.name}
-                width={48}
-                height={48}
-                unoptimized
-                className="w-12 h-12 rounded object-cover"
-              />
+              {selectedOrder?.isBundle ? (
+                <div className="grid grid-cols-2 gap-0.5 w-12 h-12">
+                  {selectedOrder?.productId?.slice(0, 4).map((product: any, index: number) => {
+                    if (index === 3 && selectedOrder?.productId?.length > 4) {
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gray-200 rounded flex items-center justify-center text-[8px] font-semibold text-gray-600"
+                        >
+                          {selectedOrder?.productId?.length - 3}+
+                        </div>
+                      );
+                    }
+                    if (index < 3 || (index === 3 && selectedOrder?.productId?.length === 4)) {
+                      return (
+                        <Image
+                          key={product._id || index}
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                          alt={product?.name || `Product ${index + 1}`}
+                          width={24}
+                          height={24}
+                          unoptimized
+                          className="w-full h-full rounded object-cover"
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              ) : (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
+                  alt={selectedOrder?.productId?.[0]?.name}
+                  width={48}
+                  height={48}
+                  unoptimized
+                  className="w-12 h-12 rounded object-cover"
+                />
+              )}
               <div>
-                <p className="text-gray-800 font-medium">{selectedOrder?.productId?.[0]?.name}</p>
+                <p className="text-gray-800 font-medium">
+                  {selectedOrder?.isBundle 
+                    ? `${selectedOrder?.productId?.length} ${selectedOrder?.productId?.length === 1 ? 'Product' : 'Products'} Bundle`
+                    : selectedOrder?.productId?.[0]?.name
+                  }
+                </p>
                 <p className="text-gray-500 text-sm">ID: {selectedOrder?._id?.slice(-8)}</p>
               </div>
             </div>
@@ -759,17 +834,54 @@ export default function MyOrders() {
           {/* Order Info Card */}
           <div className={`bg-gray-50 rounded-lg p-4 mb-6 border-l-4 ${activeTab === "Returns" ? "border-orange-500" : "border-blue-500"}`}>
             <div className="flex items-center space-x-3">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
-                alt={selectedOrder?.productId?.[0]?.name}
-                width={60}
-                height={60}
-                unoptimized
-                className="w-16 h-16 rounded-lg object-cover shadow-md"
-              />
+              {/* Bundle Products Grid in Modal */}
+              {selectedOrder?.isBundle ? (
+                <div className="grid grid-cols-2 gap-1 w-16 h-16">
+                  {selectedOrder?.productId?.slice(0, 4).map((product: any, index: number) => {
+                    if (index === 3 && selectedOrder?.productId?.length > 4) {
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gray-200 rounded-lg flex items-center justify-center text-xs font-semibold text-gray-600"
+                        >
+                          {selectedOrder?.productId?.length - 3}+
+                        </div>
+                      );
+                    }
+                    if (index < 3 || (index === 3 && selectedOrder?.productId?.length === 4)) {
+                      return (
+                        <Image
+                          key={product._id || index}
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                          alt={product?.name || `Product ${index + 1}`}
+                          width={32}
+                          height={32}
+                          unoptimized
+                          className="w-full h-full rounded-lg object-cover"
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              ) : (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
+                  alt={selectedOrder?.productId?.[0]?.name}
+                  width={60}
+                  height={60}
+                  unoptimized
+                  className="w-16 h-16 rounded-lg object-cover shadow-md"
+                />
+              )}
               <div>
-                <h3 className="font-semibold text-gray-800 text-lg">{selectedOrder?.productId?.[0]?.name}</h3>
-                <p className="text-gray-600">Order ID: {selectedOrder?._id?.slice(-8)}</p>
+                <h3 className="font-semibold text-gray-800 text-lg">
+                  {selectedOrder?.isBundle
+                    ? `${selectedOrder?.productId?.length} ${selectedOrder?.productId?.length === 1 ? 'Product' : 'Products'} Bundle`
+                    : selectedOrder?.productId?.[0]?.name
+                  }
+                </h3>
+                <p className="text-gray-600">Order ID: {selectedOrder?._id}</p>
                 <p className="text-green-600 font-semibold">{<div className="flex items-center gap-1 text-md font-semibold text-teal-600">
                   <Image
                     src="/dirhamlogo.png"
@@ -1077,16 +1189,53 @@ export default function MyOrders() {
           </div>
           <div className="bg-gray-50 rounded-lg p-4 mb-4 border">
             <div className="flex items-center space-x-3">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
-                alt={selectedOrder?.productId?.[0]?.name}
-                width={60}
-                height={60}
-                unoptimized
-                className="w-16 h-16 rounded-lg object-cover shadow-md"
-              />
+              {/* Bundle Products Grid */}
+              {selectedOrder?.isBundle ? (
+                <div className="grid grid-cols-2 gap-1 w-16 h-16">
+                  {selectedOrder?.productId?.slice(0, 4).map((product: any, index: number) => {
+                    if (index === 3 && selectedOrder?.productId?.length > 4) {
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gray-200 rounded-lg flex items-center justify-center text-xs font-semibold text-gray-600"
+                        >
+                          {selectedOrder?.productId?.length - 3}+
+                        </div>
+                      );
+                    }
+                    if (index < 3 || (index === 3 && selectedOrder?.productId?.length === 4)) {
+                      return (
+                        <Image
+                          key={product._id || index}
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                          alt={product?.name || `Product ${index + 1}`}
+                          width={32}
+                          height={32}
+                          unoptimized
+                          className="w-full h-full rounded-lg object-cover"
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              ) : (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrder?.productId?.[0]?.image?.[0]}`}
+                  alt={selectedOrder?.productId?.[0]?.name}
+                  width={60}
+                  height={60}
+                  unoptimized
+                  className="w-16 h-16 rounded-lg object-cover shadow-md"
+                />
+              )}
               <div>
-                <h3 className="font-semibold text-gray-800 text-lg">{selectedOrder?.productId?.[0]?.name}</h3>
+                <h3 className="font-semibold text-gray-800 text-lg">
+                  {selectedOrder?.isBundle
+                    ? `${selectedOrder?.productId?.length} ${selectedOrder?.productId?.length === 1 ? 'Product' : 'Products'} Bundle`
+                    : selectedOrder?.productId?.[0]?.name
+                  }
+                </h3>
                 <p className="text-gray-600">Order ID: {selectedOrder?._id?.slice(-8)}</p>
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium mt-2 ${getStatusBackgroundColor(getTrackingStatus(selectedOrder))}`}>
                   {getOrderStatus(selectedOrder)}

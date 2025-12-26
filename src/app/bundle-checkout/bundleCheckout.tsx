@@ -7,11 +7,12 @@ import Box from "@mui/material/Box";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from "next/link";
-import StripeCheckout from './stripeCardAddition';
+import StripeCheckout from '../components/stripeCardAddition';
 import PhoneInput, { parsePhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import Cookies from 'js-cookie';
 
-const CheckoutPage = () => {
+const BundleCheckout = () => {
   const [userDetails, setUserDetails] = useState({
     fullName: '',
     email: '',
@@ -24,24 +25,18 @@ const CheckoutPage = () => {
     buildingName: '',
     area: '',
     landmark: '',
-    price: 0,
-    totalPrice: 0,
-    vat: 0,
-    shipPrice: 0,
-    protectionFee: 0
   })
   const [phoneNumber, setPhoneNumber] = useState('+971')
-  const [productInfo, setProductInfo] = useState<any>(null)
+  const [bundleProducts, setBundleProducts] = useState<any[]>([])
   const searchParams = useSearchParams()
-  const productId = searchParams.get('productId')
-  const fromUserId = searchParams.get('userId')
-  const toUserId = searchParams.get('adminUser')
+  const sellerId = searchParams.get('sellerId')
   const [orderFormData, setOrderFormData] = useState<any>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false)
-  const bids = productInfo?.bid || [];
-  const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
-
   const [checkbox, setCheckbox] = useState(false);
+
+  // Constants for calculations
+  const shippingCharges = 16.53;
+  const vatAmount = 0.83;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value })
@@ -50,26 +45,17 @@ const CheckoutPage = () => {
   const handlePhoneChange = (value: string) => {
     setPhoneNumber(value || '+971');
 
-    // Extract country code and phone number using the library's parser
     if (value) {
       try {
         const phoneNumberObj = parsePhoneNumber(value);
-
         if (phoneNumberObj) {
-          // Get the country calling code (e.g., "971" for UAE)
           const countryCode = phoneNumberObj.countryCallingCode;
-
-          // Get the national number (phone without country code)
           const nationalNumber = phoneNumberObj.nationalNumber;
-
           setUserDetails(prev => ({
             ...prev,
             phoneCode: countryCode,
             phone: nationalNumber
           }));
-
-          console.log('Phone Code:', countryCode);
-          console.log('Phone Number:', nationalNumber);
         }
       } catch (error) {
         console.error('Error parsing phone number:', error);
@@ -78,54 +64,54 @@ const CheckoutPage = () => {
   }
 
   useEffect(() => {
-    const storedData = localStorage.getItem('productsInfo');
-
-    // Get user data from localStorage
+    // Get bundle products from localStorage
+    const storedProducts = localStorage.getItem('bundleProducts');
     const storedEmail = localStorage.getItem('userEmail');
     const storedFullName = localStorage.getItem('userFullName');
 
-    if (storedData) {
+    if (storedProducts) {
       try {
-        const parsedData = JSON.parse(storedData);
-        setProductInfo(parsedData);
-
-        const bids = parsedData?.bid || [];
-        const matchedBid = bids.find((bid: any) => bid?.userId?.toString() === fromUserId?.toString());
-
-        const finalPrice = matchedBid?.price || parsedData?.price;
-        const finalTotalPrice = matchedBid?.totalPrice || parsedData?.totalPrice;
-        const vat = parsedData?.vat || 0.83;
-        const shipPrice = parsedData?.shipPrice || 16.53;
-        const finalInclPrice = finalTotalPrice;
-        const protectionFee = matchedBid?.inclPrice || parsedData?.inclPrice || 0;
-
-        setUserDetails((prevDetails) => ({
-          ...prevDetails,
-          price: finalPrice,
-          totalPrice: finalInclPrice,
-          vat: vat,
-          shipPrice,
-          protectionFee,
-          // Pre-fill email and fullName from localStorage
-          email: storedEmail || prevDetails.email,
-          fullName: storedFullName || prevDetails.fullName
-        }));
-
+        const parsedProducts = JSON.parse(storedProducts);
+        setBundleProducts(parsedProducts);
       } catch (error) {
-        console.error("Error parsing product info from localStorage:", error);
+        console.error("Error parsing bundle products from localStorage:", error);
+        toast.error("Error loading products");
       }
     }
-  }, [productId, fromUserId, toUserId]);
+
+    // Pre-fill email and fullName from localStorage
+    if (storedEmail || storedFullName) {
+      setUserDetails(prev => ({
+        ...prev,
+        email: storedEmail || prev.email,
+        fullName: storedFullName || prev.fullName
+      }));
+    }
+  }, []);
+
+
+  // Calculate total products price (sum of all product prices + protection fees)
+  const totalProductsPrice = bundleProducts.reduce((sum, product) => {
+    return sum + Number(product.price || 0);
+  }, 0);
+
+  const totalProtectionFees = bundleProducts.reduce((sum, product) => {
+    return sum + Number(product.inclPrice || 0);
+  }, 0);
+
 
   const handleOrderSubmit = async () => {
-
     if (!checkbox) {
-      toast.error("Accept Terms and Condtions");
+      toast.error("Accept Terms and Conditions");
       return;
     }
 
-    // Ideally send data to backend or Stripe here
     try {
+      // Get product IDs array
+      const productIds = bundleProducts.map(product => product._id);
+
+      // Calculate final total (matching the display calculation)
+      const finalTotal = (Number(totalProductsPrice.toFixed(2)) + Number(totalProtectionFees.toFixed(2)) + shippingCharges + vatAmount).toFixed(2);
 
       const payload: any = {
         cardId: '1234567890',
@@ -133,7 +119,7 @@ const CheckoutPage = () => {
         last4: '1234',
         expMonth: '12',
         expYear: '2027',
-        productId: [`${productId}`],
+        productId: productIds,
         fullName: userDetails.fullName,
         email: userDetails.email,
         address1: userDetails.address1,
@@ -145,12 +131,13 @@ const CheckoutPage = () => {
         buildingName: userDetails.buildingName,
         area: userDetails.area,
         landmark: userDetails.landmark,
-        subTotal: userDetails.totalPrice,
-        fromUserId: fromUserId || "",
-        toUserId: toUserId || "",
-        vat: userDetails.vat,
-        total: userDetails.price,
-        shipping: userDetails.shipPrice,
+        subTotal: finalTotal,
+        fromUserId: Cookies.get("userId") || "",
+        toUserId: sellerId || "",
+        vat: vatAmount,
+        total: Number(totalProductsPrice.toFixed(2)),
+        shipping: shippingCharges,
+        isBundle: true,
       }
       setOrderFormData(payload);
       return;
@@ -159,6 +146,29 @@ const CheckoutPage = () => {
       toast.error("Error submitting order. Please try again.");
       return
     }
+  }
+
+  const handleBuyNow = () => {
+    if (!userDetails.fullName || !userDetails.email || !phoneNumber || phoneNumber.length < 4 || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city) {
+      toast.error("Please fill in all required fields")
+      return
+    }
+    if (!checkbox) {
+      toast.error("Accept Terms and Conditions");
+      return;
+    }
+    handleOrderSubmit();
+    setIsCardModalOpen(true);
+  }
+
+  if (bundleProducts.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto mt-8 py-10 px-5 text-center">
+        <h2 className="text-2xl font-bold mb-4">No products in bundle</h2>
+        <p className="text-gray-600 mb-4">Please go back and select products for your bundle.</p>
+        <Link href="/" className="text-blue-600 hover:underline">Go to Home</Link>
+      </div>
+    );
   }
 
   return (
@@ -322,7 +332,6 @@ const CheckoutPage = () => {
               </select>
             </div>
 
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Country
@@ -338,132 +347,194 @@ const CheckoutPage = () => {
           </div>
         </div>
 
-        {/* Right Side: Product Preview + Card Input */}
-        <div className=" grid-cols-2 p-6 rounded-xl shadow-sm h-[max-content]">
+        {/* Right Side: Products + Summary */}
+        <div className="bg-white p-6 rounded-xl shadow-md h-[max-content]">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-          <div className="flex flex-col mb-4">
-            {productInfo?.image?.[0] && (
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${productInfo?.image[0]}`}
-                alt={productInfo?.name || "Product Image"}
-                width={200}
-                height={100}
-                unoptimized
-                className="w-118 h-100 object-contain rounded-md m-3 shadow-lg"
-              />
-            )}
-            <div className="mt-4">
-              <h3 className="text-[23px] font-bold">{productInfo?.name}</h3>
 
-              <div className="flex items-center gap-2 mt-3">
-                <h3 className="text-[15px] font-semibold">Product Price:</h3>
-                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={18}
-                    height={18}
-                    unoptimized
-                  />
-                  <span>{userDetails.price?.toFixed(2)}</span>
+          {/* Products List */}
+          <div className="space-y-4 mb-6">
+            {bundleProducts.map((product: any, index: number) => {
+              const productPrice = Number(product.price || 0);
+              const protectionFee = Number(product.inclPrice || 0);
+              const productTotal = productPrice + protectionFee;
+
+              return (
+                <div key={product._id || index} className="border border-gray-200 rounded-lg p-4">
+                  {/* Product Image and Name */}
+                  <div className="flex gap-4 mb-3">
+                    {product.image?.[0] && (
+                      <Image
+                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
+                        alt={product.name || "Product Image"}
+                        width={100}
+                        height={100}
+                        unoptimized
+                        className="w-24 h-24 object-contain rounded-md"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold">{product.name}</h3>
+                    </div>
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[13px] font-semibold">Product Price:</span>
+                      <div className="flex items-center gap-1 text-[13px] font-semibold text-teal-600">
+                        <Image
+                          src="/dirhamlogo.png"
+                          alt="dirham"
+                          width={16}
+                          height={16}
+                          unoptimized
+                        />
+                        <span>{productPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-[13px] font-semibold">Protection Fee:</span>
+                      <div className="flex items-center gap-1 text-[13px] font-semibold text-teal-600">
+                        <Image
+                          src="/dirhamlogo.png"
+                          alt="dirham"
+                          width={16}
+                          height={16}
+                          unoptimized
+                        />
+                        <span>{protectionFee.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                      <span className="text-[14px] font-semibold">Product Total Price:</span>
+                      <div className="flex items-center gap-1 text-[14px] font-semibold text-teal-600">
+                        <Image
+                          src="/dirhamlogo.png"
+                          alt="dirham"
+                          width={16}
+                          height={16}
+                          unoptimized
+                        />
+                        <span>{productTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Total Summary */}
+          <div className="border-t border-gray-300 pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[18px] font-semibold">Total Products Price:</span>
+              <div className="flex items-center gap-1 text-[18px] font-semibold text-teal-600">
+                <Image
+                  src="/dirhamlogo.png"
+                  alt="dirham"
+                  width={20}
+                  height={20}
+                  unoptimized
+                />
+                <span>{totalProductsPrice.toFixed(2)}</span>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2 mt-3">
-                <h3 className="text-[15px] font-semibold">Shipping Charges:</h3>
-                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={18}
-                    height={18}
-                    unoptimized
-                  />
-                  <span>{userDetails.shipPrice?.toFixed(2)}</span>
-                </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[18px] font-semibold">Products Protection Fees:</span>
+              <div className="flex items-center gap-1 text-[18px] font-semibold text-teal-600">
+                <Image
+                  src="/dirhamlogo.png"
+                  alt="dirham"
+                  width={20}
+                  height={20}
+                  unoptimized
+                />
+                <span>{totalProtectionFees.toFixed(2)}</span>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2 mt-2">
-                <h3 className="text-[15px] font-semibold">VAT <span className='text-[12px] text-gray-600'>(5% of shipping charges)</span>:</h3>
-                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={18}
-                    height={18}
-                    unoptimized
-                  />
-                  <span>{userDetails.vat?.toFixed(2)}</span>
-                </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[18px] font-semibold">Shipping:</span>
+              <div className="flex items-center gap-1 text-[18px] font-semibold text-teal-600">
+                <Image
+                  src="/dirhamlogo.png"
+                  alt="dirham"
+                  width={20}
+                  height={20}
+                  unoptimized
+                />
+                <span>{shippingCharges}</span>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2 mt-2">
-                <h3 className="text-[15px] font-semibold">Protection Fee:</h3>
-                <div className="flex items-center gap-1 text-[15px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={18}
-                    height={18}
-                    unoptimized
-                  />
-                  <span>{userDetails.protectionFee?.toFixed(2)}</span>
-                </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[18px] font-semibold">VAT <span className='text-[14px] text-gray-600'>(5% of shipping)</span>:</span>
+              <div className="flex items-center gap-1 text-[18px] font-semibold text-teal-600">
+                <Image
+                  src="/dirhamlogo.png"
+                  alt="dirham"
+                  width={20}
+                  height={20}
+                  unoptimized
+                />
+                <span>{vatAmount}</span>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2 mt-3 border-y border-gray-300 py-2">
-                <h3 className="text-[18px] font-semibold">Total Price:</h3>
-                <div className="flex items-center gap-1 text-[18px] font-semibold text-teal-600">
-                  <Image
-                    src="/dirhamlogo.png"
-                    alt="dirham"
-                    width={20}
-                    height={20}
-                    unoptimized
-                  />
-                  <span>{userDetails.totalPrice}</span>
-                </div>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-300">
+              <span className="text-[20px] font-bold">Total Price:</span>
+              <div className="flex items-center gap-1 text-[20px] font-bold text-teal-600">
+                <Image
+                  src="/dirhamlogo.png"
+                  alt="dirham"
+                  width={22}
+                  height={22}
+                  unoptimized
+                />
+                <span>{(Number(totalProductsPrice.toFixed(2)) + Number(totalProtectionFees.toFixed(2)) + shippingCharges + vatAmount).toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          <div className='flex items-center gap-[10px]'>
-            <input type='checkbox' id='checkbox-terms' onChange={() => setCheckbox(!checkbox)} />
+          <div className='flex items-center gap-[10px] mt-6'>
+            <input
+              type='checkbox'
+              id='checkbox-terms'
+              checked={checkbox}
+              onChange={() => setCheckbox(!checkbox)}
+            />
             <label htmlFor='checkbox-terms' className='text-[14px]'>I have read and accepted <Link href="/terms-and-condition" className='underline font-[600]'>Terms and Conditions</Link></label>
           </div>
 
-          <div className="mt-6 space-y-4">
+          <div className="mt-6">
             <button
-              onClick={() => {
-                if (!userDetails.fullName || !userDetails.email || !phoneNumber || phoneNumber.length < 4 || !userDetails.houseNo || !userDetails.area || !userDetails.address1 || !userDetails.city) {
-                  toast.error("Please fill in all required fields")
-                  return
-                }
-                handleOrderSubmit();
-                setIsCardModalOpen(true)
-              }}
-              className="cursor-pointer w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-md transition"
+              onClick={handleBuyNow}
+              className={`w-full py-2 rounded-md transition bg-gray-600 hover:bg-gray-700 text-white cursor-pointer`}
             >
-              {/* Proceed to Payment */}
               Place Order
             </button>
           </div>
-          {/*add card modal*/}
-          <Modal
-            open={isCardModalOpen}
-            onClose={() => setIsCardModalOpen(false)}
-            className="flex justify-center items-center p-4 sm:p-6 backdrop-blur-sm bg-black/40"
-          >
-            <Box
-              className="bg-white rounded-xl shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg p-5 sm:p-6 overflow-y-auto max-h-[90vh]"
-            >
-              <StripeCheckout formData={orderFormData} />
-            </Box>
-          </Modal>
         </div>
       </div>
+
+      {/* Stripe Card Modal */}
+      <Modal
+        open={isCardModalOpen}
+        onClose={() => setIsCardModalOpen(false)}
+        className="flex justify-center items-center p-4 sm:p-6 backdrop-blur-sm bg-black/40"
+      >
+        <Box
+          className="bg-white rounded-xl shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg p-5 sm:p-6 overflow-y-auto max-h-[90vh]"
+        >
+          <StripeCheckout formData={orderFormData} />
+        </Box>
+      </Modal>
     </div>
   )
 }
 
-export default CheckoutPage
+export default BundleCheckout
+

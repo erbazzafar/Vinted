@@ -247,29 +247,37 @@ const SellerProfile = () => {
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <h1 className="text-3xl md:text-5xl font-bold">{seller.username}</h1>
 
-                {/* Follow/Edit Button */}
-                {!isOwnProfile ? (
+                {/* Follow/Edit Button and Get Bundle Products Button */}
+                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                  {!isOwnProfile ? (
+                    <button
+                      className={`px-8 md:px-12 py-2 rounded-lg transition cursor-pointer ${isFollowing
+                        ? "bg-gray-600 hover:bg-gray-500"
+                        : "bg-gray-800 hover:bg-gray-600"
+                        } text-white w-full md:w-auto`}
+                      onClick={handleFollow}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </button>
+                  ) : (
+                    <button
+                      className="px-8 md:px-12 py-2 rounded-lg transition cursor-pointer bg-gray-600 hover:bg-gray-500 text-white w-full md:w-auto flex items-center justify-center gap-2"
+                      onClick={() => router.push('/user-setting')}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                      Edit Profile
+                    </button>
+                  )}
                   <button
-                    className={`px-8 md:px-12 py-2 rounded-lg transition cursor-pointer ${isFollowing
-                      ? "bg-gray-600 hover:bg-gray-500"
-                      : "bg-gray-800 hover:bg-gray-600"
-                      } text-white w-full md:w-auto`}
-                    onClick={handleFollow}
+                    className="px-8 md:px-12 py-2 rounded-lg transition cursor-pointer bg-yellow-600 hover:bg-yellow-700 text-white w-full md:w-auto"
+                    onClick={() => router.push(`/seller/${sellerId}/bundle`)}
                   >
-                    {isFollowing ? "Unfollow" : "Follow"}
+                    Get Bundle Products
                   </button>
-                ) : (
-                  <button
-                    className="px-8 md:px-12 py-2 rounded-lg transition cursor-pointer bg-gray-600 hover:bg-gray-500 text-white w-full md:w-auto flex items-center justify-center gap-2"
-                    onClick={() => router.push('/user-setting')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20h9"></path>
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                    </svg>
-                    Edit Profile
-                  </button>
-                )}
+                </div>
               </div>
 
               {/* Seller Rating and Reviews */}

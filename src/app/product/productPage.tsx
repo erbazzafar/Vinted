@@ -134,6 +134,19 @@ const ProductPage = () => {
     router.push(`/inbox/${gettingProduct?._id}?id=${gettingProduct?._id}`);
   };
 
+  const handleAddToBundle = () => {
+    if (!token) {
+      toast.error("Please login to add products to bundle")
+      return
+    }
+    const sellerId = gettingProduct?.userId?._id;
+    if (!sellerId) {
+      toast.error("Seller information not available");
+      return;
+    }
+    router.push(`/seller/${sellerId}/bundle?productId=${productId}`);
+  };
+
   const [isBumpModalOpen, setIsBumpModalOpen] = useState(false);
   const [bumpDays, setBumpDays] = useState<Array<{ _id: string; day: string; percentage: string }>>([]);
   const [selectedBumpDays, setSelectedBumpDays] = useState<{ _id: string; day: string; percentage: string } | null>(null);
@@ -1029,6 +1042,19 @@ const ProductPage = () => {
                 >
                   Chat with Seller
                   {!sold && <MessageCircle size={20} className="shrink-0" />}
+                </button>
+
+                {/* Add to Bundle */}
+                <button
+                  className={`text-[16px] font-[600] mt-3 flex items-center justify-center gap-2 w-full px-7 py-3 rounded-lg transition ${reserve || sold
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-yellow-600 text-white hover:bg-yellow-700 cursor-pointer hover:border border-yellow-800"
+                    }`}
+                  onClick={reserve || sold ? undefined : handleAddToBundle}
+                  disabled={reserve || sold}
+                >
+                  Add to Bundle
+                  {!reserve && !sold && <Plus size={20} className="shrink-0" />}
                 </button>
 
                 {/* Seller Info */}

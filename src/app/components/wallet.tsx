@@ -484,17 +484,58 @@ function Wallet() {
                 >
                   {/* Image + Name & Price */}
                   <div className="flex items-center gap-2 sm:gap-4">
-                    <Image
-                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${soldProd?.productId?.[0]?.image?.[0]}`}
-                      alt={soldProd?.productId?.[0]?.name}
-                      width={40}
-                      height={40}
-                      unoptimized
-                      className="w-14 h-14 rounded-md object-cover"
-                    />
+                    {/* Bundle Products Grid */}
+                    {soldProd?.isBundle ? (
+                      <div className={`grid gap-0.5 w-14 h-14 ${soldProd?.productId?.length === 2 ? 'grid-cols-2 grid-rows-1' : 'grid-cols-2 grid-rows-2'}`}>
+                        {soldProd?.productId?.slice(0, 4).map((product: any, index: number) => {
+                          if (index === 3 && soldProd?.productId?.length > 4) {
+                            return (
+                              <div
+                                key={index}
+                                className="bg-gray-200 rounded-md flex items-center justify-center text-[8px] font-semibold text-gray-600"
+                              >
+                                {soldProd?.productId?.length - 3}+
+                              </div>
+                            );
+                          }
+                          if (index < 3 || (index === 3 && soldProd?.productId?.length === 4)) {
+                            return (
+                              <Image
+                                key={product._id || index}
+                                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                                alt={product?.name || `Product ${index + 1}`}
+                                width={28}
+                                height={28}
+                                unoptimized
+                                className="w-full h-full rounded-md object-cover"
+                              />
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    ) : (
+                      <Image
+                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${soldProd?.productId?.[0]?.image?.[0]}`}
+                        alt={soldProd?.productId?.[0]?.name}
+                        width={40}
+                        height={40}
+                        unoptimized
+                        className="w-14 h-14 rounded-md object-cover"
+                      />
+                    )}
                     <div className="flex flex-col">
-                      <h2 className="text-[13px] font-semibold">{soldProd?.productId?.[0]?.name}</h2>
-                      <p className="text-[12px] text-red-500">Price: {soldProd?.total}</p>
+                      <h2 className="text-[13px] font-semibold">
+                        {soldProd?.isBundle
+                          ? `${soldProd?.productId?.length} ${soldProd?.productId?.length === 1 ? 'Product' : 'Products'} Bundle`
+                          : soldProd?.productId?.[0]?.name
+                        }
+                      </h2>
+                      <p className="text-[12px] text-red-500">
+                        Product Price: {soldProd?.productId?.reduce((sum: number, product: any) => {
+                          return sum + Number(product?.price || 0);
+                        }, 0) || 0} AED
+                      </p>
                     </div>
                   </div>
 
@@ -550,34 +591,179 @@ function Wallet() {
                     closeAfterTransition
                     slots={{ backdrop: CustomBackdrop }}
                   >
-                    <Box className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-[92%] sm:w-[500px] max-h-[90vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <Image
-                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedProduct?.productId?.[0]?.image?.[0]}`}
-                        alt={selectedProduct?.productId?.[0]?.name || "Product Image"}
-                        width={55}
-                        height={50}
-                        unoptimized
-                        className="w-full h-48 sm:h-64 rounded-md object-contain"
-                      />
+                    <Box className="bg-white p-4 sm:p-6 rounded-xl shadow-2xl w-[92%] sm:w-[600px] max-h-[90vh] overflow-y-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      {/* Header */}
+                      <div className="mb-6 pb-4 border-b border-gray-200">
+                        <h2 className="text-xl font-bold text-gray-800">Order Details</h2>
+                        <p className="text-sm text-gray-500 mt-1">Order ID: {selectedProduct?._id}</p>
+                      </div>
 
-                      <div className="bg-gray-100 grid grid-cols-1 sm:grid-cols-2 border-2 my-4">
-                        <div className="p-3">
-                          <h2 className="text-[13px] font-semibold">Seller Information:</h2>
-                          <p className="text-[13px] text-gray-700">Product Name: {selectedProduct?.productId?.[0]?.name}</p>
-                          <p className="text-[13px] text-gray-700">Price: {selectedProduct?.total}</p>
-                          <p className="text-[13px] text-gray-700">Platform Fee: {selectedProduct?.buyerFee}</p>
-                          <p className="text-[13px] mb-1 text-green-700">Receivable: {selectedProduct?.total || selectedProduct?.total}</p>
-                        </div>
-                        <div className="p-3">
-                          <h2 className="text-[13px] font-semibold">Buyer Information:</h2>
-                          <p className="text-[13px] text-gray-700">Name: {selectedProduct?.fullName}</p>
-                          <p className="text-[13px] text-gray-700">Address: {selectedProduct?.address1}</p>
-                          <p className="text-[13px] text-gray-700">City: {selectedProduct?.city || "N/A"}</p>
-                          <p className="text-[13px] text-gray-700">Country: {selectedProduct?.country || "N/A"}</p>
+                      {/* Products Section */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Products</h3>
+                        {selectedProduct?.isBundle ? (
+                          <div className="space-y-4">
+                            {selectedProduct?.productId?.map((product: any, index: number) => (
+                              <div key={product._id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition">
+                                <div className="flex gap-4">
+                                  <div className="flex-shrink-0">
+                                    <Image
+                                      src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                                      alt={product?.name || `Product ${index + 1}`}
+                                      width={100}
+                                      height={100}
+                                      unoptimized
+                                      className="w-28 h-28 rounded-lg object-cover border border-gray-200"
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-gray-900 mb-2">{product?.name || `Product ${index + 1}`}</h4>
+                                    <div className="space-y-1">
+                                      <p className="text-sm text-gray-600">
+                                        <span className="font-medium">Product Price:</span>{' '}
+                                        <span className="text-yellow-600 font-semibold flex items-center gap-1">
+                                          <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                          {Number(product?.price || 0).toFixed(2)}
+                                        </span>
+                                      </p>
+                                      <p className="text-sm text-gray-600">
+                                        <span className="font-medium">Platform Fee:</span>{' '}
+                                        <span className="text-yellow-600 font-semibold flex items-center gap-1">
+                                          <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                          {Number(product?.inclPrice || 0).toFixed(2)}
+                                        </span>
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <div className="flex gap-4">
+                              <div className="flex-shrink-0">
+                                <Image
+                                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedProduct?.productId?.[0]?.image?.[0]}`}
+                                  alt={selectedProduct?.productId?.[0]?.name || "Product Image"}
+                                  width={100}
+                                  height={100}
+                                  unoptimized
+                                  className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900 mb-2">{selectedProduct?.productId?.[0]?.name || 'Product Name'}</h4>
+                                <div className="space-y-1">
+                                  <p className="text-sm text-gray-600">
+                                    <span className="font-medium">Price:</span>{' '}
+                                    <span className="text-yellow-600 font-semibold flex items-center gap-1">
+                                      <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                      {Number(selectedProduct?.productId?.[0]?.price || 0).toFixed(2)}
+                                    </span>
+                                  </p>
+                                  {selectedProduct?.productId?.[0]?.sizeId?.name && (
+                                    <p className="text-sm text-gray-600">
+                                      <span className="font-medium">Size:</span> {selectedProduct.productId[0].sizeId.name}
+                                    </p>
+                                  )}
+                                  {selectedProduct?.productId?.[0]?.categoryId?.[selectedProduct?.productId?.[0]?.categoryId?.length - 1]?.name && (
+                                    <p className="text-sm text-gray-600">
+                                      <span className="font-medium">Category:</span> {selectedProduct.productId[0].categoryId[selectedProduct.productId[0].categoryId.length - 1].name}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Receivable Amount Card */}
+                      {(() => {
+                        const receivableAmount = selectedProduct?.productId?.reduce((sum: number, product: any) => {
+                          return sum + Number(product?.price || 0);
+                        }, 0) || 0;
+                        return (
+                          <div className="bg-green-50 rounded-lg p-4 mb-6 border border-green-200">
+                            <div className="flex justify-between items-center">
+                              <span className="text-lg font-semibold text-gray-900">Receivable Amount:</span>
+                              <span className="text-xl font-bold text-green-600 flex items-center gap-1">
+                                <Image src="/dirhamlogo.png" alt="dirham" width={18} height={18} unoptimized />
+                                {receivableAmount.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Order Summary */}
+                      <div className="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">Order Summary</h3>
+                        <div className="space-y-2">
+                          {(() => {
+                            const totalProductsPrice = selectedProduct?.productId?.reduce((sum: number, product: any) => {
+                              return sum + Number(product?.price || 0);
+                            }, 0) || 0;
+                            const totalProtectionFees = selectedProduct?.productId?.reduce((sum: number, product: any) => {
+                              return sum + Number(product?.inclPrice || 0);
+                            }, 0) || 0;
+                            const shipping = Number(selectedProduct?.shipping == 0 ? 16.53 : selectedProduct?.shipping || 0);
+                            const vat = Number(selectedProduct?.vat == 0 ? 0.83 : selectedProduct?.vat || 0);
+                            const totalOrderPrice = totalProductsPrice + totalProtectionFees + shipping + vat;
+
+                            return (
+                              <>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">Total Products Prices:</span>
+                                  <span className="text-sm font-semibold text-gray-800 flex items-center gap-1">
+                                    <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                    {totalProductsPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">Products Protection Fees:</span>
+                                  <span className="text-sm font-semibold text-red-600 flex items-center gap-1">
+                                    <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                    {totalProtectionFees.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">Shipping:</span>
+                                  <span className="text-sm font-semibold text-red-600 flex items-center gap-1">
+                                    <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                    {shipping.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">VAT <span className="text-[11px]">(5% of shipping)</span>:</span>
+                                  <span className="text-sm font-semibold text-red-600 flex items-center gap-1">
+                                    <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                    {vat.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                                  <span className="text-base font-semibold text-gray-900">Total Order Price:</span>
+                                  <span className="text-base font-bold text-blue-600 flex items-center gap-1">
+                                    <Image src="/dirhamlogo.png" alt="dirham" width={16} height={16} unoptimized />
+                                    {totalOrderPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
 
-
+                      {/* Close Button */}
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          onClick={() => setIsProductModalOpen(false)}
+                          className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition font-medium"
+                        >
+                          Close
+                        </button>
+                      </div>
                     </Box>
                   </Modal>
 
@@ -646,16 +832,53 @@ function Wallet() {
           {/* Order Info Card */}
           <div className={`bg-gray-50 rounded-lg p-4 mb-6 border-l-4 ${activeTab === "Returns" ? "border-orange-500" : "border-blue-500"}`}>
             <div className="flex items-center space-x-3">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrderForTracking?.productId?.[0]?.image?.[0]}`}
-                alt={selectedOrderForTracking?.productId?.[0]?.name}
-                width={60}
-                height={60}
-                unoptimized
-                className="w-16 h-16 rounded-lg object-cover shadow-md"
-              />
+              {/* Bundle Products Grid */}
+              {selectedOrderForTracking?.isBundle ? (
+                <div className={`grid gap-1 w-16 h-16 ${selectedOrderForTracking?.productId?.length === 2 ? 'grid-cols-2 grid-rows-1' : 'grid-cols-2 grid-rows-2'}`}>
+                  {selectedOrderForTracking?.productId?.slice(0, 4).map((product: any, index: number) => {
+                    if (index === 3 && selectedOrderForTracking?.productId?.length > 4) {
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gray-200 rounded-lg flex items-center justify-center text-xs font-semibold text-gray-600"
+                        >
+                          {selectedOrderForTracking?.productId?.length - 3}+
+                        </div>
+                      );
+                    }
+                    if (index < 3 || (index === 3 && selectedOrderForTracking?.productId?.length === 4)) {
+                      return (
+                        <Image
+                          key={product._id || index}
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product?.image?.[0]}`}
+                          alt={product?.name || `Product ${index + 1}`}
+                          width={32}
+                          height={32}
+                          unoptimized
+                          className="w-full h-full rounded-lg object-cover"
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              ) : (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedOrderForTracking?.productId?.[0]?.image?.[0]}`}
+                  alt={selectedOrderForTracking?.productId?.[0]?.name}
+                  width={60}
+                  height={60}
+                  unoptimized
+                  className="w-16 h-16 rounded-lg object-cover shadow-md"
+                />
+              )}
               <div>
-                <h3 className="font-semibold text-gray-800 text-lg">{selectedOrderForTracking?.productId?.[0]?.name}</h3>
+                <h3 className="font-semibold text-gray-800 text-lg">
+                  {selectedOrderForTracking?.isBundle
+                    ? `${selectedOrderForTracking?.productId?.length} ${selectedOrderForTracking?.productId?.length === 1 ? 'Product' : 'Products'} Bundle`
+                    : selectedOrderForTracking?.productId?.[0]?.name
+                  }
+                </h3>
                 <p className="text-gray-600">Order ID: {selectedOrderForTracking?._id?.slice(-8)}</p>
                 <p className="text-green-600 font-semibold">${selectedOrderForTracking?.total}</p>
                 {/* Show return status for Returns tab */}
