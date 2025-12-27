@@ -202,28 +202,72 @@ function ReturnOrderContent() {
                                 <p><span className="font-semibold">Completed:</span> {order.updatedAt ? new Date(order.updatedAt).toLocaleDateString() : 'N/A'}</p>
                             </div>
                             <div>
-                                <h3 className="font-semibold text-lg mb-3">Product Details</h3>
-                                <div className="flex items-center space-x-4">
-                                    {order?.productId?.[0]?.image?.[0] && (
-                                        <Image
-                                            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order.productId[0].image[0]}`}
-                                            alt={order.productId[0].name || 'Product Image'}
-                                            className="w-20 h-20 object-cover rounded-lg border"
-                                            width={80}
-                                            height={80}
-                                        />
-                                    )}
-                                    <div>
-                                        <p className="font-semibold text-lg">
-                                            {order?.productId?.[0]?.name || 'Product Name Not Available'}
-                                        </p>
-                                        {order?.productId?.[0]?.price && (
-                                            <p className="text-gray-600">
-                                                Price: AED {order.productId[0].price}
-                                            </p>
-                                        )}
+                                <h3 className="font-semibold text-lg mb-4">Product Details</h3>
+                                {order?.isBundle ? (
+                                    <div className="space-y-3">
+                                        {order?.productId?.map((product: any, index: number) => (
+                                            <div key={product._id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex-shrink-0">
+                                                        {product?.image?.[0] && (
+                                                            <Image
+                                                                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${product.image[0]}`}
+                                                                alt={product?.name || `Product ${index + 1}`}
+                                                                className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                                                width={80}
+                                                                height={80}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-semibold text-lg text-gray-900 mb-1">
+                                                            {product?.name || `Product ${index + 1}`}
+                                                        </p>
+                                                        {product?.price && (
+                                                            <p className="text-gray-600 flex items-center gap-1">
+                                                                <span>Price:</span>
+                                                                <span className="font-semibold text-yellow-600 flex items-center gap-1">
+                                                                    <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                                                    {Number(product.price).toFixed(2)}
+                                                                </span>
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex-shrink-0">
+                                                {order?.productId?.[0]?.image?.[0] && (
+                                                    <Image
+                                                        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${order.productId[0].image[0]}`}
+                                                        alt={order.productId[0].name || 'Product Image'}
+                                                        className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                                        width={80}
+                                                        height={80}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-lg text-gray-900 mb-1">
+                                                    {order?.productId?.[0]?.name || 'Product Name Not Available'}
+                                                </p>
+                                                {order?.productId?.[0]?.price && (
+                                                    <p className="text-gray-600 flex items-center gap-1">
+                                                        <span>Price:</span>
+                                                        <span className="font-semibold text-yellow-600 flex items-center gap-1">
+                                                            <Image src="/dirhamlogo.png" alt="dirham" width={14} height={14} unoptimized />
+                                                            {Number(order.productId[0].price).toFixed(2)}
+                                                        </span>
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
