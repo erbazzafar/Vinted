@@ -698,7 +698,7 @@ function Wallet() {
                       })()}
 
                       {/* Order Summary */}
-                      <div className="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200">
+                      {/* <div className="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-200">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">Order Summary</h3>
                         <div className="space-y-2">
                           {(() => {
@@ -753,7 +753,7 @@ function Wallet() {
                             );
                           })()}
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Close Button */}
                       <div className="mt-6 flex justify-end">

@@ -29,7 +29,7 @@ function ArrangeDeliveryContent() {
         load_type: "Non-document",
         consignment_type: "FORWARD",
         description: "",
-        weight: null,
+        weight: 5,
         payment_type: "Prepaid",
         cod_amount: "",
         num_pieces: "1",
@@ -110,6 +110,28 @@ function ArrangeDeliveryContent() {
         }
     }, [userId]);
 
+    // Set default pickup date based on current time
+    useEffect(() => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        let defaultPickupDate;
+
+        // If after 4PM (>= 16), set to tomorrow
+        if (currentHour >= 16) {
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            defaultPickupDate = formatLocalDate(tomorrow);
+        } else {
+            // If before 4PM, set to today
+            defaultPickupDate = formatLocalDate(now);
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            pickup_date: prev.pickup_date || defaultPickupDate
+        }));
+    }, []);
+
     // Persist origin address fields to localStorage whenever they change
     useEffect(() => {
         try {
@@ -169,10 +191,10 @@ function ArrangeDeliveryContent() {
                 if (currentHour >= 16) {
                     const tomorrow = new Date(now);
                     tomorrow.setDate(tomorrow.getDate() + 1);
-                    defaultPickupDate = tomorrow.toISOString().split('T')[0];
+                    defaultPickupDate = formatLocalDate(tomorrow);
                 } else {
                     // If before 4PM, default to today
-                    defaultPickupDate = now.toISOString().split('T')[0];
+                    defaultPickupDate = formatLocalDate(now);
                 }
 
                 setFormData(prev => ({
@@ -239,17 +261,44 @@ function ArrangeDeliveryContent() {
         return new Date(dateString).toISOString().split('T')[0];
     };
 
+    // Helper function to format date in local timezone (YYYY-MM-DD)
+    const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            // Validate weight restriction
-            const weight = parseFloat(formData.weight);
-            if (weight > 5) {
-                toast.error("Package weight cannot exceed 5kg");
-                setLoading(false);
-                return;
+            // Validate pickup date (only same day or next day allowed)
+            const now = new Date();
+            const currentHour = now.getHours();
+            const selectedDateStr = formData.pickup_date;
+
+            // Get today and tomorrow as YYYY-MM-DD strings using local time
+            const todayStr = formatLocalDate(now);
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = formatLocalDate(tomorrow);
+
+            // If after 4PM, only next day is allowed
+            if (currentHour >= 16) {
+                if (selectedDateStr !== tomorrowStr) {
+                    toast.error("Orders placed after 4PM can only be scheduled for tomorrow");
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                // If before 4PM, only today or tomorrow is allowed
+                if (selectedDateStr !== todayStr && selectedDateStr !== tomorrowStr) {
+                    toast.error("Pickup date must be today or tomorrow");
+                    setLoading(false);
+                    return;
+                }
             }
 
             const newOrderStatus = "Pickup Scheduled";
@@ -258,7 +307,7 @@ function ArrangeDeliveryContent() {
             formData.orderId = orderId;
             formData.sellerId = order?.toUserId;
             formData.customerId = order?.fromUserId;
-            formData.weight = weight;
+            formData.weight = 5;
             formData.origin_address_type = "Normal";
             formData.pickup_option = 'rider';
             formData.dropoff_to_hub = false;
@@ -384,47 +433,8 @@ function ArrangeDeliveryContent() {
                             <div className="bg-white border rounded-lg p-6">
                                 <h2 className="text-2xl font-bold mb-6">Arrange Delivery</h2>
 
-                                {/* Delivery Type & Package Details */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Delivery Type *
-                                        </label>
-                                        <select
-                                            name="delivery_type"
-                                            disabled
-                                            value={formData.delivery_type}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2 border cursor-not-allowed border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            required
-                                        >
-                                            <option value="Same Day">Same Day</option>
-                                            <option value="Next Day">Next Day</option>
-                                            <option value="Scheduled">Scheduled</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Package Weight (kg) *
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="weight"
-                                            value={formData.weight}
-                                            onChange={handleInputChange}
-                                            step="0.1"
-                                            min="0.1"
-                                            max="5"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            placeholder="Enter package weight (max 5kg)"
-                                            required
-                                        />
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            Maximum weight allowed: 5kg
-                                        </p>
-                                    </div>
-
+                                {/* Package Details */}
+                                <div className="mb-6">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Number of Pieces *
@@ -437,39 +447,6 @@ function ArrangeDeliveryContent() {
                                             min="1"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             required
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Payment Type *
-                                        </label>
-                                        <select
-                                            disabled
-                                            name="payment_type"
-                                            value={formData.payment_type}
-                                            onChange={handleInputChange}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 cursor-not-allowed"
-                                            required
-                                        >
-                                            <option value="Prepaid">Prepaid</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Order Amount (AED) *
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="cod_amount"
-                                            value={formData.cod_amount}
-                                            onChange={handleInputChange}
-                                            step="0.01"
-                                            min="0"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 cursor-not-allowed"
-                                            required
-                                            disabled
                                         />
                                     </div>
                                 </div>
@@ -507,10 +484,24 @@ function ArrangeDeliveryContent() {
                                             if (currentHour >= 16) {
                                                 const tomorrow = new Date(now);
                                                 tomorrow.setDate(tomorrow.getDate() + 1);
-                                                return tomorrow.toISOString().split('T')[0];
+                                                return formatLocalDate(tomorrow);
                                             }
                                             // If before 4PM, minimum date is today
-                                            return now.toISOString().split('T')[0];
+                                            return formatLocalDate(now);
+                                        })()}
+                                        max={(() => {
+                                            const now = new Date();
+                                            const currentHour = now.getHours();
+                                            // If after 4PM (16:00), maximum date is tomorrow (only next day allowed)
+                                            if (currentHour >= 16) {
+                                                const tomorrow = new Date(now);
+                                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                                return formatLocalDate(tomorrow);
+                                            }
+                                            // If before 4PM, maximum date is tomorrow (same day or next day allowed)
+                                            const tomorrow = new Date(now);
+                                            tomorrow.setDate(tomorrow.getDate() + 1);
+                                            return formatLocalDate(tomorrow);
                                         })()}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         required
@@ -520,9 +511,9 @@ function ArrangeDeliveryContent() {
                                             const now = new Date();
                                             const currentHour = now.getHours();
                                             if (currentHour >= 16) {
-                                                return "Orders placed after 4PM can only be scheduled from tomorrow onwards";
+                                                return "Select tomorrow";
                                             }
-                                            return "Select your preferred pickup date";
+                                            return "Select today or tomorrow";
                                         })()}
                                     </p>
                                 </div>
