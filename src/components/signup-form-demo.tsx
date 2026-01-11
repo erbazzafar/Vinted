@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { IconBrandGoogle, IconEye, IconEyeOff } from "@tabler/icons-react";
 import { updateUserLoggedIn, updateUserToken } from "@/features/features";
+import { requestFCMToken } from "@/lib/fcm-utils";
 
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/firbaseConfig";
@@ -79,6 +80,9 @@ export default function SignupFormDemo() {
         return
       }
 
+      // Request FCM token
+      const fcmToken = await requestFCMToken();
+
       const formData = new FormData();
       formData.append("email", email);
       formData.append("password", password);
@@ -86,6 +90,9 @@ export default function SignupFormDemo() {
       formData.append("fullName", fullName);
       formData.append("first_name", firstname);
       formData.append("last_name", lastname);
+      if (fcmToken) {
+        formData.append("fcmToken", fcmToken);
+      }
       if (imageFile) {
         formData.append("image", imageFile);
       }
@@ -120,13 +127,17 @@ export default function SignupFormDemo() {
 
   const handleGoogleSignIn = async () => {
     try {
+      // Request FCM token
+      const fcmToken = await requestFCMToken();
+      
       const data = await signInWithPopup(auth, provider)
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/registerSocial`,
         {
           email: data.user.email,
           username: data.user.displayName,
-          image: data.user.photoURL
+          image: data.user.photoURL,
+          fcmToken: fcmToken || undefined
         },
         {
           headers: {
@@ -325,7 +336,17 @@ const OTPModal = ({ open, setOpen, email, router, dispatch }) => {
     };
     try {
       setLoader(true);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
+      // Request FCM token
+      const fcmToken = await requestFCMToken();
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, 
+        { 
+          email, 
+          otp,
+          fcmToken: fcmToken || undefined
+        }
+      );
       console.log("response", response);
 
       dispatch(updateUserLoggedIn(true));

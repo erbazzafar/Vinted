@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { updateUserLoggedIn, updateUserToken } from "@/features/features";
+import { requestFCMToken } from "@/lib/fcm-utils";
 
 export default function LoginFormDemo() {
 
@@ -43,7 +44,17 @@ export default function LoginFormDemo() {
         toast.error("Please Enter all the fields!!");
         return
       }
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, { email, password },
+      
+      // Request FCM token
+      const fcmToken = await requestFCMToken();
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, 
+        { 
+          email, 
+          password,
+          fcmToken: fcmToken || undefined // Send FCM token if available
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -566,7 +577,17 @@ const OTPModal = ({ open, setOpen, email, router, dispatch }) => {
     };
     try {
       setLoader(true);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, { email, otp });
+      // Request FCM token
+      const fcmToken = await requestFCMToken();
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, 
+        { 
+          email, 
+          otp,
+          fcmToken: fcmToken || undefined
+        }
+      );
 
       dispatch(updateUserLoggedIn(true));
       dispatch(updateUserToken(response.data.token));
