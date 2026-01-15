@@ -823,14 +823,16 @@ const Chatbox = () => {
                   // For Affaredoro chat, check senderType
                   isSentByCurrentUser = msg.senderType === 'seller';
                   senderImage = isSentByCurrentUser
-                    ? `/imageLogo2.jpg` // User's image - you can enhance this later
+                    ? (affaredoroChat?.sellerId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${affaredoroChat.sellerId?.image}` : affaredoroChat?.sellerId?.image || `/imageLogo2.jpg`) // User's image - you can enhance this later
                     : `/affaredoro.jpg`; // Affaredoro's image
                 } else {
                   // Regular chat logic
                   isSentByCurrentUser = msg.senderId === loggedInUser;
-                  senderImage = isSentByCurrentUser
-                    ? (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId?.image}` : msg?.userId?.image || `/imageLogo2.jpg`)
-                    : (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`);
+                  if (msg.sendBy === 'admin') {
+                    senderImage = (msg?.adminUser?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.adminUser.image}` : msg?.adminUser?.image || `/imageLogo2.jpg`);
+                  } else {
+                    senderImage = (msg?.userId?.image?.includes("uploads/") ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/${msg.userId?.image}` : msg?.userId?.image || `/imageLogo2.jpg`);
+                  }
                 }
 
 

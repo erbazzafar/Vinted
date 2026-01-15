@@ -44,14 +44,14 @@ export default function LoginFormDemo() {
         toast.error("Please Enter all the fields!!");
         return
       }
-      
+
       // Request FCM token
       const fcmToken = await requestFCMToken();
-      
+
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`, 
-        { 
-          email, 
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`,
+        {
+          email,
           password,
           fcmToken: fcmToken || undefined // Send FCM token if available
         },
@@ -579,11 +579,11 @@ const OTPModal = ({ open, setOpen, email, router, dispatch }) => {
       setLoader(true);
       // Request FCM token
       const fcmToken = await requestFCMToken();
-      
+
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`, 
-        { 
-          email, 
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verifyOtp`,
+        {
+          email,
           otp,
           fcmToken: fcmToken || undefined
         }
